@@ -1,0 +1,20 @@
+.mat-mdc-card {
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: center;
+    .mat-mdc-card__input{
+        width: 100%;
+    }
+    
+    .mdc-card__actions {
+        justify-content: space-between;
+    }
+
+    .mat-mdc-list-item {
+        height: 20px;
+        text-align: left;
+    }
+    .mat-mdc-form-field-error{
+        font-size: 9px;
+    }
+}

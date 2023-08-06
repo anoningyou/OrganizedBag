@@ -1,0 +1,11 @@
+.mat-mdc-card {
+    max-width: 300px;
+    margin: 0 auto;
+    text-align: center;
+    .mat-mdc-form-field {
+        width: 100%;
+    }
+    .mdc-card__actions {
+        justify-content: space-between;
+    }
+}

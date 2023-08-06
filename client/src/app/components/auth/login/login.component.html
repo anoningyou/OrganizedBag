@@ -1,0 +1,35 @@
+<div class="flex m-auto">
+    <div class="m-auto">
+        <mat-card>
+            <mat-card-title color="white">Login here</mat-card-title>
+            <mat-card-subtitle>Enter your login and password here to login.</mat-card-subtitle>
+            <form class="login-form" [formGroup]="loginForm" (ngSubmit)="loginForm.valid && login()" autocomplete="off">
+            <mat-card-content>
+                    <app-text-input
+                    class="mat-mdc-card__input"
+                    [formControl]="$any(loginForm.controls['userName'])"
+                    [label]="'User name'"
+                  ></app-text-input>
+                  <mat-divider></mat-divider>
+                  <app-text-input
+                      class="mat-mdc-card__input"
+                      [formControl]="$any(loginForm.controls['password'])"
+                      [type]="'password'"
+                      [label]="'Password'"
+                  ></app-text-input>
+                    <mat-divider></mat-divider>     
+                <mat-list *ngIf="validationErrors">
+                    <mat-list-item *ngFor="let error of validationErrors">
+                      <mat-error>{{error}}</mat-error>
+                    </mat-list-item>
+                   </mat-list>
+            </mat-card-content>
+            <mat-card-actions>
+                <button (click)="cancel()" color="basic" type="button" mat-raised-button>Cancel</button>
+                <button [disabled]="!loginForm.valid" (click)="login()" color="accent" type="submit" mat-raised-button>Login</button>
+            </mat-card-actions>
+        </form>
+        </mat-card>
+
+    </div>
+</div>

@@ -1,0 +1,26 @@
+.login-group {
+    display: flex;
+    align-items: center;
+}
+
+.person-logo {
+    display: flex;
+    align-items: center;
+    padding: 2px 5px;
+    p {
+        display: block;
+        margin: auto 5px;
+    }
+}
+
+.mat-toolbar {
+    justify-content: space-between;
+}
+
+.mat-mdc-form-field {
+    width: 150px;
+}
+
+.mdc-button {
+    margin: 0 2px;
+}

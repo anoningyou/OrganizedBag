@@ -1,0 +1,30 @@
+[
+    {
+        "Name": "Name",
+        "ValueType": 1
+    },
+    {
+        "Name": "Manufacturer",
+        "ValueType": 1
+    },
+    {
+        "Name": "Type",
+        "ValueType": 1
+    },
+    {
+        "Name": "Group",
+        "ValueType": 1
+    },
+    {
+        "Name": "Weight",
+        "ValueType": 3
+    },
+    {
+        "Name": "Price",
+        "ValueType": 3
+    },
+    {
+        "Name": "Acquisition date",
+        "ValueType": 10
+    }
+]
