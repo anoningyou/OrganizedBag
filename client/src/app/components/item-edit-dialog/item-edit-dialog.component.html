@@ -1,0 +1,12 @@
+<h1 mat-dialog-title>{{getTitle()}}</h1>
+<div mat-dialog-content>
+
+  <mat-form-field *ngFor="let prop of data.values">
+    <mat-label>{{prop.name}}</mat-label>
+    <input matInput [(ngModel)]="prop.value">
+  </mat-form-field>
+</div>
+<div mat-dialog-actions [align]="'end'">
+  <button mat-raised-button color="warn" (click)="onNoClick()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onOkClick()" cdkFocusInitial>Save</button>
+</div>

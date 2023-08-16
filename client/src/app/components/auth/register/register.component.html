@@ -6,25 +6,25 @@
 
             <mat-card-content>
                 <form [formGroup]="registerForm" (ngSubmit)="registerForm.valid && register()" autocomplete="off">
-                  <app-text-input
+                  <app-input
                     class="mat-mdc-card__input"
                     [formControl]="$any(registerForm.controls['userName'])"
                     [label]="'User name'"
-                  ></app-text-input>
+                  ></app-input>
                   <mat-divider></mat-divider>
-                  <app-text-input
+                  <app-input
                       class="mat-mdc-card__input"
                       [formControl]="$any(registerForm.controls['password'])"
                       [type]="'password'"
                       [label]="'Password'"
-                  ></app-text-input>
+                  ></app-input>
                   <mat-divider></mat-divider>
-                  <app-text-input
+                  <app-input
                       class="mat-mdc-card__input"
                       [formControl]="$any(registerForm.controls['confirmPassword'])"
                       [type]="'password'"
                       [label]="'Confirm password'"
-                  ></app-text-input>
+                  ></app-input>
                   <mat-divider></mat-divider>
                     
                 </form>

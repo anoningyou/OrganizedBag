@@ -13,12 +13,19 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDesignModule } from './common/mat-design/mat-design.module';
 import { LoginComponent } from './components/auth/login/login.component';
 import { RegisterComponent } from './components/auth/register/register.component';
-import { TextInputComponent } from './components/common/text-input/text-input.component';
 import { ErrorsInterceptor } from './interceptors/errors.interceptor';
 import { SpinnerModule } from './common/spinner/spinner.module';
 import { LoadingInterceptor } from './interceptors/loading.interceptor';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
 import { SharedModule } from './common/shared/shared.module';
+import { ItemComponent } from './components/item/item.component';
+import { ItemValueComponent } from './components/item-value/item-value.component';
+import { ItemEditDialogComponent } from './components/item-edit-dialog/item-edit-dialog.component';
+import { ComplectsComponent } from './components/complects/complects.component';
+import { ComplectItemsComponent } from './components/complect-items/complect-items.component';
+import { ComplectEditDialogComponent } from './components/complect-edit-dialog/complect-edit-dialog.component';
+import { DialogModule } from './common/dialog/dialog.module';
+import { InputsModule } from './common/inputs/inputs.module';
 
 
 @NgModule({
@@ -30,7 +37,12 @@ import { SharedModule } from './common/shared/shared.module';
     ItemsComponent,
     LoginComponent,
     RegisterComponent,
-    TextInputComponent
+    ItemComponent,
+    ItemValueComponent,
+    ItemEditDialogComponent,
+    ComplectsComponent,
+    ComplectItemsComponent,
+    ComplectEditDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -41,7 +53,10 @@ import { SharedModule } from './common/shared/shared.module';
     MatDesignModule,
     ReactiveFormsModule,
     SpinnerModule,
-    SharedModule
+    SharedModule,
+    InputsModule,
+    DialogModule,
+
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: ErrorsInterceptor, multi: true},

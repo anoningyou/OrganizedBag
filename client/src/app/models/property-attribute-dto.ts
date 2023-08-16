@@ -1,6 +1,6 @@
 import { PropertyAttributeTypeEnum } from "../enums/property-attribute-type";
 
-export interface PropertyAttribute {
+export interface PropertyAttributeDto {
     type: PropertyAttributeTypeEnum;
     value: string;
 }

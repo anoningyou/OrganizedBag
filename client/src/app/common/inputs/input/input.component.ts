@@ -2,11 +2,11 @@ import { Component, Input, Self } from '@angular/core';
 import { ControlValueAccessor, FormControl, NgControl } from '@angular/forms';
 
 @Component({
-  selector: 'app-text-input',
-  templateUrl: './text-input.component.html',
-  styleUrls: ['./text-input.component.scss']
+  selector: 'app-input',
+  templateUrl: './input.component.html',
+  styleUrls: ['./input.component.scss']
 })
-export class TextInputComponent implements ControlValueAccessor {
+export class InputComponent implements ControlValueAccessor {
   @Input() label = ''
   @Input() type = 'text'
 

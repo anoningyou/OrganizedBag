@@ -1,6 +1,45 @@
-<div class="items">
-    <h3 class="items__header">List of items</h3>
-    <ul class="items__list">
-        <li class="item" *ngFor="let item of properties">{{item.name}}</li>
+<mat-card class="items">
+  <mat-card-header class="items__header">
+    <mat-card-title class="items__header-name">My stuff</mat-card-title>
+    <button mat-icon-button 
+      color="primary" 
+      aria-label="Add item" 
+      class="items__header-add-btn block-header-button"
+      matTooltip="Add"
+      (click)="openAddItemDialog()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </mat-card-header>
+  <mat-card-content class="items__container">
+    <ul class="items__list"
+        cdkDropList
+        #itemsList="cdkDropList"
+        id="itemsList"
+        cdkDropListConnectedTo="complectItemsList"
+        [cdkDropListData]="items$ | async"
+        (cdkDropListDropped)="drop($event)">
+      <li class="items__list-item items__list-headers-container">
+        <ul class="items__list-headers">
+          <li class="items__list-header" *ngFor="let prop of properties$ | async"
+            [ngStyle]="{'width': getWidth(prop)}">
+            {{prop.name}}
+          </li>
+          <!-- <li class="items__list-headers-buttons">
+            <button mat-icon-button 
+            color="primary" 
+            aria-label="Edit headers" 
+            class="block-header-button"
+            matTooltip="Edit"
+            (click)="openEditHeadersDialog()">
+            <mat-icon>edit</mat-icon>
+          </button>
+          </li> -->
+        </ul>
+      </li>
+      <li class="items__list-item" *ngFor="let item of items$ | async" cdkDrag>
+        <!-- <mat-divider class="items__list-item-divider" [vertical]="true"></mat-divider> -->
+          <app-item [item]="item"></app-item>
+      </li>
     </ul>
-</div>
+  </mat-card-content>
+</mat-card>

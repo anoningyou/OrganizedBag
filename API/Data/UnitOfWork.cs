@@ -17,6 +17,10 @@ namespace API.Data
 
         public IPropertyRepository PropertyRepository => new PropertyRepository(_context,_mapper);
 
+        public IItemsRepository ItemsRepository => new ItemsRepository(_context,_mapper);
+
+        public IComplectsRepository ComplectsRepository => new ComplectsRepository(_context,_mapper);
+
         public async Task<bool> Complete()
         {
             return await _context.SaveChangesAsync()>0;

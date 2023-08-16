@@ -1,0 +1,20 @@
+.home{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: stretch;
+    align-items: stretch;
+    height: 100%;
+    gap: 5px;
+    padding: 5px;
+    .home__complect-items {
+        flex-grow: 1;
+    }
+}
+.home>* {
+    flex: 0 1 auto;
+    height: 100%;
+  }
+
+
+
+

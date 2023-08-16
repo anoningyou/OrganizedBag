@@ -142,7 +142,7 @@ namespace API.Data.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("UserId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -160,6 +160,11 @@ namespace API.Data.Migrations
                     b.Property<Guid>("ItemId")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Count")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(1);
+
                     b.HasKey("ComplectId", "ItemId");
 
                     b.HasIndex("ItemId");
@@ -173,7 +178,7 @@ namespace API.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("UserId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -347,7 +352,9 @@ namespace API.Data.Migrations
                 {
                     b.HasOne("API.Entities.AppUser", "User")
                         .WithMany("Complects")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -375,7 +382,9 @@ namespace API.Data.Migrations
                 {
                     b.HasOne("API.Entities.AppUser", "User")
                         .WithMany("Items")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

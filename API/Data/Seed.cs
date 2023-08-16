@@ -67,5 +67,25 @@ namespace API.Data
             }
             await uow.Complete();
         }
+
+        private static List<PropertyParamDto> _propertyParams = null;
+        public static List<PropertyParamDto> PropertyParams {
+            get
+            {
+                if (_propertyParams == null)
+                    _propertyParams = GetPropertyParams().Result;
+                return _propertyParams;
+            }  
+        }
+        public static async Task<List<PropertyParamDto>> GetPropertyParams()
+        {
+            var data = await File.ReadAllBytesAsync("Data/PropertyParamsSeedData.json");
+
+            var options = new JsonSerializerOptions{PropertyNameCaseInsensitive = true};
+
+            var properties = JsonSerializer.Deserialize<List<PropertyParamDto>>(data,options);
+
+            return properties;
+        }
     }
 }

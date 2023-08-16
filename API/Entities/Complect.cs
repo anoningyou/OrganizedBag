@@ -4,6 +4,7 @@ namespace API.Entities
     {
         public string Name { get; set; }
         public string Description { get; set; }
+        public Guid UserId { get; set; }
         public virtual AppUser User { get; set; }
         public virtual ICollection<ComplectItem> Items { get; set; }
     }

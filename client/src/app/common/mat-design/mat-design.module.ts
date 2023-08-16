@@ -13,6 +13,9 @@ import { MatIconModule } from '@angular/material/icon';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatListModule} from '@angular/material/list';
+import { MatSortModule } from '@angular/material/sort';
+import {DragDropModule} from '@angular/cdk/drag-drop';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [],
@@ -32,7 +35,10 @@ import {MatListModule} from '@angular/material/list';
     MatIconModule,
     MatDividerModule,
     MatProgressSpinnerModule,
-    MatListModule
+    MatListModule,
+    MatSortModule,
+    DragDropModule,
+    MatTooltipModule
   ]
 })
 export class MatDesignModule { }

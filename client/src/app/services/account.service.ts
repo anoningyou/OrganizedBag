@@ -20,7 +20,6 @@ export class AccountService {
 
   loadUser(): void {
     const userStr = localStorage.getItem('user');
-    console.log(userStr);
     if (userStr) {
       const user: User = JSON.parse(userStr) as User;
       this.currentUserSource.next(user);

@@ -5,18 +5,18 @@
             <mat-card-subtitle>Enter your login and password here to login.</mat-card-subtitle>
             <form class="login-form" [formGroup]="loginForm" (ngSubmit)="loginForm.valid && login()" autocomplete="off">
             <mat-card-content>
-                    <app-text-input
+                    <app-input
                     class="mat-mdc-card__input"
                     [formControl]="$any(loginForm.controls['userName'])"
                     [label]="'User name'"
-                  ></app-text-input>
+                  ></app-input>
                   <mat-divider></mat-divider>
-                  <app-text-input
+                  <app-input
                       class="mat-mdc-card__input"
                       [formControl]="$any(loginForm.controls['password'])"
                       [type]="'password'"
                       [label]="'Password'"
-                  ></app-text-input>
+                  ></app-input>
                     <mat-divider></mat-divider>     
                 <mat-list *ngIf="validationErrors">
                     <mat-list-item *ngFor="let error of validationErrors">

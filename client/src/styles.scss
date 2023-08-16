@@ -1,7 +1,32 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html{
+    box-sizing: border-box;
+}
+
+*, *::after, *::before{
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+}
+
+html, body{
+    height: 100vh;
+}
+
+body { 
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;    
+}
+
+ul{
+    list-style: none;
+}
+
+a{
+    text-decoration: none;
+    color: inherit;
+}
 
 .d-flex {
     display: flex;
@@ -13,4 +38,31 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .justify-content-between {
     justify-content: space-between
+}
+
+.main{
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    align-items: stretch;
+    >*:not(router-outlet){
+        height: 100%;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: stretch;
+        align-items: stretch;
+    }   
+}
+
+.block-header-button{
+    padding: 1px;
+    width: 24px;
+    height: 24px;
+}
+
+.item .item__buttons .block-header-button span {
+    width: 24px;
+    height: 24px;
+    font-size: 17px;
 }

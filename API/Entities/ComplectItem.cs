@@ -5,6 +5,7 @@ namespace API.Entities
         public Item Item { get; set; }
         public Guid ItemId { get; set; }
         public Guid ComplectId { get; set; } 
-        public Complect Complect { get; set; }       
+        public Complect Complect { get; set; }  
+        public int Count { get; set; } = 1;     
     }
 }

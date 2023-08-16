@@ -43,7 +43,7 @@ namespace API.Controllers
 
             return new UserDto
             {
-                Username = user.UserName,
+                UserName = user.UserName,
                 Token = await _tokenService.CreateTocken(user),
             };
         }
@@ -62,7 +62,7 @@ namespace API.Controllers
 
              return new UserDto
             {
-                Username = user.UserName,
+                UserName = user.UserName,
                 Token = await _tokenService.CreateTocken(user)
             };
         }

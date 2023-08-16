@@ -4,6 +4,8 @@ namespace API.Data.Interfaces
     {
         IUserRepository UserRepository {get;}  
         IPropertyRepository PropertyRepository {get;}  
+        IItemsRepository ItemsRepository {get;} 
+        IComplectsRepository ComplectsRepository {get;}
 
         Task<bool> Complete();
         bool HasChanges();      

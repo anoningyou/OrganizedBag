@@ -1,29 +1,36 @@
 [
     {
+        "Id": "C751FFD9-98C5-4851-A06E-27DC4DFA31EB",
         "Name": "Name",
         "ValueType": 1
     },
     {
+        "Id": "E6FC4887-F5DB-42EA-B658-766290A435F0",
         "Name": "Manufacturer",
         "ValueType": 1
     },
     {
+        "Id": "405B1CEF-F308-4BA0-8939-A4E2A6639912",
         "Name": "Type",
         "ValueType": 1
     },
     {
+        "Id": "E1D0D9F5-199C-4423-AF1A-E897F5B7992F",
         "Name": "Group",
         "ValueType": 1
     },
     {
+        "Id": "84328009-31F5-4762-952D-DD3F6F3A0049",
         "Name": "Weight",
         "ValueType": 3
     },
     {
+        "Id": "158DFDC9-FD0C-4DD3-AA6F-FF9BC0FCE6E5",
         "Name": "Price",
         "ValueType": 3
     },
     {
+        "Id": "510AFAEE-697C-44CB-99E4-96CF0891EB9B",
         "Name": "Acquisition date",
         "ValueType": 10
     }

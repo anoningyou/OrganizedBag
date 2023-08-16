@@ -1,0 +1,24 @@
+<mat-card>
+    <mat-card-header>
+      <mat-card-title>{{complect?.name}}</mat-card-title>
+      <button mat-icon-button 
+            color="primary" 
+            aria-label="Edit" 
+            (click)="openEditComplectDialog()">
+      <mat-icon>add</mat-icon>
+    </button>
+    </mat-card-header>
+    <mat-card-content>
+        <ul class="items__list"
+            cdkDropList
+            #complectItemsList="cdkDropList"
+            id="complectItemsList"
+            cdkDropListConnectedTo="itemsList"
+            [cdkDropListData]="itemObjects$ | async"
+            (cdkDropListDropped)="drop($event)">
+            <li class="items__list-item" *ngFor="let item of itemObjects$ | async">
+              <app-item [item]="item"></app-item>
+            </li>
+          </ul>
+    </mat-card-content>
+</mat-card>

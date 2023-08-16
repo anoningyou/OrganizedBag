@@ -478,3 +478,8 @@ $RECYCLE.BIN/
 API/appsettings.json
 client/.gitignore
 client/src/assets/.gitkeep
+/API/organizedbag.db
+/API/organizedbag.db
+/API/organizedbag.db-shm
+/API/organizedbag.db-wal
+/API/organizedbag.db

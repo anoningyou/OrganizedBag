@@ -13,15 +13,23 @@ namespace API.Settings
                 
             CreateMap<DateTime?, DateTime?>()
                 .ConvertUsing(d=> d.HasValue? DateTime.SpecifyKind(d.Value, DateTimeKind.Utc):null);
-
-            CreateMap<PropertyDto, Property>();
-
-            CreateMap<Property, PropertyDto>();
-
-            CreateMap<PropertyAttributeDto, PropertyAttribute>();
-
-            CreateMap<PropertyAttribute, PropertyAttributeDto>();
+            
             CreateMap<RegisterDto, AppUser>();
+
+            CreateMap<PropertyAttributeDto, PropertyAttribute>().ReverseMap();
+
+            CreateMap<PropertyDto, Property>().ReverseMap();
+
+            CreateMap<PropertyValueDto, PropertyValue>().ReverseMap();
+
+            CreateMap<PropertyValueDto, PropertyValue>().ReverseMap();
+
+            CreateMap<ItemDto, Item>().ReverseMap();
+
+            CreateMap<ComplectItemDto, ComplectItem>().ReverseMap();
+
+            CreateMap<ComplectDto, Complect>().ReverseMap();
+            
             
         }
     }

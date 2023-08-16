@@ -35,15 +35,33 @@ namespace API.Data
                 .WithOne(u => u.User)
                 .HasForeignKey(ur => ur.UserId)
                 .IsRequired();
-
+            
             builder.Entity<AppRole>()
                 .HasMany(u => u.UserRoles)
                 .WithOne(u => u.Role)
                 .HasForeignKey(u => u.RoleId)
                 .IsRequired();
 
+            builder.Entity<AppUser>()
+                .HasMany(ur => ur.Items)
+                .WithOne(u => u.User)
+                .HasForeignKey(ur => ur.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<AppUser>()
+                .HasMany(ur => ur.Complects)
+                .WithOne(u => u.User)
+                .HasForeignKey(ur => ur.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+                
             builder.Entity<ComplectItem>()
                 .HasKey(e => new{e.ComplectId, e.ItemId});
+
+            builder.Entity<ComplectItem>()
+                .Property(p => p.Count)
+                .HasDefaultValue(1);
 
             builder.Entity<ComplectItem>()
                 .HasOne(e => e.Item)
