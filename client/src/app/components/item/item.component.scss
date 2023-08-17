@@ -13,11 +13,11 @@
         .item__buttons {
             position: -webkit-sticky; /* Safari */
             position: sticky;
-            right: 5px;
+            right: 0;
             width: 0;
             .item__buttons-container{
                 position:absolute;
-                right: 0;
+                right: 0px;
                 display: none;
                 .block-header-button {
                     position: relative;

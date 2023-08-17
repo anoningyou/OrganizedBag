@@ -14,6 +14,7 @@ import { Property } from '../models/property';
 import { Guid } from 'guid-typescript';
 import { PropertyValueDto } from '../models/property-value-dto';
 import { ComplectItemDto } from '../models/complect-item-dto';
+import { PropertyParamDto } from '../models/property-param-dto';
 
 @Injectable({
   providedIn: 'root',
@@ -236,5 +237,14 @@ export class ItemsService {
     this.currentComplectSource.next(this.currentComplectSource.getValue());
     if (existsCount) return this.complectsHttp.updateItem(dto);
     else return this.complectsHttp.addItem(dto);
+  }
+
+  updatePropertyParam(param: PropertyParamDto) {
+    this.properties$.pipe(take(1)).subscribe(props => {
+      const prop = props.find(p => p.id === param.propertyId);
+      if (prop)
+        prop.params = param;
+      this.propertiesSource.next(props);
+    })
   }
 }

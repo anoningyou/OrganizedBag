@@ -1,59 +1,24 @@
-import { Component, Inject, Input, OnInit, Self } from '@angular/core';
+import { Component, Input, Self } from '@angular/core';
 import { ControlValueAccessor, FormControl, NgControl } from '@angular/forms';
-import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
-import { ValueTypeEnum } from 'src/app/enums/value-type';
 
 @Component({
-  selector: 'app-input',
-  templateUrl: './input.component.html',
-  styleUrls: ['./input.component.scss']
+  selector: 'app-input-text',
+  templateUrl: './input-text.component.html',
+  styleUrls: ['./input-text.component.scss']
 })
-export class InputComponent implements ControlValueAccessor, OnInit {
+export class InputTextComponent implements ControlValueAccessor {
   @Input() label = ''
-  @Input() valueType = ValueTypeEnum.Unknown;
-  @Input() type = 'text';
-  @Input() step = 1;
-  @Input() min: number | Date | null = null;
-  @Input() max: number | Date | null = null;
+  @Input() type = 'text'
 
   hidePassword = true;
-  valueTypeEnum: typeof ValueTypeEnum = ValueTypeEnum;
 
   constructor (@Self() public ngControl: NgControl) {
     this.ngControl.valueAccessor = this;
-  }
-  ngOnInit(): void {
-    this.setControlType(this.valueType);
-  }
-
-  setControlType(valueTypeEnum: string) {
-    switch (valueTypeEnum) {
-      case ValueTypeEnum.Number:
-        this.min = 0;
-        this.type = 'number';
-        break;
-      case ValueTypeEnum.Decimal:
-        this.min = 0;
-        this.step = 0.01;
-        this.type = 'number';
-        break;
-      case ValueTypeEnum.Date:
-        this.type = 'date';
-        break;
-      default:
-        this.type = 'text';
-        break;
-    }
-  }
-
-  getDateFormatString(): string {
-      return 'MM/DD/YYYY';
   }
 
   writeValue(obj: any): void {
 
   }
-
   registerOnChange(fn: any): void {
 
   }

@@ -1,12 +1,19 @@
 <h1 mat-dialog-title>{{getTitle()}}</h1>
+<form class="login-form" [formGroup]="form" (ngSubmit)="form.valid && onOkClick()" autocomplete="off">
 <div mat-dialog-content>
+  <ng-container *ngFor="let prop of data.values" >
+    <app-input 
+      [formControl]="$any(form.controls[prop.id])" 
+      [valueType]="prop.valueType"
+      [label]="prop.name">
+    </app-input>
 
-  <mat-form-field *ngFor="let prop of data.values">
-    <mat-label>{{prop.name}}</mat-label>
-    <input matInput [(ngModel)]="prop.value">
-  </mat-form-field>
+
+  </ng-container>
+  
 </div>
 <div mat-dialog-actions [align]="'end'">
-  <button mat-raised-button color="warn" (click)="onNoClick()">Cancel</button>
-  <button mat-raised-button color="primary" (click)="onOkClick()" cdkFocusInitial>Save</button>
+  <button mat-raised-button color="basic"  (click)="onNoClick()" type="button">Cancel</button>
+  <button mat-raised-button color="accent" [disabled]="!form.valid" type="submit" cdkFocusInitial>Save</button>
 </div>
+</form>

@@ -7,5 +7,5 @@ export interface PropertyDto extends BaseDto {
     name: string;
     valueType: ValueTypeEnum;
     attributes: PropertyAttributeDto[];
-    params: PropertyParamDto | undefined | null;
+    params: PropertyParamDto;
 }

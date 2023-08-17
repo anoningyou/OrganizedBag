@@ -6,6 +6,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Item } from 'src/app/models/item';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { PropertyDto } from 'src/app/models/property-dto';
+import { PropertyParamDto } from 'src/app/models/property-param-dto';
 
 @Component({
   selector: 'app-items',
@@ -19,19 +20,15 @@ export class ItemsComponent implements OnInit{
 
   private propertiesSource = new BehaviorSubject<PropertyDto[]>([]);
   properties$ = this.propertiesSource.asObservable();
+
+  private allPropertiesSource = new BehaviorSubject<PropertyDto[]>([]);
+  allProperties$ = this.allPropertiesSource.asObservable();
   
   constructor(public itemsService: ItemsService,
     public dialog: MatDialog) {
   }
   ngOnInit(): void {
     this.itemsService.itemObjects$.subscribe((items) => {
-      // const listItems = items.map((item) => {
-      //   const listItem = Object.assign(new Item(), item);
-      //   listItem.values = listItem.values
-      //     .filter((v) => v.params?.listDisplay)
-      //     .sort((v) => v.params?.listOrder ?? 0);
-      //   return listItem;
-      // });
       this.itemsSource.next(items);
     });
 
@@ -39,6 +36,10 @@ export class ItemsComponent implements OnInit{
       const listProperties = properties.filter((p) => p.params?.listDisplay)
           .sort((p) => p.params?.listOrder ?? 0);
       this.propertiesSource.next(listProperties);
+
+      const listAllProperties = properties
+          .sort((p) => p.params?.listOrder ?? 0);
+      this.allPropertiesSource.next(listAllProperties);
     });
   }
 
@@ -69,8 +70,8 @@ export class ItemsComponent implements OnInit{
     return `${property.params?.listWidth ?? 50}px`;
   }
 
-  openEditHeadersDialog() {
-    
+  onItemHeaderSelected(param: PropertyParamDto){
+    this.itemsService.updatePropertyParam(param)
   }
 
 }

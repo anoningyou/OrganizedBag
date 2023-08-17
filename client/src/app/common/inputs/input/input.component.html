@@ -1,12 +1,36 @@
-<mat-form-field>
+<ng-container [ngSwitch]="valueType">
+
+  <!--Number-->
+  <mat-form-field *ngSwitchCase="valueType === valueTypeEnum.Number || valueType === valueTypeEnum.Decimal ? valueType : ''">
     <mat-label>{{label}}</mat-label>
-    <input 
-    matInput 
-    [type]="hidePassword ? type : 'text'"
-    [formControl]="control"
-    >
-    <div *ngIf="type === 'password'" mat-icon-button matSuffix (click)="hidePassword = !hidePassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword">
+        <input matInput 
+        [type]="'number'"
+        [formControl]="control"
+        [min]="min"
+        [max]="max"
+        [step]="step"
+        >
+    <mat-error *ngIf=" control.invalid">{{getErrorMessage()}}</mat-error>
+  </mat-form-field>
+
+<!--Date-->
+  <mat-form-field *ngSwitchCase="valueTypeEnum.Date">
+    <mat-label>{{label}}</mat-label>
+    <input matInput [matDatepicker]="picker" [formControl]="control">
+    <mat-hint>{{getDateFormatString()}}</mat-hint>
+    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+    <mat-error *ngIf=" control.invalid">{{getErrorMessage()}}</mat-error>
+  </mat-form-field>
+
+<!--Default text-->
+  <mat-form-field *ngSwitchDefault>
+    <mat-label>{{label}}</mat-label>
+    <input matInput [type]="hidePassword ? type : 'text'" [formControl]="control">
+    <div *ngIf="type === 'password'" mat-icon-button matSuffix (click)="hidePassword = !hidePassword"
+      [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword">
       <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
     </div>
     <mat-error *ngIf=" control.invalid">{{getErrorMessage()}}</mat-error>
-</mat-form-field>
+  </mat-form-field>
+</ng-container>

@@ -23,6 +23,7 @@
             .items__list-item{
                 margin: 2px 0; 
                 display: flex; 
+                width: fit-content;
                 .items__list-item-divider {
                     border-right-width: 4px;
                 }         
@@ -30,26 +31,75 @@
         }
     }  
 }
-
-    .items__list-headers {
-        display: flex;
-        width: fit-content;
-        .items__list-header{
-            text-align: center;
-            margin: 2px 0; 
-            min-height: 17px;
-            hyphens:auto;
-            word-break: break-all;
-        }
-        .items__list-header + .items__list-header{
-            border-left: 2px solid rgba(0,0,0,.12);
-        }
-        .items__list-headers-buttons {
-            position: -webkit-sticky; /* Safari */
-            position: sticky;
-            right: 5px;
-          }
+.items__list-headers {
+    display: flex;
+    width: fit-content;
+    min-width: 50px;
+    min-height: 17px;
+    .items__list-header {
+        text-align: center;
+        margin: 2px 0;
+        min-height: 17px;
+        hyphens: auto;
+        word-break: break-all;
     }
+
+    .items__list-header+.items__list-header {
+        border-left: 2px solid rgba(0, 0, 0, .12);
+    }
+
+    .items__list-headers-buttons {
+        position: -webkit-sticky;
+        /* Safari */
+        position: sticky;
+        left: 0;
+        width: 0;
+
+        .items__list-headers-buttons-container {
+            position: absolute;
+            left: 0;
+            display: none;
+
+            .block-header-button {
+                position: relative;
+            }
+
+            .block-header-button,
+            .block-header-button span,
+            .block-header-button .mat-mdc-button-touch-target {
+                width: 24px;
+                height: 24px;
+            }
+
+            .block-header-button .mat-icon {
+                width: 20px;
+                height: 20px;
+                font-size: 20px;
+                position: absolute;
+                top: 2px;
+                left: 2px;
+            }
+            
+            
+        }
+
+    }
+}
+
+.items__list-headers:hover {
+    .items__list-headers-buttons {
+        .items__list-headers-buttons-container {
+            display: flex;
+        }
+
+    }
+}
+
+.items__list-headers-menu-ckeckbox {
+    display: block;
+    padding-right: 10px;
+}
+
 
 
 

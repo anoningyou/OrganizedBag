@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using API.Data;
 using API.Data.Interfaces;
 using API.Entities;
@@ -7,8 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-
+builder.Services.AddControllers()
+    .AddJsonOptions(opts =>
+        {
+            var enumConverter = new JsonStringEnumConverter();
+            opts.JsonSerializerOptions.Converters.Add(enumConverter);
+        });
 builder.Services.AddApplicationServices();
 
 builder.Services.AddIdentityServices(builder.Configuration);

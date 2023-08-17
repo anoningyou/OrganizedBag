@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { InputComponent } from './input/input.component';
 import { MatDesignModule } from '../mat-design/mat-design.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
-
+import { InputTextComponent } from './input-text/input-text.component';
 
 @NgModule({
   declarations: [
-    InputComponent
+    InputComponent,
+    InputTextComponent
   ],
   imports: [
     CommonModule,
@@ -17,7 +17,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     ReactiveFormsModule,
   ],
   exports: [
-    InputComponent
+    InputComponent,
+    InputTextComponent
   ]
 })
 export class InputsModule { }

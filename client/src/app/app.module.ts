@@ -28,6 +28,8 @@ import { DialogModule } from './common/dialog/dialog.module';
 import { InputsModule } from './common/inputs/inputs.module';
 
 
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -55,7 +57,7 @@ import { InputsModule } from './common/inputs/inputs.module';
     SpinnerModule,
     SharedModule,
     InputsModule,
-    DialogModule,
+    DialogModule
 
   ],
   providers: [
