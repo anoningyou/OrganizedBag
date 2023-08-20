@@ -23,15 +23,34 @@ export class ItemComponent  {
   get values(): Property[] {
     return this.item.values
     .filter((v) => v.params?.listDisplay)
-    .sort((v) => v.params?.listOrder ?? 0);
+    .sort((a, b) => ((a.params?.listOrder ?? 0) < (b.params?.listOrder ?? 0) ? -1 : 1));
   }
+
   getWidth(property: Property) {
     return `${property.params?.listWidth ?? 50}px`;
+  }
+
+  get header() {
+    //console.log(this.item.values.find(i => i.id === 'C751FFD9-98C5-4851-A06E-27DC4DFA31EB'));
+    return this.item.values.find(i => i.id === 'C751FFD9-98C5-4851-A06E-27DC4DFA31EB'.toLowerCase())?.value;
   }
 
   openEditItemDialog() {
     const dialogRef = this.dialog.open(ItemEditDialogComponent, {
       data: this.item,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result)
+        this.item = result;
+    });
+  }
+  openCloneItemDialog() {
+    const newItem = Object.assign(new Item(), this.item);
+    newItem.id = '';
+
+    const dialogRef = this.dialog.open(ItemEditDialogComponent, {
+      data: newItem,
     });
 
     dialogRef.afterClosed().subscribe(result => {

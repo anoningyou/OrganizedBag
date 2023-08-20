@@ -17,12 +17,19 @@ namespace API.Settings
             CreateMap<RegisterDto, AppUser>();
 
             CreateMap<PropertyAttributeDto, PropertyAttribute>().ReverseMap();
+            CreateMap<PropertyParam, PropertyParamDto>().ReverseMap();
 
-            CreateMap<PropertyDto, Property>().ReverseMap();
+            CreateMap<PropertyDto, Property>()
+                        .ForMember(x => x.Params, o => o.Ignore());
+                        
+            CreateMap<Property, PropertyDto>()
+                        .ForMember(x => x.Params, o => o.MapFrom(src => src.Params.FirstOrDefault()));
 
             CreateMap<PropertyValueDto, PropertyValue>().ReverseMap();
 
-            CreateMap<PropertyValueDto, PropertyValue>().ReverseMap();
+            CreateMap<PropertyParamCommon, PropertyParamDto>().ReverseMap();
+
+            CreateMap<PropertyParam, PropertyParamDto>().ReverseMap();
 
             CreateMap<ItemDto, Item>().ReverseMap();
 

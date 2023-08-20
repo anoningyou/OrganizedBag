@@ -1,7 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Guid } from 'guid-typescript';
 import { ToastrService } from 'ngx-toastr';
 import { Item } from 'src/app/models/item';
 import { Property } from 'src/app/models/property';
@@ -17,8 +16,6 @@ export class ItemEditDialogComponent implements OnInit {
   form: FormGroup = new FormGroup({});
   validationErrors: string[] | undefined;
   
-
-
   constructor(
     public dialogRef: MatDialogRef<ItemEditDialogComponent>,
     @Inject(MAT_DIALOG_DATA) data: Item | undefined | null,
@@ -56,7 +53,7 @@ export class ItemEditDialogComponent implements OnInit {
 
 
   getTitle(): string {
-    if(this.data.id === Guid.EMPTY)
+    if(!this.data.id)
       return 'Add item';
     else
       return 'Edit item';

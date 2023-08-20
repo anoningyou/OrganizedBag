@@ -1,5 +1,12 @@
 <section class="home">
-    <app-items class="home__block home__items"></app-items>
+    <div class="home__block home__items resizable"
+        [ngStyle]="{'width': itemsWidth}"
+        mwlResizable
+        [enableGhostResize]="false"
+        (resizeEnd)="onItemsResizeEnd($event)">
+        <app-items></app-items>
+        <div class="resize-handle-right" mwlResizeHandle [resizeEdges]="{ right: true }"></div>
+    </div>
     <app-complect-items class="home__block home__complect-items"></app-complect-items>
     <app-complects class="home__block home__complects"></app-complects>
 </section>

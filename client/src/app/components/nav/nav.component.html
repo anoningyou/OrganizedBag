@@ -1,5 +1,5 @@
 <mat-toolbar>
-    <span>Organize your bag!</span>
+    <a [routerLink]="'/'">Organize your bag!</a>
     <div class="login-group">
         <div class="person-logo"><mat-icon class="person-logo__icon">person</mat-icon><p class="person-logo__name">{{(accountService.currentUser$ | async)?.userName}}</p></div>
         

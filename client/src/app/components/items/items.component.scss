@@ -1,7 +1,4 @@
 .items {
-    background-color: #f5f5f5;
-    max-width: 360px;
-    min-width: 200px;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -10,6 +7,10 @@
         flex: 0 0 auto;
         display: flex;
         justify-content: space-between;
+        .mat-mdc-card-title {
+            display: flex;
+            align-items: center;
+        }
     }
     .items__container{
         height: calc(100% - 50px);
@@ -36,68 +37,39 @@
     width: fit-content;
     min-width: 50px;
     min-height: 17px;
+    gap: 1px;
     .items__list-header {
-        text-align: center;
         margin: 2px 0;
         min-height: 17px;
         hyphens: auto;
         word-break: break-all;
-    }
-
-    .items__list-header+.items__list-header {
-        border-left: 2px solid rgba(0, 0, 0, .12);
-    }
-
-    .items__list-headers-buttons {
-        position: -webkit-sticky;
-        /* Safari */
-        position: sticky;
-        left: 0;
-        width: 0;
-
-        .items__list-headers-buttons-container {
-            position: absolute;
-            left: 0;
-            display: none;
-
-            .block-header-button {
-                position: relative;
-            }
-
-            .block-header-button,
-            .block-header-button span,
-            .block-header-button .mat-mdc-button-touch-target {
-                width: 24px;
-                height: 24px;
-            }
-
-            .block-header-button .mat-icon {
-                width: 20px;
-                height: 20px;
-                font-size: 20px;
-                position: absolute;
-                top: 2px;
-                left: 2px;
-            }
-            
-            
+        .resize-handle-right{
+            padding-right: 2px;
         }
-
     }
+
 }
 
-.items__list-headers:hover {
-    .items__list-headers-buttons {
-        .items__list-headers-buttons-container {
-            display: flex;
-        }
-
-    }
-}
 
 .items__list-headers-menu-ckeckbox {
     display: block;
     padding-right: 10px;
+}
+
+.items__list-header-text {
+    margin-bottom: 0;
+    font-weight: 500;
+}
+
+
+
+.items__list-end {
+    display: flex;
+    justify-content: end;
+    position: -webkit-sticky;
+    position: sticky;
+    left: 0;
+    bottom: 0;
 }
 
 

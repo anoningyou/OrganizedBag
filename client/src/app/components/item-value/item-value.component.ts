@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { ValueTypeEnum } from 'src/app/enums/value-type';
 import { Property } from 'src/app/models/property';
 
 @Component({
@@ -8,4 +9,5 @@ import { Property } from 'src/app/models/property';
 })
 export class ItemValueComponent {
  @Input() property: Property = new Property();
+ valueTypeEnum: typeof ValueTypeEnum = ValueTypeEnum;
 }

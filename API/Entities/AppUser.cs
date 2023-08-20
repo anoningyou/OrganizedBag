@@ -9,5 +9,6 @@ namespace API.Entities
         public virtual ICollection<AppUserRole> UserRoles { get; set; }
         public virtual ICollection<Item> Items { get; set; }
         public virtual ICollection<Complect> Complects { get; set; }
+        public virtual ICollection<PropertyParam> PropertyParams { get; set; }
     }
 }

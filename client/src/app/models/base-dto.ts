@@ -1,3 +1,3 @@
 export interface BaseDto {
-    id: string;
+    id: string | undefined;
 }

@@ -1,7 +1,7 @@
-using System.Text.Json.Serialization;
 using API.Data;
 using API.Data.Interfaces;
 using API.DTOs;
+using API.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -17,25 +17,24 @@ namespace API.Controllers
         [HttpGet(nameof(GetAll))]
         public async Task<ActionResult<IEnumerable<PropertyDto>>> GetAll()
         {
-            var props = await _uow.PropertyRepository.GetAllAsync();
-            var paramList = Seed.PropertyParams;
-            int i = 0;
-            foreach (var prop in props)
-            {
-                prop.Params = paramList.FirstOrDefault(p => p.PropertyId == prop.Id) 
-                    ?? new PropertyParamDto
-                    {
-                        ComplectDisplay = true,
-                        ComplectOrder = paramList.Count + i++,
-                         ListDisplay = true,
-                         ListOrder = paramList.Count + i,
-                         PropertyId = prop.Id
-                    };
-            }
-            
-        
+            return Ok(await _uow.PropertyRepository.GetAllAsync(User.GetUserId()));
+        }
 
-            return Ok(props.OrderBy(p => p.Params.ListOrder));
+
+        [HttpPut(nameof(UpdateParams))]
+        public async Task<ActionResult<IEnumerable<PropertyParamDto>>> UpdateParams(List<PropertyParamDto> propertyParams)
+        {
+            var result = await _uow.PropertyRepository.AddOrUpdateParamsAsync(propertyParams, User.GetUserId());
+            await _uow.Complete();
+            return Ok(result);
+        }
+
+        [HttpPut(nameof(UpdateParam))]
+        public async Task<ActionResult<PropertyParamDto>> UpdateParam(PropertyParamDto propertyParam)
+        {
+            var result = await _uow.PropertyRepository.AddOrUpdateParamAsync(propertyParam, User.GetUserId());
+            await _uow.Complete();
+            return Ok(result);
         }
     }
 }

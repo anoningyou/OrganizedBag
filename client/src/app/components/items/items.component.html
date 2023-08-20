@@ -1,14 +1,28 @@
 <mat-card class="items">
   <mat-card-header class="items__header">
-    <mat-card-title class="items__header-name">My stuff</mat-card-title>
-    <button mat-icon-button 
+    
+    <mat-card-title >
+      <button mat-icon-button 
       color="primary" 
-      aria-label="Add item" 
-      class="items__header-add-btn block-header-button"
-      matTooltip="Add"
-      (click)="openAddItemDialog()">
-      <mat-icon>add</mat-icon>
+      aria-label="Edit headers" 
+      class="block-header-button"
+      matTooltip="Edit"
+      [matMenuTriggerFor]="listHeadersMenu">
+      <mat-icon>settings</mat-icon>
     </button>
+    <mat-menu #listHeadersMenu="matMenu" (click)="$event.stopPropagation()">
+        <mat-checkbox class="items__list-headers-menu-ckeckbox" 
+        *ngFor="let prop of allProperties$ | async" 
+        [(ngModel)]="prop.params.listDisplay"
+        [disableRipple]="true"
+        (click)="$event.stopPropagation()"
+        (change)="onItemHeaderSelected(prop.params)">
+        {{prop.name}}
+      </mat-checkbox>                              
+    </mat-menu>
+    <span class="items__header-name">My stuff</span>
+  </mat-card-title>
+    
   </mat-card-header>
   <mat-card-content class="items__container">
     <ul class="items__list"
@@ -19,40 +33,44 @@
         [cdkDropListData]="items$ | async"
         (cdkDropListDropped)="drop($event)">
       <li class="items__list-item items__list-headers-container">
-        <ul class="items__list-headers">
-          <li class="items__list-headers-buttons">
-            <div class="items__list-headers-buttons-container">
-              <button mat-icon-button 
-                color="primary" 
-                aria-label="Edit headers" 
-                class="block-header-button"
-                matTooltip="Edit"
-                [matMenuTriggerFor]="listHeadersMenu">
-                <mat-icon>settings</mat-icon>
-              </button>
-              <mat-menu #listHeadersMenu="matMenu" (click)="$event.stopPropagation()">
-                  <mat-checkbox class="items__list-headers-menu-ckeckbox" 
-                  *ngFor="let prop of allProperties$ | async" 
-                  [(ngModel)]="prop.params.listDisplay"
-                  [disableRipple]="true"
-                  (click)="$event.stopPropagation()"
-                  (change)="onItemHeaderSelected(prop.params)">
-                  {{prop.name}}
-                </mat-checkbox>                              
-              </mat-menu>
-            </div>            
-          </li>
-          <li class="items__list-header" *ngFor="let prop of properties$ | async"
-            [ngStyle]="{'width': getWidth(prop)}">
-            {{prop.name}}
+        <ul class="items__list-headers" 
+        cdkDropList (cdkDropListDropped)="dropHeader($event)"
+        [cdkDropListData]="properties$ | async"
+        cdkDropListOrientation="horizontal">
+          <li class="items__list-header resizable" *ngFor="let prop of properties$ | async"
+            [ngStyle]="{'width': getWidth(prop)}"
+            cdkDrag
+            cdkDragLockAxis="x"
+            mwlResizable
+            [enableGhostResize]="false"
+            (resizeEnd)="onResizeEnd($event, prop)">
+            <p cdkDragHandle
+              class="items__list-header-text">
+              {{prop.name}}
+            </p>
+            <div
+              class="resize-handle-right"
+              mwlResizeHandle
+              [resizeEdges]="{ right: true }">
+              <mat-divider [vertical]="true"></mat-divider> 
+            </div>
           </li>
           
         </ul>
       </li>
       <li class="items__list-item" *ngFor="let item of items$ | async" cdkDrag>
-        <!-- <mat-divider class="items__list-item-divider" [vertical]="true"></mat-divider> -->
           <app-item [item]="item"></app-item>
       </li>
+      <li class="items__list-end">
+        <button mat-icon-button 
+        color="primary" 
+        aria-label="Add item" 
+        class="items__add-btn block-header-button"
+        matTooltip="Add"
+        (click)="openAddItemDialog()">
+        <mat-icon>add</mat-icon>
+      </button>   
+        </li>
     </ul>
   </mat-card-content>
 </mat-card>

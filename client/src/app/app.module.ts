@@ -26,6 +26,7 @@ import { ComplectItemsComponent } from './components/complect-items/complect-ite
 import { ComplectEditDialogComponent } from './components/complect-edit-dialog/complect-edit-dialog.component';
 import { DialogModule } from './common/dialog/dialog.module';
 import { InputsModule } from './common/inputs/inputs.module';
+import { ResizableModule } from 'angular-resizable-element';
 
 
 
@@ -57,8 +58,8 @@ import { InputsModule } from './common/inputs/inputs.module';
     SpinnerModule,
     SharedModule,
     InputsModule,
-    DialogModule
-
+    DialogModule,
+    ResizableModule
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: ErrorsInterceptor, multi: true},

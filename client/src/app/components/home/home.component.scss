@@ -6,6 +6,13 @@
     height: 100%;
     gap: 5px;
     padding: 5px;
+    .home__items {
+        min-width: 200px;       
+        app-items {
+            flex-grow: 1;
+            width: 100%;
+        }
+    }
     .home__complect-items {
         flex-grow: 1;
     }

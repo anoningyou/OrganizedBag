@@ -66,3 +66,36 @@ a{
     height: 24px;
     font-size: 17px;
 }
+
+.resizable {
+    position: relative;    
+    display: flex;
+    margin: auto;
+    box-sizing: border-box; // required for the enableGhostResize option to work
+  }
+
+.resize-handle-left,
+.resize-handle-right {
+    display: flex;
+    justify-content: end;
+  position: absolute;
+  height: 100%;
+  cursor: col-resize;
+  width: 5px;
+}
+
+.resize-handle-left {
+  left: 0;
+}
+
+.resize-handle-right {
+    right: 0;
+}
+
+.resize-handle-top {
+    top: 0;
+}
+
+.resize-handle-bottom {
+    bottom: 0;
+}

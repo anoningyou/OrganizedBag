@@ -1,6 +1,5 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Guid } from 'guid-typescript';
 import { ToastrService } from 'ngx-toastr';
 import { ComplectDto } from 'src/app/models/complect-dto';
 import { ItemsService } from 'src/app/services/items.service';
@@ -25,7 +24,7 @@ export class ComplectEditDialogComponent {
   }
 
   getTitle(): string {
-    if(this.data.id === Guid.EMPTY)
+    if(!this.data.id)
       return 'Add complect';
     else
       return 'Edit complect';

@@ -21,6 +21,10 @@ namespace API.Data
 
         public DbSet<PropertyAttribute> PropertyAttributes { get; set; }
 
+        public DbSet<PropertyParamCommon> PropertyParamsCommon { get; set; }
+
+        public DbSet<PropertyParam> PropertyParams { get; set; }
+
         public DbSet<Complect> Complects { get; set; }
 
         public DbSet<ComplectItem> ComplectItems { get; set; }
@@ -67,13 +71,15 @@ namespace API.Data
                 .HasOne(e => e.Item)
                 .WithMany(e => e.Complects)
                 .HasForeignKey(e => e.ItemId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
 
             builder.Entity<ComplectItem>()
                 .HasOne(e => e.Complect)
                 .WithMany(e => e.Items)
                 .HasForeignKey(e => e.ComplectId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
 
             builder.Entity<PropertyValue>()
                 .HasKey(e => new{e.ItemId, e.PropertyId});
@@ -82,12 +88,39 @@ namespace API.Data
                 .HasOne(e => e.Item)
                 .WithMany(e => e.Values)
                 .HasForeignKey(e => e.ItemId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
 
             builder.Entity<PropertyValue>()
                 .HasOne(e => e.Property)
                 .WithMany(e => e.Values)
                 .HasForeignKey(e => e.PropertyId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+
+            builder.Entity<PropertyParamCommon>()
+                .HasKey(p => p.PropertyId);  
+                
+            builder.Entity<PropertyParamCommon>()
+                .HasOne(e => e.Property)
+                .WithOne(e => e.ParamCommon)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+
+            builder.Entity<PropertyParam>()
+                .HasKey(p => new{ p.PropertyId, p.UserId});   
+
+            builder.Entity<PropertyParam>()
+                .HasOne(e => e.Property)
+                .WithMany(e => e.Params)
+                .HasForeignKey(e => e.PropertyId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+
+            builder.Entity<PropertyParam>()
+                .HasOne(e => e.User)
+                .WithMany(e => e.PropertyParams)
+                .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
         

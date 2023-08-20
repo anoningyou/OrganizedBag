@@ -24,7 +24,11 @@ namespace API.Data
                 dto.Id = Guid.NewGuid();
             var item = _mapper.Map<Item>(dto);
             item.UserId = userId;
-            
+            foreach (var val in item.Values)
+            {
+                val.ItemId = item.Id;
+            }
+           
             await _context.Items.AddAsync(item);
             return dto;
         }

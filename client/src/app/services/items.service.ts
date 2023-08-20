@@ -11,7 +11,6 @@ import { ComplectDto } from '../models/complect-dto';
 import { AccountService } from './account.service';
 import { Item } from '../models/item';
 import { Property } from '../models/property';
-import { Guid } from 'guid-typescript';
 import { PropertyValueDto } from '../models/property-value-dto';
 import { ComplectItemDto } from '../models/complect-item-dto';
 import { PropertyParamDto } from '../models/property-param-dto';
@@ -98,7 +97,8 @@ export class ItemsService {
 
   loadAll() {
     this.loadProperties().subscribe((_) => {
-      if (this.accountService.currentUser$)
+      this.accountService.currentUser$.pipe(take(1)).subscribe(user => {
+        if (user)
         this.loadItems().subscribe((_) => {
           this.loadComplects().subscribe((c) => {
             if (c && c.length > 0) {
@@ -106,6 +106,8 @@ export class ItemsService {
             }
           });
         });
+      })
+      
     });
   }
 
@@ -118,13 +120,13 @@ export class ItemsService {
   }
 
   saveItem(item: Item) {
-    if (item.id === Guid.EMPTY) return this.addItem(item);
+    if (!item.id) return this.addItem(item);
     else return this.updateItem(item);
   }
 
   addItem(item: Item) {
     const itemDto = {
-      id: Guid.create().toString(),
+      id: crypto.randomUUID(),
       values: item.values.map((v) => {
         return { propertyId: v.id, value: v.value } as PropertyValueDto;
       }),
@@ -177,7 +179,7 @@ export class ItemsService {
 
   createNewComplect(): ComplectDto {
     return {
-      id: Guid.EMPTY,
+      id: null as string | null,
       name: '',
       description: '',
       items: [],
@@ -185,11 +187,12 @@ export class ItemsService {
   }
 
   saveComplect(complect: ComplectDto) {
-    if (complect.id === Guid.EMPTY) return this.addComplect(complect);
+    if (!complect.id) return this.addComplect(complect);
     else return this.updateComplect(complect);
   }
 
   addComplect(complect: ComplectDto) {
+    complect.id = crypto.randomUUID();
     return this.complectsHttp.add(complect).pipe(
       map((response: ComplectDto) => {
         if (response) {
@@ -240,11 +243,40 @@ export class ItemsService {
   }
 
   updatePropertyParam(param: PropertyParamDto) {
+    this.accountService.takeCurrentUser().subscribe( user => {
+      if (user) {
+        this.propertiesHttp.updateParam(param).subscribe(response =>{
+          this.resetPropertyParams([response]);
+        }); 
+      } else {
+        this.resetPropertyParams([param]);
+      }
+    })
+       
+  }
+
+  updatePropertyParams(params: PropertyParamDto[]) {
+    this.accountService.takeCurrentUser().subscribe( user => {
+      if (user) {
+        this.propertiesHttp.updateParams(params).subscribe(response =>{
+          this.resetPropertyParams(response);
+        }); 
+      } else {
+        this.resetPropertyParams(params);
+      }
+    })
+       
+  }
+
+  resetPropertyParams(params: PropertyParamDto[]) {
     this.properties$.pipe(take(1)).subscribe(props => {
-      const prop = props.find(p => p.id === param.propertyId);
-      if (prop)
-        prop.params = param;
+      params.forEach(param =>{
+        const prop = props.find(p => p.id === param.propertyId);
+        if (prop)
+          prop.params = param;
+      })
       this.propertiesSource.next(props);
     })
   }
+
 }

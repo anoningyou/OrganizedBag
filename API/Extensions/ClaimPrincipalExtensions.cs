@@ -11,7 +11,8 @@ namespace API.Extensions
 
         public static Guid GetUserId(this ClaimsPrincipal user)
         {
-            return Guid.Parse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var val = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return val != null ? Guid.Parse(val) : Guid.Empty;
         }
     }
 }

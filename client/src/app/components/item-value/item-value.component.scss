@@ -1,6 +1,12 @@
+:host{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
 .item-value {
     .item-value__value{
         margin: 0px;
+        padding: 5px 0;
         min-height: 20px;
         hyphens:auto;
         word-break: break-all;

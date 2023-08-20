@@ -1,5 +1,5 @@
 import { Injectable, OnInit } from '@angular/core';
-import { BehaviorSubject, map } from 'rxjs';
+import { BehaviorSubject, map, take } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { User } from '../models/user';
 import { HttpClient } from '@angular/common/http';
@@ -63,5 +63,9 @@ export class AccountService {
 
   getDecodedToken(token: string){
     return JSON.parse(atob(token.split('.')[1]));
+  }
+
+  takeCurrentUser() {
+    return this.currentUser$.pipe(take(1));
   }
 }

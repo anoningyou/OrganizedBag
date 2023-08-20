@@ -1,4 +1,5 @@
 <div class="item">
+  <mat-divider></mat-divider> 
   <ul class="item__values">
     <li class="item__value-container" 
       *ngFor="let value of values" 
@@ -6,30 +7,39 @@
       <app-item-value class="item__value" 
         [property]="value">
       </app-item-value>
+      <mat-divider [vertical]="true"></mat-divider> 
     </li>
     <li class="item__buttons">
       <div class="item__buttons-container">
         <button mat-icon-button 
-        color="primary" 
-        aria-label="Edit item" 
-        class="block-header-button"
-        matTooltip="Edit"
-        (click)="openEditItemDialog()">
-        <mat-icon>edit</mat-icon>
-      </button>
-      <button mat-icon-button 
-        color="primary" 
-        aria-label="Delete item" 
-        class="block-header-button"
-        matTooltip="Delete"
-        (click)="openDeleteItemDialog()">
-        <mat-icon>delete</mat-icon>
-      </button>
+          color="primary" 
+          aria-label="Edit item" 
+          class="block-header-button"
+          matTooltip="Edit"
+          (click)="openEditItemDialog()">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button 
+          color="primary" 
+          aria-label="Edit item" 
+          class="block-header-button"
+          matTooltip="Clone"
+          (click)="openCloneItemDialog()">
+          <mat-icon>control_point_duplicate</mat-icon>
+        </button>
+        <button mat-icon-button 
+          color="primary" 
+          aria-label="Delete item" 
+          class="block-header-button"
+          matTooltip="Delete"
+          (click)="openDeleteItemDialog()">
+          <mat-icon>delete</mat-icon>
+        </button>
       </div>
       
     </li>
   </ul> 
-  <mat-divider></mat-divider> 
+  
 </div>
 
   

@@ -1,6 +1,5 @@
 using System.Text.Json;
 using API.Data.Interfaces;
-using API.DTOs;
 using API.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +13,7 @@ namespace API.Data
         {
             if(await userManager.Users.AnyAsync()) return;
 
-            var userData = await File.ReadAllBytesAsync("Data/UserSeedData.json");
+            var userData = await File.ReadAllBytesAsync("Data/Seed/UserSeedData.json");
 
             var options = new JsonSerializerOptions{PropertyNameCaseInsensitive = true};
 
@@ -54,38 +53,15 @@ namespace API.Data
         {
             if(await uow.PropertyRepository.AnyAsync()) return;
 
-            var data = await File.ReadAllBytesAsync("Data/PropertiesSeedData.json");
+            var data = await File.ReadAllBytesAsync("Data/Seed/PropertiesSeedData.json");
 
             var options = new JsonSerializerOptions{PropertyNameCaseInsensitive = true};
 
-            var properties = JsonSerializer.Deserialize<List<PropertyDto>>(data,options);
+            var properties = JsonSerializer.Deserialize<List<Property>>(data,options);
 
-            foreach (var prop in properties)
-            {
+            await uow.PropertyRepository.AddRangeAsync(properties);
 
-                await uow.PropertyRepository.AddAsync(prop);
-            }
             await uow.Complete();
-        }
-
-        private static List<PropertyParamDto> _propertyParams = null;
-        public static List<PropertyParamDto> PropertyParams {
-            get
-            {
-                if (_propertyParams == null)
-                    _propertyParams = GetPropertyParams().Result;
-                return _propertyParams;
-            }  
-        }
-        public static async Task<List<PropertyParamDto>> GetPropertyParams()
-        {
-            var data = await File.ReadAllBytesAsync("Data/PropertyParamsSeedData.json");
-
-            var options = new JsonSerializerOptions{PropertyNameCaseInsensitive = true};
-
-            var properties = JsonSerializer.Deserialize<List<PropertyParamDto>>(data,options);
-
-            return properties;
         }
     }
 }

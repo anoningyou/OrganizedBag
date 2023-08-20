@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ItemsService } from 'src/app/services/items.service';
 import { ItemEditDialogComponent } from '../item-edit-dialog/item-edit-dialog.component';
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
 import { Item } from 'src/app/models/item';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { PropertyDto } from 'src/app/models/property-dto';
 import { PropertyParamDto } from 'src/app/models/property-param-dto';
+import { ResizeEvent } from 'angular-resizable-element';
 
 @Component({
   selector: 'app-items',
@@ -34,11 +35,11 @@ export class ItemsComponent implements OnInit{
 
     this.itemsService.properties$.subscribe((properties) => {
       const listProperties = properties.filter((p) => p.params?.listDisplay)
-          .sort((p) => p.params?.listOrder ?? 0);
+        .sort((a, b) => (a.params.listOrder < b.params.listOrder ? -1 : 1));
       this.propertiesSource.next(listProperties);
 
       const listAllProperties = properties
-          .sort((p) => p.params?.listOrder ?? 0);
+          .sort((a, b) => (a.params.listOrder < b.params.listOrder ? -1 : 1));
       this.allPropertiesSource.next(listAllProperties);
     });
   }
@@ -71,7 +72,21 @@ export class ItemsComponent implements OnInit{
   }
 
   onItemHeaderSelected(param: PropertyParamDto){
-    this.itemsService.updatePropertyParam(param)
+    this.itemsService.updatePropertyParam(param);
+  }
+
+  dropHeader(event: CdkDragDrop<PropertyDto[] | null>) {
+    const propertyParams = event.container.data?.map(p => p.params) ?? [];
+    moveItemInArray(propertyParams, event.previousIndex, event.currentIndex);
+    propertyParams.forEach((param, idx) => {
+        param.listOrder = idx;
+    });
+    this.itemsService.updatePropertyParams(propertyParams);
+  }
+
+  onResizeEnd(event: ResizeEvent, prop: PropertyDto){
+    prop.params.listWidth = event.rectangle.width ?? 50;
+    this.itemsService.updatePropertyParam(prop.params);
   }
 
 }
