@@ -1,12 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, Observable, map, take } from 'rxjs';
-import { ComplectDto } from 'src/app/models/complect-dto';
+import { ComplectDto } from 'src/app/models/dto/complect-dto';
+import { GroupItemDto } from 'src/app/models/dto/group-item-dto';
+import { PropertyParamDto } from 'src/app/models/dto/property-param-dto';
+import PropertyDto from 'src/app/models/dto/property-dto';
 import { Item } from 'src/app/models/item';
+import { GroupItem, GroupItemView } from 'src/app/models/group-item';
+import { Property } from 'src/app/models/property';
 import { ItemsService } from 'src/app/services/items.service';
 import { ComplectEditDialogComponent } from '../complect-edit-dialog/complect-edit-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray } from '@angular/cdk/drag-drop';
+import { ItemEditDialogComponent } from '../item-edit-dialog/item-edit-dialog.component';
+import { YesNoComponent } from 'src/app/common/dialog/yes-no/yes-no.component';
+import { ValueTypeEnum } from 'src/app/enums/value-type';
+import { GroupDto } from 'src/app/models/dto/group-dto';
+import { ComplectsService } from 'src/app/services/complects.service';
+
+
 
 @Component({
   selector: 'app-complect-items',
@@ -16,31 +28,145 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
 export class ComplectItemsComponent implements OnInit {
   private itemObjectsSource = new BehaviorSubject<Item[]>([]);
   itemObjects$ = this.itemObjectsSource.asObservable();
-  complect: ComplectDto | null = null;
-  
-   
+
+  @Input() complect: ComplectDto | null = null;
+  @Input() items: Item[] | null = [];
+  @Input() properties: PropertyDto [] | null = [];
+  @Input() groupPropertyId: string | undefined | null;
+  @Output() complectItemUpdated: EventEmitter<GroupItemDto> = new EventEmitter();
+  @Output() currentComplectChanged: EventEmitter<ComplectDto | null> = new EventEmitter();
+
   constructor(public itemsService: ItemsService,
+    public complectsService: ComplectsService,
     public dialog: MatDialog,
     public toastr: ToastrService) {
   }
   ngOnInit(): void {
-    this.itemsService.itemObjects$.subscribe(items => {
-      this.itemsService.currrentComplect$.pipe(take(1)).subscribe(complect => {
-        let complectItems: Item[] = [];
-        if(complect)
-          complectItems = items.filter(i => (complect.items.findIndex(ci => ci.itemId === i.id) ?? -1) >=0);
-        this.itemObjectsSource.next(complectItems);
-      })
-    })
+  }
 
-    this.itemsService.currrentComplect$.subscribe(complect => {
-      this.complect = complect;
-      if(complect)
-        this.itemsService.itemObjects$.pipe(take(1)).subscribe(items => {
-            const  complectItems = (items ?? []).filter(i => (complect.items.findIndex(ci => ci.itemId === i.id) ?? -1) >=0);
-            this.itemObjectsSource.next(complectItems);
-        })
+  get propertiesSorted () {
+    return this.properties?.sort((a,b) => a.params.complectOrder > b.params.complectOrder ? 1 : -1) ?? []
+  }
+
+  get propertiesFiltered () {
+    return this.propertiesSorted.filter(p => p.params.complectDisplay) ?? [];
+  }
+
+  get columns() {
+    const props =  this.propertiesFiltered.map(p => {
+      return {
+        columnDef: p.id ?? '',
+        header: p.name,
+        property: p as Property | null,
+        cell: (element: GroupItem) => `${element.values.find(v => v.id === p.id)?.value}`,
+        width: `${p.params.complectWidth ?? 50} px`,
+        class: 'item__value'
+      }
+    })?? [];
+    props.push({
+      columnDef: 'count',
+      header: 'Count',
+      property: null,
+      cell: (element: GroupItem) => `${element.count}`,
+      width: '20px',
+      class: 'item__value'
     })
+    props.push({
+      columnDef: 'actions',
+      header: 'Actions',
+      property: null,
+      cell: (element: GroupItem) => '',
+      width: '30px',
+      class: 'item__actions'
+    })
+    return props;
+  } 
+  get displayedColumns(){
+    const columns = this.columns?.map(c => c.columnDef) ?? [];
+    return columns;
+  } 
+
+  get complectItemViews() {
+    let complectItems: GroupItemView[]  = [];
+    if(this.complect?.groups && this.items)
+      complectItems = this.items.map(i => {
+        return {
+          complectItem: this.complect?.groups.map(g => g.items)
+            ?.flat().find(ci => ci.itemId === i.id),
+          item: i
+        }
+      })
+      .filter(i => i.complectItem)
+      .map(i => {
+        return Object.assign(new GroupItemView(), i.item, i.complectItem)
+      });
+    if (this.groupPropertyId) 
+      complectItems = this.groupItems(complectItems, this.groupPropertyId)
+    return complectItems;
+  }
+
+  groupItems(items: GroupItemView[], propertyId: string) : GroupItemView[] {
+    let result: GroupItemView[] = [];
+
+    const groupedKeys = items.reduce((group: {[key: string]: GroupItemView[]}, item) => {
+      const keyProp = item.values.find(i => i.id == propertyId);
+      const key  = keyProp?.value ?? '';
+      if (!group[key]) {
+       group[key] = [{
+          isGroupBy: true,
+          groupValue: keyProp,
+
+        } as GroupItemView];
+      }
+      
+      group[key].push(item);
+      return group;
+    }, {});
+
+    Object.keys(groupedKeys).forEach(key => {
+
+      result = result.concat(groupedKeys[key]);
+      const summArray: number[] = []
+      this.propertiesFiltered.forEach(p => {
+        summArray.push(0);
+      })
+
+      groupedKeys[key].forEach(item =>{
+        if (!item.isGroupBy) {
+          item.values.forEach((val, idx) => {
+            if (val.valueType === ValueTypeEnum.Decimal || val.valueType === ValueTypeEnum.Number){
+              summArray[idx] += +(val.value ?? '0') * item.count;
+            }
+          });
+        }
+      })
+      result.push({
+        isSummary: true,
+        count: groupedKeys[key].splice(1).reduce((summ: number, item) =>{
+          summ += item.count;
+          return summ;
+        }, 0),
+        values: this.propertiesFiltered.map((p, idx) => {
+          const prop = Object.assign(new Property(), p);
+          if (prop.valueType === ValueTypeEnum.Decimal || prop.valueType === ValueTypeEnum.Number)
+            prop.value = summArray[idx].toString();
+          else
+          prop.value = '';
+          
+          return prop;
+        } )
+      } as GroupItemView)
+    });
+     
+    return result;
+  }
+
+  isGroup(index: number, item: GroupItemView): boolean{
+    return item.isGroupBy;
+  }
+
+  isSummary(index: number, item: GroupItemView): boolean{
+    return item.isSummary;
   }
  
   openEditComplectDialog(): void {
@@ -49,19 +175,57 @@ export class ComplectItemsComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      this.complect = result;
+      if (result)
+        this.complect = result;
     });
   }
 
+  openCloneComplectDialog(): void {
+    if (this.complect) {
+      const newItem = Object.assign({} as ComplectDto, this.complect);
+      newItem.id = '';
+      newItem.groups = this.complect.groups.map(g => {
+        const group = Object.assign({} as GroupDto, g);
+        group.items = g.items.map(i => Object.assign({} as GroupItemDto, i))
+        return group;
+      });
+      const dialogRef = this.dialog.open(ComplectEditDialogComponent, {
+        data: newItem,
+      });
+  
+      dialogRef.afterClosed().subscribe(result => {
+        if (result)
+        {
+          this.complect = result;
+          this.currentComplectChanged.emit(result);
+        }
+          
+      });
+    } 
+  }
+
+  onTableHeaderSelected(param: PropertyParamDto){
+    this.itemsService.updatePropertyParam(param);
+  }
+
+  dropHeader(event: CdkDragDrop<PropertyDto[]>) {
+    const propertyParams = event.container.data?.map(p => p.params) ?? [];
+    moveItemInArray(propertyParams, event.previousIndex, event.currentIndex);
+    propertyParams.forEach((param, idx) => {
+      param.complectOrder = idx;
+    });
+    this.itemsService.updatePropertyParams(propertyParams);
+  }
+
+
   drop(event: CdkDragDrop<Item[] | null>) {
-    console.log(event)
     if (!event.previousContainer.data || ! this.complect)
       return;
     if (event.previousContainer === event.container) {
       //moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
       const item = event.previousContainer.data[event.previousIndex];
-      this.itemsService.addItemToComplect(item, this.complect).subscribe({
+      this.complectsService.addItemToGroup(item, this.complect.groups[0]).subscribe({
         next: () =>{
           this.toastr.info('Saved!');
         },
@@ -75,6 +239,91 @@ export class ComplectItemsComponent implements OnInit {
       //   event.currentIndex,
       // );
     }
+  }
+
+  openEditItemDialog(item: Item) {
+    const dialogRef = this.dialog.open(ItemEditDialogComponent, {
+      data: item,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      // if (result)
+      //   item = result;
+    });
+  }
+
+  onCountChange(event: any, item: GroupItem){
+    item.count = +event.srcElement.value ?? 1;
+    if (item.count < 1)
+      item.count = 1;
+    if(this.complect) {
+      const complectItem = this.complect?.groups
+        .find(g => !!item.groupId && g.id === item.groupId)
+        ?.items.find(i => i.itemId == item.id);
+      if(complectItem){
+        complectItem.count = item.count;
+        
+      }
+      this.complectItemUpdated.emit({
+        itemId: item.id,
+        groupId: this.complect.id,
+        count: item.count
+      } as GroupItemDto)   
+    }
+     
+  }
+
+  openCloneItemDialog(item: GroupItem) {
+    const newItem = Object.assign(new Item(), item);
+    newItem.id = '';
+
+    const dialogRef = this.dialog.open(ItemEditDialogComponent, {
+      data: newItem,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && this.complect){
+
+        this.complectsService.addItemToGroup(result, this.complect.groups[0]).subscribe({
+          next: () =>{
+          },
+          error: error => this.toastr.error(error.error)
+        });
+      };
+    });
+  }
+
+  openDeleteItemDialog(item: GroupItem) {
+    const dialogRef = this.dialog.open(YesNoComponent, {
+      data: 'Delete item?',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result)
+        this.itemsService.deleteItem(item.id).subscribe({
+          next: () =>{
+              this.toastr.info('Done!');
+            },
+          error: error => this.toastr.error(error.error)
+        })
+    });
+  }
+
+  openDeleteComplectItemDialog(item: GroupItem) {
+    const dialogRef = this.dialog.open(YesNoComponent, {
+      data: 'Delete item from complect?',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result)
+      {
+        const complectItem = {
+          itemId: item.id,
+          groupId: this.complect?.id,
+          count: item.count} as GroupItemDto;
+        this.complectsService.deleteGroupItem(complectItem);
+      }  
+    });
   }
 
 }

@@ -27,6 +27,7 @@ import { ComplectEditDialogComponent } from './components/complect-edit-dialog/c
 import { DialogModule } from './common/dialog/dialog.module';
 import { InputsModule } from './common/inputs/inputs.module';
 import { ResizableModule } from 'angular-resizable-element';
+import { ItemsDiagramComponent } from './components/items-diagram/items-diagram.component';
 
 
 
@@ -45,7 +46,8 @@ import { ResizableModule } from 'angular-resizable-element';
     ItemEditDialogComponent,
     ComplectsComponent,
     ComplectItemsComponent,
-    ComplectEditDialogComponent
+    ComplectEditDialogComponent,
+    ItemsDiagramComponent
   ],
   imports: [
     BrowserModule,

@@ -33,26 +33,9 @@
     .item__buttons-container{
         display: none;
         position: absolute;
-        right: 0;
+        right: 15px;
         top: 0;
         background-color: #fff;
-        
-        .block-header-button {
-            position: relative;
-        }
-        .block-header-button, .block-header-button span , .block-header-button .mat-mdc-button-touch-target{
-            width: 24px;
-            height: 24px;
-        }
-
-         .block-header-button .mat-icon{
-            width: 20px;
-            height: 20px;
-            font-size: 20px;
-            position: absolute;
-            top: 2px;
-            left: 2px;
-        }
     }
     
   }

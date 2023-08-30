@@ -27,7 +27,9 @@ namespace API.Data
 
         public DbSet<Complect> Complects { get; set; }
 
-        public DbSet<ComplectItem> ComplectItems { get; set; }
+        public DbSet<Group> Groups { get; set; }
+
+        public DbSet<GroupItem> GroupItems { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -60,24 +62,31 @@ namespace API.Data
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
                 
-            builder.Entity<ComplectItem>()
-                .HasKey(e => new{e.ComplectId, e.ItemId});
+            builder.Entity<GroupItem>()
+                .HasKey(e => new{e.GroupId, e.ItemId});
 
-            builder.Entity<ComplectItem>()
+            builder.Entity<GroupItem>()
                 .Property(p => p.Count)
                 .HasDefaultValue(1);
 
-            builder.Entity<ComplectItem>()
+            builder.Entity<GroupItem>()
                 .HasOne(e => e.Item)
-                .WithMany(e => e.Complects)
+                .WithMany(e => e.Groups)
                 .HasForeignKey(e => e.ItemId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
 
-            builder.Entity<ComplectItem>()
-                .HasOne(e => e.Complect)
+            builder.Entity<GroupItem>()
+                .HasOne(e => e.Group)
                 .WithMany(e => e.Items)
-                .HasForeignKey(e => e.ComplectId)
+                .HasForeignKey(e => e.GroupId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+
+            builder.Entity<Complect>()
+                .HasMany(c=> c.Groups)
+                .WithOne(g => g.Complect)
+                .HasForeignKey(g => g.ComplectId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
 

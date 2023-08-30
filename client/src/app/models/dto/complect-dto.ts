@@ -1,8 +1,8 @@
 import { BaseDto } from "./base-dto";
-import { ComplectItemDto } from "./complect-item-dto";
+import { GroupDto } from "./group-dto";
 
 export interface ComplectDto extends BaseDto {
     name: string;
     description: string;
-    items: ComplectItemDto [];
+    groups: GroupDto [];
 }

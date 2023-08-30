@@ -4,9 +4,20 @@
         mwlResizable
         [enableGhostResize]="false"
         (resizeEnd)="onItemsResizeEnd($event)">
-        <app-items></app-items>
+        <app-items
+            [properties]="itemsService.properties$ | async"
+            [items]="itemsService.itemObjects$ | async">
+        </app-items>
         <div class="resize-handle-right" mwlResizeHandle [resizeEdges]="{ right: true }"></div>
     </div>
-    <app-complect-items class="home__block home__complect-items"></app-complect-items>
-    <app-complects class="home__block home__complects"></app-complects>
+    <app-complect-items class="home__block home__complect-items"
+        [complect]="currentComplect"
+        [items]="itemsService.itemObjects$ | async"
+        [properties]="itemsService.properties$ | async"
+        (complectItemUpdated)="onComplectItemUpdated($event)"
+    ></app-complect-items>
+    <app-complects class="home__block home__complects"
+        [complects]="complectsService.complects$ | async"
+        [(currentComplect)]="currentComplect"
+    ></app-complects>
 </section>

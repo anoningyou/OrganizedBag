@@ -5,6 +5,7 @@
       *ngFor="let value of values" 
       [ngStyle]="{'width': getWidth(value)}">
       <app-item-value class="item__value" 
+        [value]="value.value"
         [property]="value">
       </app-item-value>
       <mat-divider [vertical]="true"></mat-divider> 
@@ -14,7 +15,7 @@
         <button mat-icon-button 
           color="primary" 
           aria-label="Edit item" 
-          class="block-header-button"
+          class="small-button"
           matTooltip="Edit"
           (click)="openEditItemDialog()">
           <mat-icon>edit</mat-icon>
@@ -22,7 +23,7 @@
         <button mat-icon-button 
           color="primary" 
           aria-label="Edit item" 
-          class="block-header-button"
+          class="small-button"
           matTooltip="Clone"
           (click)="openCloneItemDialog()">
           <mat-icon>control_point_duplicate</mat-icon>
@@ -30,7 +31,7 @@
         <button mat-icon-button 
           color="primary" 
           aria-label="Delete item" 
-          class="block-header-button"
+          class="small-button"
           matTooltip="Delete"
           (click)="openDeleteItemDialog()">
           <mat-icon>delete</mat-icon>

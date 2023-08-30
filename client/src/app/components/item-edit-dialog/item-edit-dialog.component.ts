@@ -6,6 +6,7 @@ import { Item } from 'src/app/models/item';
 import { Property } from 'src/app/models/property';
 import { ItemsService } from 'src/app/services/items.service';
 import { ValueTypeEnum } from "../../enums/value-type";
+import { ItemDto } from 'src/app/models/dto/item-dto';
 @Component({
   selector: 'app-item-edit-dialog',
   templateUrl: './item-edit-dialog.component.html',
@@ -64,11 +65,10 @@ export class ItemEditDialogComponent implements OnInit {
     this.data.values.forEach(v => {
       v.value = values[v.id]
     });
-    console.log(this.data)
     this.itemsService.saveItem(this.data).subscribe({
-      next: () =>{
+      next: (response: ItemDto) =>{
           this.toastr.info('Done!');
-          this.dialogRef.close(this.data);
+          this.dialogRef.close(response);
         },
       error: error => this.toastr.error(error.error)
     })

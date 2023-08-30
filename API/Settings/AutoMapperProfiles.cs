@@ -33,7 +33,9 @@ namespace API.Settings
 
             CreateMap<ItemDto, Item>().ReverseMap();
 
-            CreateMap<ComplectItemDto, ComplectItem>().ReverseMap();
+            CreateMap<GroupItemDto, GroupItem>().ReverseMap();
+
+            CreateMap<GroupDto, Group>().ReverseMap();
 
             CreateMap<ComplectDto, Complect>().ReverseMap();
             

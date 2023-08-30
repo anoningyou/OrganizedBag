@@ -1,11 +1,13 @@
-<div class="item-value" [ngSwitch]="property.valueType">
+<div class="item-value" [ngSwitch]="property?.valueType">
 
     <p *ngSwitchCase="valueTypeEnum.Date"
         class="item-value__value">
-        {{property.value | date:'shortDate'}}
+        <span *ngIf="!!value && value!== 'undefined' && value!== 'null' ">
+            {{value | date:'shortDate'}}
+        </span>
     </p>
     <p *ngSwitchDefault
         class="item-value__value">
-        {{property.value}}
+        {{value}}
     </p>
 </div>

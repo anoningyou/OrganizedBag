@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ItemsService } from 'src/app/services/items.service';
 import { ItemEditDialogComponent } from '../item-edit-dialog/item-edit-dialog.component';
-import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
+import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray, CdkDragExit} from '@angular/cdk/drag-drop';
 import { Item } from 'src/app/models/item';
 import { BehaviorSubject, Observable, map } from 'rxjs';
-import { PropertyDto } from 'src/app/models/property-dto';
-import { PropertyParamDto } from 'src/app/models/property-param-dto';
+import PropertyDto from 'src/app/models/dto/property-dto';
+import { PropertyParamDto } from 'src/app/models/dto/property-param-dto';
 import { ResizeEvent } from 'angular-resizable-element';
 
 @Component({
@@ -16,32 +16,34 @@ import { ResizeEvent } from 'angular-resizable-element';
 })
 export class ItemsComponent implements OnInit{
 
-  private itemsSource = new BehaviorSubject<Item[]>([]);
-  items$ = this.itemsSource.asObservable();
+  @Input() properties: PropertyDto [] | null = [];
+  @Input() items: Item[] | null = [];
 
-  private propertiesSource = new BehaviorSubject<PropertyDto[]>([]);
-  properties$ = this.propertiesSource.asObservable();
-
-  private allPropertiesSource = new BehaviorSubject<PropertyDto[]>([]);
-  allProperties$ = this.allPropertiesSource.asObservable();
+  private tempIndex: number | null = null;
+  
   
   constructor(public itemsService: ItemsService,
     public dialog: MatDialog) {
   }
   ngOnInit(): void {
-    this.itemsService.itemObjects$.subscribe((items) => {
-      this.itemsSource.next(items);
-    });
+  }
 
-    this.itemsService.properties$.subscribe((properties) => {
-      const listProperties = properties.filter((p) => p.params?.listDisplay)
-        .sort((a, b) => (a.params.listOrder < b.params.listOrder ? -1 : 1));
-      this.propertiesSource.next(listProperties);
+  get propertiesSorted () {
+    return this.properties?.sort((a,b) => a.params.listOrder > b.params.listOrder ? 1 : -1) ?? []
+  }
 
-      const listAllProperties = properties
-          .sort((a, b) => (a.params.listOrder < b.params.listOrder ? -1 : 1));
-      this.allPropertiesSource.next(listAllProperties);
-    });
+  get propertiesFiltered () {
+    return this.propertiesSorted.filter(p => p.params.listDisplay) ?? [];
+  }
+
+  get itemList() {
+    if (this.tempIndex === null || !this.items)
+      return this.items;
+    else {
+      const items = [...this.items];
+      items.splice(this.tempIndex + 1, 0, this.items[this.tempIndex]);
+      return items;
+    }
   }
 
   openAddItemDialog(): void {
@@ -52,19 +54,15 @@ export class ItemsComponent implements OnInit{
     dialogRef.afterClosed().subscribe(result => {
     });
   }
-
-  drop(event: CdkDragDrop<Item[] | null>) {
-    //console.log(event)
-    // if (event.previousContainer === event.container) {
-    //   moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    // } else {
-    //   transferArrayItem(
-    //     event.previousContainer.data,
-    //     event.container.data,
-    //     event.previousIndex,
-    //     event.currentIndex,
-    //   );
-    // }
+  exited(event: any) {
+    if  (event?.container?.data && event.item?.data?.id){
+      this.tempIndex = event.container.data.findIndex(
+        (f: any) => f.id === event.item.data.id
+      );
+    }
+  }
+  entered() {
+    this.tempIndex = null;
   }
 
   getWidth(property: PropertyDto) {
@@ -75,7 +73,7 @@ export class ItemsComponent implements OnInit{
     this.itemsService.updatePropertyParam(param);
   }
 
-  dropHeader(event: CdkDragDrop<PropertyDto[] | null>) {
+  dropHeader(event: CdkDragDrop<PropertyDto[]>) {
     const propertyParams = event.container.data?.map(p => p.params) ?? [];
     moveItemInArray(propertyParams, event.previousIndex, event.currentIndex);
     propertyParams.forEach((param, idx) => {

@@ -1,8 +1,8 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { ComplectDto } from 'src/app/models/complect-dto';
-import { ItemsService } from 'src/app/services/items.service';
+import { ComplectDto } from 'src/app/models/dto/complect-dto';
+import { ComplectsService } from 'src/app/services/complects.service';
 
 @Component({
   selector: 'app-complect-edit-dialog',
@@ -14,13 +14,14 @@ export class ComplectEditDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ComplectEditDialogComponent>,
     @Inject(MAT_DIALOG_DATA) data: ComplectDto | undefined | null,
-    private itemsService: ItemsService,
+    private complectsService: ComplectsService,
     private toastr: ToastrService
   ) {
     if (data){
-      this.data = data;
+      this.data = Object.assign({} as ComplectDto,data);
     }
-      else this.data = this.itemsService.createNewComplect();
+      else this.data = this.complectsService.createNewComplect();
+      console.log(this.data)
   }
 
   getTitle(): string {
@@ -31,7 +32,7 @@ export class ComplectEditDialogComponent {
   }
 
   onOkClick() {
-    this.itemsService.saveComplect(this.data).subscribe({
+    this.complectsService.saveComplect(this.data).subscribe({
       next: () =>{
           this.toastr.info('Done!');
           this.dialogRef.close(this.data);

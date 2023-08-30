@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { ValueTypeEnum } from 'src/app/enums/value-type';
-import { Property } from 'src/app/models/property';
+import PropertyDto from 'src/app/models/dto/property-dto';
 
 @Component({
   selector: 'app-item-value',
@@ -8,6 +8,7 @@ import { Property } from 'src/app/models/property';
   styleUrls: ['./item-value.component.scss']
 })
 export class ItemValueComponent {
- @Input() property: Property = new Property();
+ @Input() property: PropertyDto | null | undefined;
+ @Input() value: string | null | undefined;
  valueTypeEnum: typeof ValueTypeEnum = ValueTypeEnum;
 }

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BaseHttpService } from './base-http.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { ComplectDto } from '../models/complect-dto';
-import { ComplectItemDto } from '../models/complect-item-dto';
+import { ComplectDto } from '../models/dto/complect-dto';
+import { GroupItemDto } from '../models/dto/group-item-dto';
+import { GroupDto } from '../models/dto/group-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -25,18 +26,38 @@ export class ComplectsHttpService extends BaseHttpService {
     return this.http.put<ComplectDto>(`${this.rootUrl}edit`, model);
   }
 
-  addItem(model: ComplectItemDto) {
-    return this.http.post<ComplectItemDto>(`${this.rootUrl}addItem`, model);
+  delete(model: string) {
+    const params = new HttpParams()
+        .set('id', model);
+    return this.http.delete<boolean>(`${this.rootUrl}delete`, {params});
   }
 
-  deleteItem(model: ComplectItemDto) {
+  addGroup(model: GroupDto) {
+    return this.http.post<GroupItemDto>(`${this.rootUrl}addGroup`, model);
+  }
+
+  deleteGroup(model: string) {
+    const params = new HttpParams()
+        .set('id', model);
+    return this.http.delete<boolean>(`${this.rootUrl}deleteGroup`, {params});
+  }
+
+  updateGroup(model: GroupDto) {
+    return this.http.put<GroupDto>(`${this.rootUrl}updateGroup`, model);
+  }
+
+  addItem(model: GroupItemDto) {
+    return this.http.post<GroupItemDto>(`${this.rootUrl}addItem`, model);
+  }
+
+  deleteItem(model: GroupItemDto) {
     const params = new HttpParams()
         .set('itemId', model.itemId.toString())
-        .set('complectId', model.complectId.toString());
+        .set('complectId', model.groupId.toString());
     return this.http.delete<boolean>(`${this.rootUrl}deleteItem`, {params});
   }
 
-  updateItem(model: ComplectItemDto) {
-    return this.http.put<ComplectItemDto>(`${this.rootUrl}updateItem`, model);
+  updateItem(model: GroupItemDto) {
+    return this.http.put<GroupItemDto>(`${this.rootUrl}updateItem`, model);
   }
 }

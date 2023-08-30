@@ -55,16 +55,21 @@ a{
     }   
 }
 
-.block-header-button{
-    padding: 1px;
+.mat-mdc-icon-button.small-button, 
+.mat-mdc-icon-button.small-button span , 
+.mat-mdc-icon-button.small-button .mat-mdc-button-touch-target,
+.small-button .mat-mdc-button-touch-target{
     width: 24px;
     height: 24px;
 }
 
-.item .item__buttons .block-header-button span {
-    width: 24px;
-    height: 24px;
-    font-size: 17px;
+.mat-mdc-icon-button.small-button .mat-icon{
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    position: absolute;
+    top: 2px;
+    left: 2px;
 }
 
 .resizable {
@@ -77,7 +82,7 @@ a{
 .resize-handle-left,
 .resize-handle-right {
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
   position: absolute;
   height: 100%;
   cursor: col-resize;

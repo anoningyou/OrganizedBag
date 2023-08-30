@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BaseHttpService } from './base-http.service';
-import { PropertyDto } from '../models/property-dto';
-import { PropertyParamDto } from '../models/property-param-dto';
+import PropertyDto from '../models/dto/property-dto';
+import { PropertyParamDto } from '../models/dto/property-param-dto';
 
 @Injectable({
   providedIn: 'root'

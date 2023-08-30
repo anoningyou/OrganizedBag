@@ -18,8 +18,8 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material/core';
-import { MatMomentDateModule } from '@angular/material-moment-adapter';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatSelectModule} from '@angular/material/select';
 
 @NgModule({
   declarations: [],
@@ -45,8 +45,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     MatTooltipModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatMomentDateModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatSelectModule
   ]
 })
 export class MatDesignModule { }

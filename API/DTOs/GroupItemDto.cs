@@ -1,9 +1,9 @@
 namespace API.DTOs
 {
-    public class ComplectItemDto
+    public class GroupItemDto
     {
         public Guid ItemId { get; set; }
-        public Guid ComplectId { get; set; }
+        public Guid GroupId { get; set; }
         public int Count { get; set; } = 1;
     }
 }

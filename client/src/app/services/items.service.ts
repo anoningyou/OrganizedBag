@@ -1,43 +1,31 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, OnInit } from '@angular/core';
-
-import { PropertyDto } from '../models/property-dto';
+import PropertyDto from '../models/dto/property-dto';
 import { BehaviorSubject, Observable, map, take } from 'rxjs';
-import { ItemDto } from '../models/item-dto';
+import { ItemDto } from '../models/dto/item-dto';
 import { ItemsHttpService } from './items-http.service';
 import { PropertiesHttpService } from './properties-http.service';
-import { ComplectsHttpService } from './complects-http.service';
-import { ComplectDto } from '../models/complect-dto';
 import { AccountService } from './account.service';
 import { Item } from '../models/item';
 import { Property } from '../models/property';
-import { PropertyValueDto } from '../models/property-value-dto';
-import { ComplectItemDto } from '../models/complect-item-dto';
-import { PropertyParamDto } from '../models/property-param-dto';
+import { PropertyValueDto } from '../models/dto/property-value-dto';
+import { PropertyParamDto } from '../models/dto/property-param-dto';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ItemsService {
-    private itemsSource = new BehaviorSubject<ItemDto[]>([]);
-    items$ = this.itemsSource.asObservable();
+  private itemsSource = new BehaviorSubject<ItemDto[]>([]);
+  items$ = this.itemsSource.asObservable();
 
   private propertiesSource = new BehaviorSubject<PropertyDto[]>([]);
   properties$ = this.propertiesSource.asObservable();
 
-  private complectsSource = new BehaviorSubject<ComplectDto[]>([]);
-  complects$ = this.complectsSource.asObservable();
-
   private itemObjectsSource = new BehaviorSubject<Item[]>([]);
   itemObjects$ = this.itemObjectsSource.asObservable();
-
-  private currentComplectSource = new BehaviorSubject<ComplectDto | null>(null);
-  currrentComplect$ = this.currentComplectSource.asObservable();
 
   constructor(
     private itemsHttp: ItemsHttpService,
     private propertiesHttp: PropertiesHttpService,
-    private complectsHttp: ComplectsHttpService,
     private accountService: AccountService
   ) {
     this.items$.subscribe((items) => {
@@ -85,29 +73,13 @@ export class ItemsService {
     );
   }
 
-  loadComplects(): Observable<ComplectDto[]> {
-    return this.complectsHttp.getAll().pipe(
-      map((response: ComplectDto[]) => {
-        const complects = response ?? [];
-        this.complectsSource.next(complects);
-        return complects;
-      })
-    );
-  }
-
   loadAll() {
     this.loadProperties().subscribe((_) => {
-      this.accountService.currentUser$.pipe(take(1)).subscribe(user => {
+      this.accountService.currentUser$.pipe(take(1)).subscribe((user) => {
         if (user)
-        this.loadItems().subscribe((_) => {
-          this.loadComplects().subscribe((c) => {
-            if (c && c.length > 0) {
-              this.currentComplectSource.next(c[0]);
-            }
+          this.loadItems().subscribe((_) => {
           });
-        });
-      })
-      
+      });
     });
   }
 
@@ -139,6 +111,7 @@ export class ItemsService {
             this.itemsSource.next(items);
           });
         }
+        return response;
       })
     );
   }
@@ -159,12 +132,12 @@ export class ItemsService {
             this.itemsSource.next(items);
           });
         }
+        return response;
       })
     );
   }
 
   deleteItem(itemId: string) {
-
     return this.itemsHttp.delete(itemId).pipe(
       map((response: boolean) => {
         if (response) {
@@ -177,106 +150,37 @@ export class ItemsService {
     );
   }
 
-  createNewComplect(): ComplectDto {
-    return {
-      id: null as string | null,
-      name: '',
-      description: '',
-      items: [],
-    } as ComplectDto;
-  }
-
-  saveComplect(complect: ComplectDto) {
-    if (!complect.id) return this.addComplect(complect);
-    else return this.updateComplect(complect);
-  }
-
-  addComplect(complect: ComplectDto) {
-    complect.id = crypto.randomUUID();
-    return this.complectsHttp.add(complect).pipe(
-      map((response: ComplectDto) => {
-        if (response) {
-          this.complects$.pipe(take(1)).subscribe((complects) => {
-            complects.push(response);
-            this.complectsSource.next(complects);
-          });
-        }
-      })
-    );
-  }
-
-  updateComplect(complect: ComplectDto) {
-    return this.complectsHttp.edit(complect).pipe(
-      map((response: ComplectDto) => {
-        if (response) {
-          var values = this.complectsSource.getValue() ?? [];
-          var idx = values.findIndex((v) => v.id === response.id);
-          values[idx] = response;
-          this.complectsSource.next(values);
-        }
-      })
-    );
-  }
-
-  setCurrentComplect(complect: ComplectDto) {
-    this.currentComplectSource.next(complect);
-  }
-
-  addItemToComplect(item: Item, complect: ComplectDto) {
-    const dto = {
-      itemId: item.id,
-      complectId: complect.id,
-      count: 1,
-    } as ComplectItemDto;
-    let existsCount = 0;
-    if (!complect.items) complect.items = [];
-    else {
-      existsCount =
-        complect.items.find((i) => i.itemId === item.id)?.count ?? 0;
-      dto.count += existsCount;
-    }
-
-    complect.items.push(dto);
-    this.currentComplectSource.next(this.currentComplectSource.getValue());
-    if (existsCount) return this.complectsHttp.updateItem(dto);
-    else return this.complectsHttp.addItem(dto);
-  }
-
   updatePropertyParam(param: PropertyParamDto) {
-    this.accountService.takeCurrentUser().subscribe( user => {
+    this.accountService.takeCurrentUser().subscribe((user) => {
       if (user) {
-        this.propertiesHttp.updateParam(param).subscribe(response =>{
+        this.propertiesHttp.updateParam(param).subscribe((response) => {
           this.resetPropertyParams([response]);
-        }); 
+        });
       } else {
         this.resetPropertyParams([param]);
       }
-    })
-       
+    });
   }
 
   updatePropertyParams(params: PropertyParamDto[]) {
-    this.accountService.takeCurrentUser().subscribe( user => {
+    this.accountService.takeCurrentUser().subscribe((user) => {
       if (user) {
-        this.propertiesHttp.updateParams(params).subscribe(response =>{
+        this.propertiesHttp.updateParams(params).subscribe((response) => {
           this.resetPropertyParams(response);
-        }); 
+        });
       } else {
         this.resetPropertyParams(params);
       }
-    })
-       
+    });
   }
 
   resetPropertyParams(params: PropertyParamDto[]) {
-    this.properties$.pipe(take(1)).subscribe(props => {
-      params.forEach(param =>{
-        const prop = props.find(p => p.id === param.propertyId);
-        if (prop)
-          prop.params = param;
-      })
+    this.properties$.pipe(take(1)).subscribe((props) => {
+      params.forEach((param) => {
+        const prop = props.find((p) => p.id === param.propertyId);
+        if (prop) prop.params = param;
+      });
       this.propertiesSource.next(props);
-    })
+    });
   }
-
 }

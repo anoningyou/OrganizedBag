@@ -1,24 +1,169 @@
 <mat-card>
     <mat-card-header>
-      <mat-card-title>{{complect?.name}}</mat-card-title>
-      <button mat-icon-button 
-            color="primary" 
-            aria-label="Edit" 
-            (click)="openEditComplectDialog()">
-      <mat-icon>add</mat-icon>
-    </button>
-    </mat-card-header>
-    <mat-card-content>
-        <ul class="items__list"
-            cdkDropList
-            #complectItemsList="cdkDropList"
-            id="complectItemsList"
-            cdkDropListConnectedTo="itemsList"
-            [cdkDropListData]="itemObjects$ | async"
-            (cdkDropListDropped)="drop($event)">
-            <li class="items__list-item" *ngFor="let item of itemObjects$ | async">
-              <app-item [item]="item"></app-item>
+      <mat-card-title class="complect__header">
+        <span class="complect__header-name">{{complect?.name}} </span>
+        <button mat-icon-button 
+          color="primary" 
+          aria-label="Edit" 
+          class="small-button"
+          (click)="openEditComplectDialog()">
+          <mat-icon *ngIf="complect">edit</mat-icon>
+          <mat-icon *ngIf="!complect">add</mat-icon>
+        </button>
+        <button mat-icon-button 
+                *ngIf="complect"
+                color="primary" 
+                aria-label="Edit item" 
+                class="small-button"
+                matTooltip="Clone"
+                (click)="openCloneComplectDialog()">
+                <mat-icon>control_point_duplicate</mat-icon>
+        </button>
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{complect?.description}}
+      </mat-card-subtitle>
+      <div class="buttons-container">
+        <mat-form-field appearance="outline" class="small-outlined-select">
+          <mat-label>Show by</mat-label>
+          <mat-select [(value)]="groupPropertyId">
+            <mat-option class="complect__group-select-item">None</mat-option>
+            <mat-option class="complect__group-select-item"
+              *ngFor="let prop of properties" 
+              value="{{prop.id}}">
+                {{prop.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-icon-button 
+          color="primary" 
+          aria-label="Show headers" 
+          matTooltip="Show headers"
+          [matMenuTriggerFor]="listHeadersMenu">
+          <mat-icon>settings</mat-icon>
+        </button>
+        <mat-menu class="table-headers-menu" #listHeadersMenu="matMenu" (click)="$event.stopPropagation()">
+          <ul class="table-headers-menu__list" 
+            cdkDropList 
+            (cdkDropListDropped)="dropHeader($event)"
+            [cdkDropListData]="propertiesSorted">
+            <li class="table-headers-menu__list-item"
+              *ngFor="let prop of propertiesSorted"
+              cdkDrag
+              cdkDragLockAxis="y"
+              cdkDragBoundary=".table-headers-menu__list" >
+              <div class="table-headers-menu__drag-placeholder" *cdkDragPlaceholder></div>
+              <mat-checkbox class="table-headers-menu__ckeckbox" 
+                  [(ngModel)]="prop.params.complectDisplay"
+                  [disableRipple]="true"
+                  (click)="$event.stopPropagation()"
+                  (change)="onTableHeaderSelected(prop.params)">
+                {{prop.name}}
+              </mat-checkbox> 
+              <mat-icon class="table-headers-menu__drag-handle" cdkDragHandle>
+                unfold_more
+              </mat-icon>
             </li>
-          </ul>
+          </ul>                          
+        </mat-menu>
+      </div>
+    </mat-card-header>
+    <mat-card-content class="complect-items"
+              cdkDropList
+              #complectItemsList="cdkDropList"
+              id="complectItemsList"
+              cdkDropListConnectedTo="itemsList"
+              (cdkDropListDropped)="drop($event)">
+      
+      <table mat-table [dataSource]="complectItemViews">
+              
+        <ng-container *ngFor="let column of columns" [matColumnDef]="column.columnDef">
+
+          <!-- headers -->
+          <ng-container [ngSwitch]="column.columnDef">
+            <ng-template ngSwitchCase="{{column.columnDef === 'count' || column.columnDef === 'actions'}}">
+              <th mat-header-cell *matHeaderCellDef >
+                <span>{{column.header}}</span>
+              </th>
+            </ng-template>
+            <ng-template ngSwitchDefault>
+              <th 
+                mat-header-cell 
+                *matHeaderCellDef >
+                <span>{{column.header}}</span>
+              </th>
+            </ng-template>
+          </ng-container>
+          
+          <!-- cells -->
+          <td  [ngClass]="column.class" mat-cell *matCellDef="let row" [ngSwitch]="column.columnDef">
+            <ng-container *ngSwitchCase="'count'">
+                <input *ngIf="!row.isSummary" class="item__count-value" 
+                type="number"
+                [(value)]="row.count"
+                min="1"
+                (change)="onCountChange($event, row)">
+                <span class="item__summary-count" *ngIf="row.isSummary">{{row.count}}</span>
+            </ng-container>
+            <ng-container *ngSwitchCase="'actions'">          
+              <div class="item__buttons-container" *ngIf="!row.isSummary">
+                <button mat-icon-button 
+                  color="primary" 
+                  aria-label="Edit item" 
+                  class="small-button"
+                  (click)="openEditItemDialog(row)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button 
+                  color="primary" 
+                  aria-label="Edit item" 
+                  class="small-button"
+                  (click)="openCloneItemDialog(row)">
+                  <mat-icon>control_point_duplicate</mat-icon>
+                </button>
+                <button mat-icon-button 
+                  color="primary" 
+                  aria-label="Delete from complect" 
+                  class="small-button"
+                  (click)="openDeleteComplectItemDialog(row)">
+                  <mat-icon>remove_circle_outline</mat-icon>
+                </button>
+              </div>
+              <span class="item__summary-count" *ngIf="row.isSummary">Summ</span>
+          </ng-container>
+            <ng-container *ngSwitchDefault>
+              <app-item-value class="item__value" 
+                [property]="column.property"
+                [value]="column.cell(row)">
+              </app-item-value>
+            </ng-container>
+            
+          </td>
+        </ng-container>
+      
+        <tr class="table-header" mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr class="item" mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <!-- Summary row -->
+        <tr class="summary" mat-row *matRowDef="let row; columns: displayedColumns; when: isSummary"></tr>
+        
+        <!-- Group header -->
+        <ng-container matColumnDef="groupHeader">
+          <td colspan="999" mat-cell *matCellDef="let groupBy">
+            <div class="group-item__container" >
+              <span>{{groupBy.groupValue.name}}: "</span>
+              <app-item-value class="group-item__value" 
+                  [property]="groupBy.groupValue"
+                  [value]="groupBy.groupValue.value">
+                </app-item-value>
+                <span>"</span>
+            </div>
+            
+          </td>
+        </ng-container>
+        <!-- Group row -->
+        <tr class="group-item" mat-row *matRowDef="let row; columns: ['groupHeader']; when: isGroup"> </tr>
+    
+      </table>
     </mat-card-content>
 </mat-card>
