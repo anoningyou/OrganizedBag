@@ -28,6 +28,7 @@
           <mat-label>Show by</mat-label>
           <mat-select [(value)]="groupPropertyId">
             <mat-option class="complect__group-select-item">None</mat-option>
+            <mat-option class="complect__group-select-item" value="{{categoryGroupId}}">Category</mat-option>
             <mat-option class="complect__group-select-item"
               *ngFor="let prop of properties" 
               value="{{prop.id}}">
@@ -69,13 +70,14 @@
       </div>
     </mat-card-header>
     <mat-card-content class="complect-items"
+              >
+      
+      <table mat-table [dataSource]="complectItemViews"
               cdkDropList
               #complectItemsList="cdkDropList"
               id="complectItemsList"
               cdkDropListConnectedTo="itemsList"
               (cdkDropListDropped)="drop($event)">
-      
-      <table mat-table [dataSource]="complectItemViews">
               
         <ng-container *ngFor="let column of columns" [matColumnDef]="column.columnDef">
 
@@ -165,5 +167,17 @@
         <tr class="group-item" mat-row *matRowDef="let row; columns: ['groupHeader']; when: isGroup"> </tr>
     
       </table>
+      <div class="complect-items__end-row" *ngIf="complect">
+        <div class="complect-items__end-row-buttons">
+          <button mat-icon-button 
+          color="primary" 
+          aria-label="Add group" 
+          class="complect-items__add-group-btn"
+          matTooltip="Add group"
+          (click)="openAddGroupDialog()">
+          <mat-icon>add</mat-icon>
+        </button>  
+        </div>
+      </div>
     </mat-card-content>
 </mat-card>

@@ -141,3 +141,22 @@ tr.group-item, tr.group-item:hover {
     padding: 0 5px;
 }
 
+.complect-items__end-row {
+    display: flex;
+    justify-content: flex-start;
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    height: 30px;
+}
+
+.complect-items__end-row-buttons {
+    position: relative;
+}
+
+.complect-items__add-group-btn{
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+

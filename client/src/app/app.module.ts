@@ -28,6 +28,7 @@ import { DialogModule } from './common/dialog/dialog.module';
 import { InputsModule } from './common/inputs/inputs.module';
 import { ResizableModule } from 'angular-resizable-element';
 import { ItemsDiagramComponent } from './components/items-diagram/items-diagram.component';
+import { GroupEditDialogComponent } from './components/group-edit-dialog/group-edit-dialog.component';
 
 
 
@@ -47,7 +48,8 @@ import { ItemsDiagramComponent } from './components/items-diagram/items-diagram.
     ComplectsComponent,
     ComplectItemsComponent,
     ComplectEditDialogComponent,
-    ItemsDiagramComponent
+    ItemsDiagramComponent,
+    GroupEditDialogComponent
   ],
   imports: [
     BrowserModule,

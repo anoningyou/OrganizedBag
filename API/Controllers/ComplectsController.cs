@@ -57,8 +57,8 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        [HttpPost(nameof(DeleteGroup))]
-        public async Task<ActionResult<bool>> DeleteGroup(GroupDto dto)
+        [HttpDelete(nameof(DeleteGroup))]
+        public async Task<ActionResult<bool>> DeleteGroup([FromQuery]GroupDto dto)
         {
             _uow.ComplectsRepository.RemoveGroup(dto);
             return Ok(await _uow.Complete());
@@ -84,8 +84,8 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        [HttpPost(nameof(DeleteItem))]
-        public async Task<ActionResult<bool>> DeleteItem(GroupItemDto item)
+        [HttpDelete(nameof(DeleteItem))]
+        public async Task<ActionResult<bool>> DeleteItem([FromQuery]GroupItemDto item)
         {
             _uow.ComplectsRepository.RemoveItem(item);
             return Ok(await _uow.Complete());

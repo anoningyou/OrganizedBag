@@ -17,6 +17,7 @@ import { YesNoComponent } from 'src/app/common/dialog/yes-no/yes-no.component';
 import { ValueTypeEnum } from 'src/app/enums/value-type';
 import { GroupDto } from 'src/app/models/dto/group-dto';
 import { ComplectsService } from 'src/app/services/complects.service';
+import { GroupEditDialogComponent } from '../group-edit-dialog/group-edit-dialog.component';
 
 
 
@@ -28,11 +29,12 @@ import { ComplectsService } from 'src/app/services/complects.service';
 export class ComplectItemsComponent implements OnInit {
   private itemObjectsSource = new BehaviorSubject<Item[]>([]);
   itemObjects$ = this.itemObjectsSource.asObservable();
+  categoryGroupId = 'category';
 
   @Input() complect: ComplectDto | null = null;
   @Input() items: Item[] | null = [];
   @Input() properties: PropertyDto [] | null = [];
-  @Input() groupPropertyId: string | undefined | null;
+  @Input() groupPropertyId: string | undefined | null = this.categoryGroupId;
   @Output() complectItemUpdated: EventEmitter<GroupItemDto> = new EventEmitter();
   @Output() currentComplectChanged: EventEmitter<ComplectDto | null> = new EventEmitter();
 
@@ -87,26 +89,53 @@ export class ComplectItemsComponent implements OnInit {
   } 
 
   get complectItemViews() {
-    let complectItems: GroupItemView[]  = [];
-    if(this.complect?.groups && this.items)
-      complectItems = this.items.map(i => {
-        return {
-          complectItem: this.complect?.groups.map(g => g.items)
-            ?.flat().find(ci => ci.itemId === i.id),
-          item: i
-        }
-      })
-      .filter(i => i.complectItem)
-      .map(i => {
-        return Object.assign(new GroupItemView(), i.item, i.complectItem)
-      });
-    if (this.groupPropertyId) 
-      complectItems = this.groupItems(complectItems, this.groupPropertyId)
+    if(this.complect?.groups && this.items){
+      if (this.groupPropertyId === this.categoryGroupId)
+        return this.getItemsByGroups(this.complect.groups, this.items);
+      else
+        return this.getItemsByGrouppingField(this.complect.groups, this.items, this.groupPropertyId);
+    }
+    else
+      return [];
+  }
+
+  getItemViews(items: Item[], groupItems: GroupItemDto []) : GroupItemView[] {
+    return groupItems.map(gi => {
+      return {
+        groupItem: gi,
+        item: items.find(i => i.id === gi.itemId)
+      }
+    })
+    .filter(i => i.item)
+    .map(i => {
+      return Object.assign(new GroupItemView(), i.item, i.groupItem) as GroupItemView
+    });
+  }
+
+  getItemsByGroups(groups: GroupDto[], items: Item[]) : GroupItemView[]{
+    const groupedKeys : {[key: string]: GroupItemView[]} = {};
+    groups.forEach(group => {   
+      const keyProp = new Property();
+      keyProp.value = keyProp.id = group.name;
+      keyProp.name = 'Category';
+      groupedKeys[group.name] = [{
+        isGroupBy: true,
+        groupValue: keyProp,
+      } as GroupItemView]
+      .concat(this.getItemViews(this.items ?? [], group.items));
+    });
+    return this.fillGroupViews(groupedKeys);
+  }
+
+  getItemsByGrouppingField(groups: GroupDto[], items: Item[], groupPropertyId: string | null | undefined) : GroupItemView[]{
+    let complectItems : GroupItemView[] = this.getItemViews(items, groups.map(g => g.items)?.flat() ?? []);
+
+    if (groupPropertyId) 
+      complectItems = this.groupItemsByProp(complectItems, groupPropertyId)
     return complectItems;
   }
 
-  groupItems(items: GroupItemView[], propertyId: string) : GroupItemView[] {
-    let result: GroupItemView[] = [];
+  groupItemsByProp(items: GroupItemView[], propertyId: string) : GroupItemView[] {
 
     const groupedKeys = items.reduce((group: {[key: string]: GroupItemView[]}, item) => {
       const keyProp = item.values.find(i => i.id == propertyId);
@@ -122,6 +151,12 @@ export class ComplectItemsComponent implements OnInit {
       group[key].push(item);
       return group;
     }, {});
+
+    return this.fillGroupViews(groupedKeys);
+  }
+
+  fillGroupViews(groupedKeys: {[key: string]: GroupItemView[]}) : GroupItemView[] {
+    let result: GroupItemView[] = [];
 
     Object.keys(groupedKeys).forEach(key => {
 
@@ -218,7 +253,7 @@ export class ComplectItemsComponent implements OnInit {
   }
 
 
-  drop(event: CdkDragDrop<Item[] | null>) {
+  drop(event: CdkDragDrop<any>) {
     if (!event.previousContainer.data || ! this.complect)
       return;
     if (event.previousContainer === event.container) {
@@ -266,7 +301,7 @@ export class ComplectItemsComponent implements OnInit {
       }
       this.complectItemUpdated.emit({
         itemId: item.id,
-        groupId: this.complect.id,
+        groupId: item.groupId,
         count: item.count
       } as GroupItemDto)   
     }
@@ -319,11 +354,32 @@ export class ComplectItemsComponent implements OnInit {
       {
         const complectItem = {
           itemId: item.id,
-          groupId: this.complect?.id,
+          groupId: item.groupId,
           count: item.count} as GroupItemDto;
         this.complectsService.deleteGroupItem(complectItem);
       }  
     });
+  }
+
+  openAddGroupDialog() {
+    if (this.complect) {
+      const dialogRef = this.dialog.open(GroupEditDialogComponent, {
+        data: {complectId: this.complect?.id, items: [] as GroupItemDto[]} as GroupDto,
+      });
+    }
+    
+
+  }
+
+  openEditGroupDialog(item: GroupItemDto) {
+    // const dialogRef = this.dialog.open(ItemEditDialogComponent, {
+    //   data: item,
+    // });
+
+    // dialogRef.afterClosed().subscribe(result => {
+    //   // if (result)
+    //   //   item = result;
+    // });
   }
 
 }
