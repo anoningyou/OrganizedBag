@@ -81,7 +81,7 @@
           [cdkDragData]="item"
           (cdkDragEnded)="entered()">
           <app-item [item]="item"></app-item>
-          <div class="item__drag-placeholder" *cdkDragPlaceholder><app-item [item]="item"></app-item></div>
+          <div class="item__drag-placeholder" *cdkDragPlaceholder></div>
           <div class="item__drag-preview" *cdkDragPreview><app-item [item]="item"></app-item></div>
         </li>
         <li class="items__list-end">

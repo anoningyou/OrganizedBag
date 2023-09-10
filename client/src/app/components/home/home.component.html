@@ -1,6 +1,7 @@
-<section class="home">
+<section class="home" #home>
     <div class="home__block home__items resizable"
-        [ngStyle]="{'width': itemsWidth}"
+        #items
+        [ngStyle]="{'width': itemsWidthPx}"
         mwlResizable
         [enableGhostResize]="false"
         (resizeEnd)="onItemsResizeEnd($event)">
@@ -11,13 +12,16 @@
         <div class="resize-handle-right" mwlResizeHandle [resizeEdges]="{ right: true }"></div>
     </div>
     <app-complect-items class="home__block home__complect-items"
-        [complect]="currentComplect"
+        [complect]="currentComplect$ | async"
+        (complectChange)="onCurrentComplectChange($event)"
         [items]="itemsService.itemObjects$ | async"
         [properties]="itemsService.properties$ | async"
         (complectItemUpdated)="onComplectItemUpdated($event)"
+        
     ></app-complect-items>
-    <app-complects class="home__block home__complects"
+    <app-complects *ngIf="showComplects" class="home__block home__complects"
         [complects]="complectsService.complects$ | async"
-        [(currentComplect)]="currentComplect"
+        [currentComplect]="currentComplect$  | async"
+        (currentComplectChange)="onCurrentComplectChange($event)"
     ></app-complects>
 </section>

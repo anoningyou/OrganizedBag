@@ -76,9 +76,9 @@
   }
   
   .item__drag-placeholder {
-    background: #eeeeee;
-    position: sticky;
-    bottom: 0;
+    background: #FFFF;
+    border: 3px dotted rgba(0, 0, 0, 0.14);
+    min-height: 35px;
   }
   
   .cdk-drag-animating {

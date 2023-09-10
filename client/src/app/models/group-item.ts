@@ -6,8 +6,7 @@ export class GroupItem extends Item {
     count: number = 1;
 }
 
-export class GroupItemView extends Item {
-    count: number = 1;
+export class GroupItemView extends GroupItem {
     isGroupBy: boolean = false;
     groupValue: Property = new Property();
     isSummary: boolean = false;

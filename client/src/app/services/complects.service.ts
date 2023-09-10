@@ -136,17 +136,32 @@ export class ComplectsService {
 
 
   deleteGroup(dto: GroupDto) {
-    return this.complects$.pipe(take(1)).pipe(
-      map((complects: ComplectDto[]) => {
-        const complect = complects.find((c) => c.id == dto.complectId);
-        if (complect && dto.id) {
+    return this.complects$.pipe(take(1)).subscribe(complects => {
+      const complect = complects.find((c) => c.id == dto.complectId);
+      if (complect && dto.id) {
           complect.groups = complect.groups.filter(g => g.id !== dto.id);
           this.complectsSource.next(complects);
           this.complectsHttp.deleteGroup(dto.id).subscribe((result) => {});
-          return true;
-        } else return false;
-      })
-    );
+      }
+    });
+  }
+
+  addGroupItemToGroup(item: GroupItemDto, group: GroupDto) {
+    const dto = Object.assign({}, item) as GroupItemDto;
+    dto.groupId = group.id ?? '';
+    let existsCount = 0;
+    if (!group.items) group.items = [];
+    else {
+      const existItem = group.items.find((i) => i.itemId === item.itemId);
+      if (existItem) {
+        existsCount = existItem.count;
+        existItem.count += dto.count;
+        dto.count = existItem.count;
+      }
+    }
+    if (!existsCount) group.items.push(dto);
+    if (existsCount) return this.complectsHttp.updateItem(dto);
+    else return this.complectsHttp.addItem(dto);
   }
 
   addItemToGroup(item: Item, group: GroupDto) {
@@ -155,20 +170,7 @@ export class ComplectsService {
       groupId: group.id,
       count: 1,
     } as GroupItemDto;
-    let existsCount = 0;
-    if (!group.items) group.items = [];
-    else {
-      const existItem = group.items.find((i) => i.itemId === item.id);
-      if (existItem) {
-        existsCount = existItem.count;
-        existItem.count += dto.count;
-        dto.count = existItem.count;
-      }
-    }
-    if (!existsCount) group.items.push(dto);
-    //this.currentComplectSource.next(this.currentComplectSource.getValue());
-    if (existsCount) return this.complectsHttp.updateItem(dto);
-    else return this.complectsHttp.addItem(dto);
+    return this.addGroupItemToGroup(dto, group);
   }
 
   updateGroupItem(groupItem: GroupItemDto) {

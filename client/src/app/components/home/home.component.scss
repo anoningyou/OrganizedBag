@@ -1,6 +1,5 @@
 .home{
     display: flex;
-    flex-wrap: wrap;
     justify-content: stretch;
     align-items: stretch;
     height: 100%;
@@ -15,10 +14,12 @@
     }
     .home__complect-items {
         flex-grow: 1;
+        flex-shrink: 1;
+        min-width: 280px;
     }
 }
 .home>* {
-    flex: 0 1 auto;
+    flex: 0 0 auto;
     height: 100%;
   }
 

@@ -54,7 +54,6 @@ export class ComplectsHttpService extends BaseHttpService {
     const params = new HttpParams()
         .set('itemId', model.itemId)
         .set('groupId', model.groupId);
-    console.log(params);
     return this.http.delete<boolean>(`${this.rootUrl}deleteItem`, {params});
   }
 

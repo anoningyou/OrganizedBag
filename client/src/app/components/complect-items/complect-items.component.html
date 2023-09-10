@@ -26,7 +26,7 @@
       <div class="buttons-container">
         <mat-form-field appearance="outline" class="small-outlined-select">
           <mat-label>Show by</mat-label>
-          <mat-select [(value)]="groupPropertyId">
+          <mat-select [(value)]="groupPropertyId" (valueChange)="onGroupPropertyIdChanged()">
             <mat-option class="complect__group-select-item">None</mat-option>
             <mat-option class="complect__group-select-item" value="{{categoryGroupId}}">Category</mat-option>
             <mat-option class="complect__group-select-item"
@@ -46,10 +46,10 @@
         <mat-menu class="table-headers-menu" #listHeadersMenu="matMenu" (click)="$event.stopPropagation()">
           <ul class="table-headers-menu__list" 
             cdkDropList 
-            (cdkDropListDropped)="dropHeader($event)"
-            [cdkDropListData]="propertiesSorted">
+            (cdkDropListDropped)="onHeaderDrop($event)"
+            [cdkDropListData]="getPropertiesSorted()">
             <li class="table-headers-menu__list-item"
-              *ngFor="let prop of propertiesSorted"
+              *ngFor="let prop of getPropertiesSorted()"
               cdkDrag
               cdkDragLockAxis="y"
               cdkDragBoundary=".table-headers-menu__list" >
@@ -69,36 +69,33 @@
         </mat-menu>
       </div>
     </mat-card-header>
-    <mat-card-content class="complect-items"
-              >
+    <mat-card-content class="complect-items">
       
-      <table mat-table [dataSource]="complectItemViews"
+      <mat-table [dataSource]="dataSource"
               cdkDropList
               #complectItemsList="cdkDropList"
               id="complectItemsList"
               cdkDropListConnectedTo="itemsList"
-              (cdkDropListDropped)="drop($event)">
+              [cdkDropListData]="dataSource"
+              (cdkDropListDropped)="onItemDrop($event)">
               
-        <ng-container *ngFor="let column of columns" [matColumnDef]="column.columnDef">
+        <ng-container *ngFor="let column of getColumns()" [matColumnDef]="column.columnDef">
 
           <!-- headers -->
           <ng-container [ngSwitch]="column.columnDef">
             <ng-template ngSwitchCase="{{column.columnDef === 'count' || column.columnDef === 'actions'}}">
-              <th mat-header-cell *matHeaderCellDef >
+              <mat-header-cell *matHeaderCellDef sticky [ngClass]="column.class">
                 <span>{{column.header}}</span>
-              </th>
+              </mat-header-cell>
             </ng-template>
             <ng-template ngSwitchDefault>
-              <th 
-                mat-header-cell 
-                *matHeaderCellDef >
+              <mat-header-cell *matHeaderCellDef [ngClass]="column.class">
                 <span>{{column.header}}</span>
-              </th>
+              </mat-header-cell>
             </ng-template>
           </ng-container>
           
-          <!-- cells -->
-          <td  [ngClass]="column.class" mat-cell *matCellDef="let row" [ngSwitch]="column.columnDef">
+          <mat-cell  [ngClass]="column.class" *matCellDef="let row" [ngSwitch]="column.columnDef">
             <ng-container *ngSwitchCase="'count'">
                 <input *ngIf="!row.isSummary" class="item__count-value" 
                 type="number"
@@ -108,7 +105,7 @@
                 <span class="item__summary-count" *ngIf="row.isSummary">{{row.count}}</span>
             </ng-container>
             <ng-container *ngSwitchCase="'actions'">          
-              <div class="item__buttons-container" *ngIf="!row.isSummary">
+              <div class="buttons-container" *ngIf="!row.isSummary">
                 <button mat-icon-button 
                   color="primary" 
                   aria-label="Edit item" 
@@ -132,7 +129,10 @@
                 </button>
               </div>
               <span class="item__summary-count" *ngIf="row.isSummary">Summ</span>
-          </ng-container>
+            </ng-container>
+            <ng-container *ngSwitchCase="'category'">
+              <span class="item__category">{{column.cell(row)}}</span>
+            </ng-container>
             <ng-container *ngSwitchDefault>
               <app-item-value class="item__value" 
                 [property]="column.property"
@@ -140,33 +140,67 @@
               </app-item-value>
             </ng-container>
             
-          </td>
+          </mat-cell>
         </ng-container>
       
-        <tr class="table-header" mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-        <tr class="item" mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <mat-header-row class="table-header"  *matHeaderRowDef="getDisplayedColumns(); sticky: true"></mat-header-row>
+        <mat-row class="row item" 
+           
+          *matRowDef="let row; columns: getDisplayedColumns();"
+          cdkDrag
+          [cdkDragData]="row"
+          cdkDragLockAxis="y"
+          cdkDragBoundary="#complectItemsList">
+          <div class="item__drag-placeholder"  *cdkDragPlaceholder></div>
+        </mat-row>
 
         <!-- Summary row -->
-        <tr class="summary" mat-row *matRowDef="let row; columns: displayedColumns; when: isSummary"></tr>
+        <mat-row class="row summary"
+         *matRowDef="let row; columns: getDisplayedColumns(); when: isSummary"
+         cdkDrag
+         [cdkDragData]="row"
+         [cdkDragDisabled]="true">
+        </mat-row>
         
         <!-- Group header -->
         <ng-container matColumnDef="groupHeader">
-          <td colspan="999" mat-cell *matCellDef="let groupBy">
+          <mat-cell class="group-item__cell" colspan="999"  *matCellDef="let groupBy">
             <div class="group-item__container" >
               <span>{{groupBy.groupValue.name}}: "</span>
               <app-item-value class="group-item__value" 
                   [property]="groupBy.groupValue"
                   [value]="groupBy.groupValue.value">
-                </app-item-value>
-                <span>"</span>
+              </app-item-value>
+              <span>"</span>
+            </div>
+            <div class="buttons-container">
+              <button mat-icon-button 
+                color="primary" 
+                aria-label="Edit item" 
+                class="small-button"
+                (click)="openEditGroupDialog(groupBy)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button 
+                color="primary" 
+                aria-label="Delete from complect" 
+                class="small-button"
+                (click)="openDeleteGroupDialog(groupBy)">
+                <mat-icon>delete</mat-icon>
+              </button>
             </div>
             
-          </td>
+          </mat-cell>
         </ng-container>
         <!-- Group row -->
-        <tr class="group-item" mat-row *matRowDef="let row; columns: ['groupHeader']; when: isGroup"> </tr>
+        <mat-row class="row group-item"
+          *matRowDef="let row; columns: ['groupHeader']; when: isGroup"
+          cdkDrag
+          [cdkDragData]="row"
+          [cdkDragDisabled]="true">
+        </mat-row>
     
-      </table>
+      </mat-table>
       <div class="complect-items__end-row" *ngIf="complect">
         <div class="complect-items__end-row-buttons">
           <button mat-icon-button 
