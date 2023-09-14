@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { ComplectDto } from 'src/app/models/dto/complect-dto';
 import { GroupItemDto } from 'src/app/models/dto/group-item-dto';
@@ -24,24 +24,30 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
   templateUrl: './complect-items.component.html',
   styleUrls: ['./complect-items.component.scss']
 })
-export class ComplectItemsComponent implements OnInit  {
+export class ComplectItemsComponent implements OnInit, OnChanges {
 
 //#region fields
 
   categoryGroupId = 'category';
   dataSource: MatTableDataSource<GroupItemView> = new MatTableDataSource();
   @ViewChild(MatTable) table?: MatTable<GroupItemView>;
-
+  
 //#endregion
 
 //#region inputs
-private x = 0;
+
+  //#region showChart
+  @Input() showChart = true;
+  @Output() showChartChange: EventEmitter<boolean> = new EventEmitter();
+  //#endregion
+
   //#region complect
   private _complect: ComplectDto | null = null
   @Input() 
     set complect(complect: ComplectDto | null) {
       this._complect = complect;
       this.resetDataSource();
+      //console.log(this._complect)
     }
     get complect() {
       return this._complect;
@@ -74,7 +80,7 @@ private x = 0;
   @Input() 
     set groupPropertyId(groupPropertyId: string | undefined | null) {
       this._groupPropertyId = groupPropertyId;
-      this.resetDataSource();
+      
     }
     get groupPropertyId() { return this._groupPropertyId; }
   //#endregion
@@ -92,6 +98,9 @@ private x = 0;
     public complectsService: ComplectsService,
     public dialog: MatDialog,
     public toastr: ToastrService) {
+  }
+  ngOnChanges(changes: SimpleChanges): void {
+    this.resetDataSource();
   }
 
 //#region event listeners
@@ -168,6 +177,11 @@ private x = 0;
      
   }
 
+  onChartToggleClick() {
+    this.showChart = !this.showChart;
+    this.showChartChange.emit(this.showChart);
+  }
+
 //#endregion
 
 //#region properties
@@ -230,9 +244,14 @@ private x = 0;
   
 //#region items
 
+  get groups() {
+    return this.complect?.groups ?? []
+  }
   resetDataSource(){
+    
     this.dataSource.data = this.getComplectItemViews();
     this.table?.renderRows();
+    //console.log(this.dataSource)
   }
 
   getComplectItemViews() {
@@ -244,7 +263,7 @@ private x = 0;
       }
       else
         return [];
-    }
+  }
 
   getItemViews(items: Item[], groupItems: GroupItemDto []) : GroupItemView[] {
     return groupItems.map(gi => {
@@ -376,6 +395,10 @@ private x = 0;
 
   isSummary(index: number, item: GroupItemView): boolean{
     return item.isSummary;
+  }
+
+  getChartLabel() {
+    return `${this.showChart ? 'Hide' : 'Show'} chart`
   }
 
 //#endregion
@@ -513,7 +536,7 @@ private x = 0;
     dialogRef.afterClosed().subscribe(result => {
       if (result)
       {
-        console.log(view)
+        //console.log(view)
         const group = {id: view.groupId ,complectId: this.complect?.id} as GroupDto;
         this.complectsService.deleteGroup(group);
       }  

@@ -29,6 +29,8 @@ import { InputsModule } from './common/inputs/inputs.module';
 import { ResizableModule } from 'angular-resizable-element';
 import { ItemsDiagramComponent } from './components/items-diagram/items-diagram.component';
 import { GroupEditDialogComponent } from './components/group-edit-dialog/group-edit-dialog.component';
+import { ChartModule } from './common/chart/chart.module';
+
 
 
 
@@ -63,7 +65,8 @@ import { GroupEditDialogComponent } from './components/group-edit-dialog/group-e
     SharedModule,
     InputsModule,
     DialogModule,
-    ResizableModule
+    ResizableModule,
+    ChartModule
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: ErrorsInterceptor, multi: true},

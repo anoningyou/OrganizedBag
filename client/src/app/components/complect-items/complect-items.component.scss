@@ -1,10 +1,21 @@
-.mat-mdc-card {
-    height: 100%;
+.chart-container {
+    height: 40%;
+    margin-bottom: 4px;
+    .chart {
+        height: 100%;
+    }
 }
 
-.mat-mdc-card-header {
-    justify-content: space-between;
-    flex-wrap: wrap;
+.chart {
+    height: 30%;
+}
+
+.complect-container {
+    height: 100%;
+    .mat-mdc-card-header {
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
 }
 
 .complect__header {

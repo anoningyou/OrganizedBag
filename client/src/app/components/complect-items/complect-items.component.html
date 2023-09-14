@@ -1,4 +1,14 @@
-<mat-card>
+<mat-card class="complect-container">
+  <app-chart class="chart" 
+    *ngIf="showChart"
+    [items]="items"
+    [properties]="properties"
+    [categoryGroupId]="categoryGroupId"
+    [groupPropertyId]="groupPropertyId"
+    [groups]="groups"
+    
+    
+    ></app-chart>
     <mat-card-header>
       <mat-card-title class="complect__header">
         <span class="complect__header-name">{{complect?.name}} </span>
@@ -67,6 +77,13 @@
             </li>
           </ul>                          
         </mat-menu>
+        <button mat-icon-button 
+          color="primary" 
+          aria-label="Toggle chart" 
+          [matTooltip]="getChartLabel()"
+          (click)="onChartToggleClick()">
+          <mat-icon>pie_chart</mat-icon>
+        </button>
       </div>
     </mat-card-header>
     <mat-card-content class="complect-items">
