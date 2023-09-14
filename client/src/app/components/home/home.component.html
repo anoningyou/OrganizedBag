@@ -20,8 +20,8 @@
         
     ></app-complect-items>
     <app-complects *ngIf="showComplects" class="home__block home__complects"
-        [complects]="complectsService.complects$ | async"
-        [currentComplect]="currentComplect$  | async"
+        [complects$]="complectsService.complects$"
+        [currentComplect$]="currentComplect$"
         (currentComplectChange)="onCurrentComplectChange($event)"
     ></app-complects>
 </section>

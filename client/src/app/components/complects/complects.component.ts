@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ComplectEditDialogComponent } from '../complect-edit-dialog/complect-edit-dialog.component';
 import { ComplectDto } from 'src/app/models/dto/complect-dto';
@@ -7,28 +7,33 @@ import { GroupItemDto } from 'src/app/models/dto/group-item-dto';
 import { ToastrService } from 'ngx-toastr';
 import { GroupDto } from 'src/app/models/dto/group-dto';
 import { ComplectsService } from 'src/app/services/complects.service';
+import { Observable, combineLatest, map, of, pipe, take } from 'rxjs';
 
 
 
 @Component({
   selector: 'app-complects',
   templateUrl: './complects.component.html',
-  styleUrls: ['./complects.component.scss']
+  styleUrls: ['./complects.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ComplectsComponent {
+export class ComplectsComponent implements OnInit {
 
-  @Input() complects: ComplectDto[] | null = [];
-  @Input() currentComplect: ComplectDto | null = null;
+  @Input() complects$: Observable<ComplectDto[] | null> = of(null);
+  @Input() currentComplect$: Observable<ComplectDto | null> = of(null);
   @Output() currentComplectChange = new EventEmitter<ComplectDto | null>();
+
+  orderedComplects$: Observable<ComplectDto []> = of([]);
 
 
   constructor(public complectsService: ComplectsService,
     public dialog: MatDialog,
     private toastr: ToastrService) {
   }
-
-  getOrderedComplects() {
-    return this.complects?.sort((a,b) => a.name.localeCompare(b.name)) ?? [];
+  ngOnInit(): void {
+    this.orderedComplects$ = this.complects$.pipe(map(complects => {
+      return complects?.sort((a,b) => a.name.localeCompare(b.name)) ?? [];
+    }));
   }
 
   openAddComplectDialog(): void {
@@ -64,7 +69,7 @@ export class ComplectsComponent {
       data: newItem,
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(take(1)).subscribe(result => {
       if (result)
         this.currentComplectChange.emit(result);
     });
@@ -77,11 +82,15 @@ export class ComplectsComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && complect.id)
-        this.complectsService.deleteComplect(complect.id).subscribe({
-          next: () =>{
+        combineLatest({
+          action: this.complectsService.deleteComplect(complect.id),
+          currentComplect: this.currentComplect$,
+          complects: this.complects$
+        }).pipe(take(1)).subscribe({
+          next: (data) =>{
               this.toastr.info('Done!');
-              if (complect.id === this.currentComplect?.id)
-                this.currentComplectChange.emit(!!this.complects?.length ? this.complects[0] : null);
+              if (complect.id === data.currentComplect?.id)
+                this.currentComplectChange.emit(!!data.complects?.length ? data.complects[0] : null);
             },
           error: error => this.toastr.error(error.error)
         })

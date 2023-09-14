@@ -5,9 +5,9 @@
   <mat-card-content>
     <ul class="complect-list">
       <li class="complect-list__item" 
-      *ngFor="let complect of getOrderedComplects()"
+      *ngFor="let complect of orderedComplects$ | async"
       (click)="onComplectClick(complect)"
-      [ngClass]="complect.id === currentComplect?.id ? 'complect-list__item_selected' : ''">
+      [ngClass]="complect.id === (currentComplect$ | async)?.id ? 'complect-list__item_selected' : ''">
         <mat-divider></mat-divider>
         <div class="complect-list__item-header">       
           <h4 class="complect-list__item-header-text" matListItemTitle>{{complect.name}}</h4>

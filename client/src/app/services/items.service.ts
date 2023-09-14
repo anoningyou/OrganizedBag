@@ -1,6 +1,6 @@
 import { Injectable, OnInit } from '@angular/core';
 import PropertyDto from '../models/dto/property-dto';
-import { BehaviorSubject, Observable, map, take } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, map, take } from 'rxjs';
 import { ItemDto } from '../models/dto/item-dto';
 import { ItemsHttpService } from './items-http.service';
 import { PropertiesHttpService } from './properties-http.service';
@@ -20,29 +20,10 @@ export class ItemsService {
   private propertiesSource = new BehaviorSubject<PropertyDto[]>([]);
   properties$ = this.propertiesSource.asObservable();
 
-  private itemObjectsSource = new BehaviorSubject<Item[]>([]);
-  itemObjects$ = this.itemObjectsSource.asObservable();
-
-  constructor(
-    private itemsHttp: ItemsHttpService,
-    private propertiesHttp: PropertiesHttpService,
-    private accountService: AccountService
-  ) {
-    this.items$.subscribe((items) => {
-      const properties: PropertyDto[] = this.propertiesSource.getValue() ?? [];
-      this.setItemObjects(items ?? [], properties);
-    });
-
-    this.properties$.subscribe((properties) => {
-      const items: ItemDto[] = this.itemsSource.getValue() ?? [];
-      this.setItemObjects(items, properties ?? []);
-    });
-  }
-
-  private setItemObjects(items: ItemDto[], properties: PropertyDto[]) {
-    var itemObjects = items.map((i) => {
+  itemObjects$ = combineLatest({properties: this.properties$, items: this.items$}).pipe(map(data => {
+    return data.items.map((i) => {
       const item = Object.assign(new Item(), i) as Item;
-      item.values = properties.map((prop) => {
+      item.values = data.properties.map((prop) => {
         const value = i.values.find((v) => v.propertyId === prop.id);
         const propertyValue = Object.assign(new Property(), prop) as Property;
         propertyValue.value = value?.value;
@@ -50,7 +31,13 @@ export class ItemsService {
       });
       return item;
     });
-    this.itemObjectsSource.next(itemObjects);
+  }))
+
+  constructor(
+    private itemsHttp: ItemsHttpService,
+    private propertiesHttp: PropertiesHttpService,
+    private accountService: AccountService
+  ) {
   }
 
   loadProperties(): Observable<PropertyDto[]> {
