@@ -1,13 +1,26 @@
 <div class="container">
   <div class="chart-container">
-    <canvas width="300" height="200"
+    <canvas 
       baseChart
       class="chart"
       [type]="'doughnut'"
       [data]="chartData"
-      [options]="chartOptions">
+      [options]="chartOptions"
+      [plugins]="chartPlugins">
     </canvas>
   </div>
+  <div class="data-container">
+    <mat-form-field appearance="outline" class="small-outlined-select">
+      <mat-label>Summ by</mat-label>
+      <mat-select [value]="summPropertyId$ | async" (valueChange)="onSummPropertyIdChanged($event)">
+        <mat-option class="complect__group-select-item" value="count">Count</mat-option>
+        <mat-option class="complect__group-select-item"
+          *ngFor="let prop of propertiesDigit$ | async" 
+          value="{{prop.id}}">
+            {{prop.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div class="legend-container" id="legend-container"></div>
+  </div>
 </div>
-
-

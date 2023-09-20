@@ -1,27 +1,25 @@
 <mat-card class="complect-container">
   <app-chart class="chart" 
     *ngIf="showChart"
-    [items]="items"
-    [properties]="properties"
+    [items$]="items$"
+    [properties$]="properties$"
     [categoryGroupId]="categoryGroupId"
-    [groupPropertyId]="groupPropertyId"
-    [groups]="groups"
-    
-    
-    ></app-chart>
+    [groupPropertyId$]="groupPropertyId$"
+    [groups$]="groups$">
+  </app-chart>
     <mat-card-header>
       <mat-card-title class="complect__header">
-        <span class="complect__header-name">{{complect?.name}} </span>
+        <span class="complect__header-name">{{(complect$ | async)?.name}} </span>
         <button mat-icon-button 
           color="primary" 
           aria-label="Edit" 
           class="small-button"
           (click)="openEditComplectDialog()">
-          <mat-icon *ngIf="complect">edit</mat-icon>
-          <mat-icon *ngIf="!complect">add</mat-icon>
+          <mat-icon *ngIf="complect$ | async">edit</mat-icon>
+          <mat-icon *ngIf="!(complect$ | async)">add</mat-icon>
         </button>
         <button mat-icon-button 
-                *ngIf="complect"
+                *ngIf="complect$ | async"
                 color="primary" 
                 aria-label="Edit item" 
                 class="small-button"
@@ -31,16 +29,16 @@
         </button>
       </mat-card-title>
       <mat-card-subtitle>
-        {{complect?.description}}
+        {{(complect$ | async)?.description}}
       </mat-card-subtitle>
       <div class="buttons-container">
         <mat-form-field appearance="outline" class="small-outlined-select">
           <mat-label>Show by</mat-label>
-          <mat-select [(value)]="groupPropertyId" (valueChange)="onGroupPropertyIdChanged()">
-            <mat-option class="complect__group-select-item">None</mat-option>
-            <mat-option class="complect__group-select-item" value="{{categoryGroupId}}">Category</mat-option>
-            <mat-option class="complect__group-select-item"
-              *ngFor="let prop of properties" 
+          <mat-select [value]="groupPropertyId$ | async" (valueChange)="onGroupPropertyIdChanged($event)">
+            <mat-option >None</mat-option>
+            <mat-option value="{{categoryGroupId}}">Category</mat-option>
+            <mat-option
+              *ngFor="let prop of properties$ | async" 
               value="{{prop.id}}">
                 {{prop.name}}
             </mat-option>
@@ -54,12 +52,12 @@
           <mat-icon>settings</mat-icon>
         </button>
         <mat-menu class="table-headers-menu" #listHeadersMenu="matMenu" (click)="$event.stopPropagation()">
-          <ul class="table-headers-menu__list" 
+          <ul class="table-headers-menu__list" *ngIf="propertiesSorted$ | async as propertiesSorted"
             cdkDropList 
             (cdkDropListDropped)="onHeaderDrop($event)"
-            [cdkDropListData]="getPropertiesSorted()">
+            [cdkDropListData]="propertiesSorted">
             <li class="table-headers-menu__list-item"
-              *ngFor="let prop of getPropertiesSorted()"
+              *ngFor="let prop of propertiesSorted"
               cdkDrag
               cdkDragLockAxis="y"
               cdkDragBoundary=".table-headers-menu__list" >
@@ -96,7 +94,7 @@
               [cdkDropListData]="dataSource"
               (cdkDropListDropped)="onItemDrop($event)">
               
-        <ng-container *ngFor="let column of getColumns()" [matColumnDef]="column.columnDef">
+        <ng-container *ngFor="let column of columnViews$ | async" [matColumnDef]="column.columnDef">
 
           <!-- headers -->
           <ng-container [ngSwitch]="column.columnDef">
@@ -160,10 +158,10 @@
           </mat-cell>
         </ng-container>
       
-        <mat-header-row class="table-header"  *matHeaderRowDef="getDisplayedColumns(); sticky: true"></mat-header-row>
+        <mat-header-row class="table-header"  *matHeaderRowDef="displayedColumns$ | async; sticky: true"></mat-header-row>
         <mat-row class="row item" 
            
-          *matRowDef="let row; columns: getDisplayedColumns();"
+          *matRowDef="let row; columns: displayedColumns$ | async;"
           cdkDrag
           [cdkDragData]="row"
           cdkDragLockAxis="y"
@@ -173,7 +171,7 @@
 
         <!-- Summary row -->
         <mat-row class="row summary"
-         *matRowDef="let row; columns: getDisplayedColumns(); when: isSummary"
+         *matRowDef="let row; columns: displayedColumns$ | async; when: isSummary"
          cdkDrag
          [cdkDragData]="row"
          [cdkDragDisabled]="true">
@@ -218,7 +216,7 @@
         </mat-row>
     
       </mat-table>
-      <div class="complect-items__end-row" *ngIf="complect">
+      <div class="complect-items__end-row" *ngIf="complect$ | async">
         <div class="complect-items__end-row-buttons">
           <button mat-icon-button 
           color="primary" 

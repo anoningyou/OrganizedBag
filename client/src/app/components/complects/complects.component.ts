@@ -25,6 +25,8 @@ export class ComplectsComponent implements OnInit {
 
   orderedComplects$: Observable<ComplectDto []> = of([]);
 
+  isCardHidden = false;
+
 
   constructor(public complectsService: ComplectsService,
     public dialog: MatDialog,
@@ -99,6 +101,10 @@ export class ComplectsComponent implements OnInit {
 
   onComplectClick(complect: ComplectDto) {
     this.currentComplectChange.emit(complect);
+  }
+
+  onToggleCard(){
+    this.isCardHidden = !this.isCardHidden;
   }
 
 }

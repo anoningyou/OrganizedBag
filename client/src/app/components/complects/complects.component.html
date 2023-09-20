@@ -1,62 +1,73 @@
-<mat-card >
-  <mat-card-header>
-    <mat-card-title>My packs</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <ul class="complect-list">
-      <li class="complect-list__item" 
-      *ngFor="let complect of orderedComplects$ | async"
-      (click)="onComplectClick(complect)"
-      [ngClass]="complect.id === (currentComplect$ | async)?.id ? 'complect-list__item_selected' : ''">
-        <mat-divider></mat-divider>
-        <div class="complect-list__item-header">       
-          <h4 class="complect-list__item-header-text" matListItemTitle>{{complect.name}}</h4>
-          <div class="complect-list__buttons">
-            <div class="complect-list__buttons-container">
-              <button mat-icon-button 
-                color="primary" 
-                aria-label="Edit item" 
-                class="small-button"
-                matTooltip="Edit"
-                (click)="openEditComplectDialog(complect)">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button 
-                color="primary" 
-                aria-label="Edit item" 
-                class="small-button"
-                matTooltip="Clone"
-                (click)="openCloneComplectDialog(complect)">
-                <mat-icon>control_point_duplicate</mat-icon>
-              </button>
-              <button mat-icon-button 
-                color="primary" 
-                aria-label="Delete item" 
-                class="small-button"
-                matTooltip="Delete"
-                (click)="openDeleteComplectDialog(complect)">
-                <mat-icon>delete</mat-icon>
-              </button>
+<div class="container">
+  <div class="toggle-button" [ngClass]="isCardHidden ? 'card-hidden' : ''">
+    <button mat-icon-button 
+                  color="primary"                    
+                  matTooltip="{{isCardHidden ? 'Show packs' : 'Hide packs'}}"
+                  (click)="onToggleCard()">
+                  <mat-icon>{{isCardHidden ? 'arrow_back_ios' : 'arrow_forward_ios'}}</mat-icon>
+                </button>
+  </div>
+  <mat-card class="card" [ngClass]="isCardHidden ? 'hidden' : ''" >
+    <mat-card-header>
+      <mat-card-title>My packs</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <ul class="complect-list">
+        <li class="complect-list__item" 
+        *ngFor="let complect of orderedComplects$ | async"
+        (click)="onComplectClick(complect)"
+        [ngClass]="complect.id === (currentComplect$ | async)?.id ? 'complect-list__item_selected' : ''">
+          <mat-divider></mat-divider>
+          <div class="complect-list__item-header">       
+            <h4 class="complect-list__item-header-text" matListItemTitle>{{complect.name}}</h4>
+            <div class="complect-list__buttons">
+              <div class="complect-list__buttons-container">
+                <button mat-icon-button 
+                  color="primary" 
+                  aria-label="Edit item" 
+                  class="small-button"
+                  matTooltip="Edit"
+                  (click)="openEditComplectDialog(complect)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button 
+                  color="primary" 
+                  aria-label="Edit item" 
+                  class="small-button"
+                  matTooltip="Clone"
+                  (click)="openCloneComplectDialog(complect)">
+                  <mat-icon>control_point_duplicate</mat-icon>
+                </button>
+                <button mat-icon-button 
+                  color="primary" 
+                  aria-label="Delete item" 
+                  class="small-button"
+                  matTooltip="Delete"
+                  (click)="openDeleteComplectDialog(complect)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+              
             </div>
             
           </div>
-          
-        </div>
-        <div class="complect-list__item-data">
-          <p matListItemLine>{{complect.description}}</p>
-        </div>
-      </li>
-      <li class="complect-list_item complect-list_item-end">
-          <button mat-icon-button 
-            color="primary" 
-            aria-label="Add complect" 
-            class="complect-list__add-btn"
-            matTooltip="Add"
-            (click)="openAddComplectDialog()">
-            <mat-icon>add</mat-icon>
-          </button> 
-      </li>
-      
-    </ul>
-  </mat-card-content>
-</mat-card>
+          <div class="complect-list__item-data">
+            <p matListItemLine>{{complect.description}}</p>
+          </div>
+        </li>
+        <li class="complect-list_item complect-list_item-end">
+            <button mat-icon-button 
+              color="primary" 
+              aria-label="Add complect" 
+              class="complect-list__add-btn"
+              matTooltip="Add"
+              (click)="openAddComplectDialog()">
+              <mat-icon>add</mat-icon>
+            </button> 
+        </li>
+        
+      </ul>
+    </mat-card-content>
+  </mat-card>
+</div>
+

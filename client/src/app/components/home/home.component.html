@@ -1,25 +1,32 @@
 <section class="home" #home>
     <div class="home__block home__items resizable"
         #items
-        [ngStyle]="{'width': itemsWidthPx}"
+        [ngStyle]="{'width': isItemsHidden ? '0' : itemsWidthPx, 'min-width': isItemsHidden ? '0' : '200px' }"
         mwlResizable
         [enableGhostResize]="false"
         (resizeEnd)="onItemsResizeEnd($event)">
+        <div class="toggle-button" [ngClass]="isItemsHidden ? 'card-hidden' : 'card-visible'">
+            <button mat-icon-button 
+                          color="primary"                    
+                          matTooltip="{{isItemsHidden ? 'Show packs' : 'Hide packs'}}"
+                          (click)="onToggleItems()">
+                          <mat-icon>{{isItemsHidden ? 'arrow_forward_ios' : 'arrow_back_ios'}}</mat-icon>
+                        </button>
+          </div>
         <app-items
-            [properties]="itemsService.properties$ | async"
-            [items]="itemsService.itemObjects$ | async">
+            [properties$]="itemsService.properties$"
+            [items$]="itemsService.itemObjects$">
         </app-items>
         <div class="resize-handle-right" mwlResizeHandle [resizeEdges]="{ right: true }"></div>
     </div>
     <app-complect-items class="home__block home__complect-items"
-        [complect]="currentComplect$ | async"
+        [complect$]="currentComplect$"
+        [items$]="itemsService.itemObjects$"
+        [properties$]="itemsService.properties$"
         (complectChange)="onCurrentComplectChange($event)"
-        [items]="itemsService.itemObjects$ | async"
-        [properties]="itemsService.properties$ | async"
-        (complectItemUpdated)="onComplectItemUpdated($event)"
         
     ></app-complect-items>
-    <app-complects *ngIf="showComplects" class="home__block home__complects"
+    <app-complects class="home__block home__complects"
         [complects$]="complectsService.complects$"
         [currentComplect$]="currentComplect$"
         (currentComplectChange)="onCurrentComplectChange($event)"

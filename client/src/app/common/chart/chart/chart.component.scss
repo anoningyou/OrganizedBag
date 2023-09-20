@@ -3,10 +3,55 @@
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
+    gap: 10px;
 }
 
 .chart-container {
     position: relative;
     height: 100%;
-    max-width: 300px;
+    max-width: 200px;
+    max-height: 200px;
+    
+}
+
+.data-container {
+    .small-outlined-select {
+        margin-top: 5px;
+    }
+}
+
+::ng-deep.legend {
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 160px;
+    overflow-y: auto;
+    .item {
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        flex-direction: row;
+        justify-content: stretch;
+        gap: 10px;
+        word-wrap: break-word;
+
+        .marker{
+            display: inline-block;
+            flex-shrink: 0;
+            height: 20px;
+            width: 20px;
+        }
+        .name{
+            margin: 0;
+            padding: 0;
+            flex-grow: 1;
+            width: 120px;
+        }
+        .data{
+            margin: 0;
+            padding: 0;
+            width: 50px;
+        }
+    }
 }

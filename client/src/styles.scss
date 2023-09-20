@@ -104,3 +104,26 @@ a{
 .resize-handle-bottom {
     bottom: 0;
 }
+
+.small-outlined-select {
+    .mat-mdc-form-field-subscript-wrapper {
+        height: 0 !important;
+    }
+    .mat-mdc-form-field-infix {
+        min-height: 30px !important;
+        padding-top: 0;
+    }
+
+    .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-infix {
+        padding-top: 3px;
+        padding-bottom: 0;
+    }
+
+    .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {
+        top: 15px;
+    }
+
+    .mat-mdc-option {
+        min-height: 25px;
+    }
+}

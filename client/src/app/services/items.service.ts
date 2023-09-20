@@ -150,13 +150,11 @@ export class ItemsService {
   }
 
   updatePropertyParams(params: PropertyParamDto[]) {
-    this.accountService.takeCurrentUser().subscribe((user) => {
+    this.accountService.takeCurrentUser().pipe(take(1)).subscribe((user) => {
+      this.resetPropertyParams(params);
       if (user) {
         this.propertiesHttp.updateParams(params).subscribe((response) => {
-          this.resetPropertyParams(response);
         });
-      } else {
-        this.resetPropertyParams(params);
       }
     });
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ViewChild, OnChanges, SimpleChanges, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { ComplectDto } from 'src/app/models/dto/complect-dto';
 import { GroupItemDto } from 'src/app/models/dto/group-item-dto';
@@ -18,72 +18,50 @@ import { GroupDto } from 'src/app/models/dto/group-dto';
 import { ComplectsService } from 'src/app/services/complects.service';
 import { GroupEditDialogComponent } from '../group-edit-dialog/group-edit-dialog.component';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { BehaviorSubject, Observable, Subscription, combineLatest, map, of, take } from 'rxjs';
+import { ColumnView } from 'src/app/models/column-view';
+import { ItemDto } from 'src/app/models/dto/item-dto';
 
 @Component({
   selector: 'app-complect-items',
   templateUrl: './complect-items.component.html',
-  styleUrls: ['./complect-items.component.scss']
+  styleUrls: ['./complect-items.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ComplectItemsComponent implements OnInit, OnChanges {
+export class ComplectItemsComponent implements OnInit, OnDestroy {
 
 //#region fields
 
   categoryGroupId = 'category';
   dataSource: MatTableDataSource<GroupItemView> = new MatTableDataSource();
   @ViewChild(MatTable) table?: MatTable<GroupItemView>;
+
+  private groupPropertyIdSource = new BehaviorSubject<string | null>(this.categoryGroupId);
+  groupPropertyId$ = this.groupPropertyIdSource.asObservable();
+
+  groups$: Observable<GroupDto[] | null> = of([]);
+
+  propertiesSorted$: Observable<PropertyDto []> = of([]);
+  propertiesFiltered$: Observable<PropertyDto []> = of([]);
+
+  columnViews$: Observable<ColumnView []> = of([]);
+
+  displayedColumns$: Observable<string []> = of([]);
   
+  private subsctiptions: Subscription[] = [];
+
 //#endregion
 
 //#region inputs
 
-  //#region showChart
+  @Input() properties$: Observable<PropertyDto [] | null> = of([]);
+  @Input() items$: Observable<Item[] | null> = of([]);
+  @Input() complect$: Observable<ComplectDto | null> = of(null);
+
   @Input() showChart = true;
   @Output() showChartChange: EventEmitter<boolean> = new EventEmitter();
-  //#endregion
 
-  //#region complect
-  private _complect: ComplectDto | null = null
-  @Input() 
-    set complect(complect: ComplectDto | null) {
-      this._complect = complect;
-      this.resetDataSource();
-      //console.log(this._complect)
-    }
-    get complect() {
-      return this._complect;
-     }
   @Output() complectChange: EventEmitter<ComplectDto | null> = new EventEmitter();
-  //#endregion
-
-  //#region items
-  private _items: Item[]  | null = [];
-  @Input() 
-    set items(items: Item[]  | null) {
-      this._items = items;
-      this.resetDataSource();
-    }
-    get items() { return this._items; }
-  //#endregion
-
-  //#region properties
-  private _properties: PropertyDto [] | null = [];
-  @Input() 
-    set properties(properties: PropertyDto [] | null) {
-      this._properties = properties;
-      this.resetDataSource();
-    }
-    get properties() { return this._properties; }
-  //#endregion
-
-  //#region groupPropertyId
-  private _groupPropertyId: string | undefined | null = this.categoryGroupId;
-  @Input() 
-    set groupPropertyId(groupPropertyId: string | undefined | null) {
-      this._groupPropertyId = groupPropertyId;
-      
-    }
-    get groupPropertyId() { return this._groupPropertyId; }
-  //#endregion
 
 //#endregion
 
@@ -91,7 +69,6 @@ export class ComplectItemsComponent implements OnInit, OnChanges {
 
   @Output() complectItemUpdated: EventEmitter<GroupItemDto> = new EventEmitter();
   
-
 //#endregion
 
   constructor(public itemsService: ItemsService,
@@ -99,18 +76,40 @@ export class ComplectItemsComponent implements OnInit, OnChanges {
     public dialog: MatDialog,
     public toastr: ToastrService) {
   }
-  ngOnChanges(changes: SimpleChanges): void {
-    this.resetDataSource();
-  }
 
 //#region event listeners
 
   ngOnInit(): void {
-    this.dataSource.data = this.getComplectItemViews();
+    this.groups$ = this.complect$.pipe(map(c => c?.groups ?? []))
+
+    this.propertiesSorted$ = this.properties$.pipe(map(properties => {
+      return [...properties?.sort((a,b) => a.params.complectOrder > b.params.complectOrder ? 1 : -1) ?? []] 
+    }));
+
+    this.propertiesFiltered$ = this.propertiesSorted$.pipe(map(properties => 
+      properties.filter(p => p.params.complectDisplay)));
+
+    this.columnViews$ = combineLatest([this.propertiesFiltered$, this.groupPropertyId$, this.complect$])
+      .pipe(map(data => this.getColumns(data[0], data[1], data[2])));
+
+    this.displayedColumns$ =  this.columnViews$.pipe(map(columns => {
+        return columns.map(c => c.columnDef) ?? [];
+      }));
+    
+    const subsctiption = combineLatest([this.groups$, this.items$, this.propertiesFiltered$,  this.groupPropertyId$]).subscribe(data => {
+      this.dataSource.data = !!data[0] && !!data[1] ? this.getComplectItemViews(data[0], data[1], data[2], data[3]) : [];
+      this.table?.renderRows();
+    });
+
+    this.subsctiptions.push(subsctiption);
   }
 
-  onGroupPropertyIdChanged() {
-    this.resetDataSource();
+  ngOnDestroy(): void {
+    this.subsctiptions.forEach(s =>{s.unsubscribe()})
+  }
+
+  onGroupPropertyIdChanged(id: string) {
+    this.groupPropertyIdSource.next(id);
   }
 
   onTableHeaderSelected(param: PropertyParamDto){
@@ -126,54 +125,50 @@ export class ComplectItemsComponent implements OnInit, OnChanges {
     this.itemsService.updatePropertyParams(propertyParams);
   }
 
-
   onItemDrop (event: CdkDragDrop<any>) {
-    if (!this.complect)
-      return;
+    this.complect$.pipe(take(1)).subscribe(complect => {
+      if (!complect)
+        return;
 
-    const newGroupElementIndex = event.currentIndex === 0 ? 1 : event.currentIndex - 1;
-    let newGroupElement = event.container.data.data[newGroupElementIndex];
-    if (!newGroupElement)
-      return;
+        const newGroupElementIndex = event.currentIndex === 0 ? 1 : event.currentIndex - 1;
+      let newGroupElement = event.container.data.data[newGroupElementIndex];
+      if (!newGroupElement)
+        return;
 
-    if (!newGroupElement.groupId)
-      newGroupElement = event.container.data.data[newGroupElementIndex - 1];
+      if (!newGroupElement.groupId)
+        newGroupElement = event.container.data.data[newGroupElementIndex - 1];
 
-    if (event.previousContainer === event.container) {
-      const item = event.previousContainer.data.data[event.previousIndex];
-      this.changeItemGroup(item.id, item.groupId, newGroupElement.groupId);
-    } 
-    else {
-      const item = event.previousContainer.data[event.previousIndex];
-      const group = this.complect.groups.find(g => g.id === newGroupElement.groupId) ?? this.complect.groups[0];
-      this.complectsService.addItemToGroup(item, group).subscribe({
-        next: () =>{
-          this.resetDataSource();
-          this.toastr.info('Saved!');
-        },
-        error: error => this.toastr.error(error.error)
-      });
-    }
+      if (event.previousContainer === event.container) {
+        const item = event.previousContainer.data.data[event.previousIndex];
+        this.changeItemGroup(item.id, item.groupId, newGroupElement.groupId);
+      } 
+      else {
+        const item = event.previousContainer.data[event.previousIndex];
+        const group = complect.groups.find(g => g.id === newGroupElement.groupId) ?? complect.groups[0];
+        this.complectsService.addItemToGroup(item, group);
+      }
+    })
   }
 
   onCountChange(event: any, item: GroupItem){
     item.count = +event.srcElement.value ?? 1;
     if (item.count < 1)
       item.count = 1;
-    if(this.complect) {
-      const complectItem = this.complect?.groups
-        .find(g => !!item.groupId && g.id === item.groupId)
-        ?.items.find(i => i.itemId == item.id);
-      if(complectItem){
-        complectItem.count = item.count;
+    this.complect$.pipe(take(1)).subscribe(complect => {
+      if(complect) {
+        const complectItem = complect?.groups
+          .find(g => !!item.groupId && g.id === item.groupId)
+          ?.items.find(i => i.itemId == item.id);
+        if(complectItem){
+          complectItem.count = item.count;
+        }
+        this.complectsService.updateGroupItem({
+          itemId: item.id,
+          groupId: item.groupId,
+          count: item.count
+        } as GroupItemDto); 
       }
-      this.complectItemUpdated.emit({
-        itemId: item.id,
-        groupId: item.groupId,
-        count: item.count
-      } as GroupItemDto);
-      this.resetDataSource();  
-    }
+    });
      
   }
 
@@ -182,20 +177,14 @@ export class ComplectItemsComponent implements OnInit, OnChanges {
     this.showChartChange.emit(this.showChart);
   }
 
+  
+
 //#endregion
 
 //#region properties
 
-  getPropertiesSorted () {
-    return this.properties?.sort((a,b) => a.params.complectOrder > b.params.complectOrder ? 1 : -1) ?? []
-  }
-
-  getPropertiesFiltered () {
-    return this.getPropertiesSorted().filter(p => p.params.complectDisplay) ?? [];
-  }
-
-  getColumns() {
-    const props =  this.getPropertiesFiltered().map(p => {
+  getColumns(properties: PropertyDto[], groupPropertyId: string | null, complect: ComplectDto | null): ColumnView[] {
+    const props: ColumnView[]=  properties.map(p => {
       return {
         columnDef: p.id ?? '',
         header: p.name,
@@ -206,12 +195,12 @@ export class ComplectItemsComponent implements OnInit, OnChanges {
       }
     })?? [];
     
-    if (this._groupPropertyId !== this.categoryGroupId)
+    if (groupPropertyId !== this.categoryGroupId)
       props.push({
         columnDef: 'category',
         header: 'Category',
         property: null,
-        cell: (element: GroupItem) => this._complect?.groups?.find(g => g.id === element.groupId)?.name ?? '',
+        cell: (element: GroupItem) => complect?.groups?.find(g => g.id === element.groupId)?.name ?? '',
         width: '30px',
         class: 'item__category'
       });
@@ -234,35 +223,19 @@ export class ComplectItemsComponent implements OnInit, OnChanges {
     
     return props;
   }
-
-  getDisplayedColumns(){
-    const columns = this.getColumns()?.map(c => c.columnDef) ?? [];
-    return columns;
-  } 
-
   //#endregion
-  
-//#region items
 
-  get groups() {
-    return this.complect?.groups ?? []
-  }
-  resetDataSource(){
-    
-    this.dataSource.data = this.getComplectItemViews();
-    this.table?.renderRows();
-    //console.log(this.dataSource)
-  }
+  //#region Items
 
-  getComplectItemViews() {
-      if(this.complect?.groups && this.items){
-        if (this.groupPropertyId === this.categoryGroupId)
-          return this.getItemsByGroups(this.complect.groups, this.items);
-        else
-          return this.getItemsByGrouppingField(this.complect.groups, this.items, this.groupPropertyId);
-      }
+  getComplectItemViews(groups: GroupDto [], items: Item [], properties: PropertyDto[],  groupPropertyId: string | null) {
+    if(groups && items){
+      if (groupPropertyId === this.categoryGroupId)
+        return this.getItemsByGroups(groups, items, properties);
       else
-        return [];
+        return this.getItemsByGrouppingField(groups, items, properties, groupPropertyId);
+    }
+    else
+      return [];
   }
 
   getItemViews(items: Item[], groupItems: GroupItemDto []) : GroupItemView[] {
@@ -278,7 +251,7 @@ export class ComplectItemsComponent implements OnInit, OnChanges {
     });
   }
 
-  getItemsByGroups(groups: GroupDto[], items: Item[]) : GroupItemView[]{
+  getItemsByGroups(groups: GroupDto[], items: Item[], properties: PropertyDto[]) : GroupItemView[]{
     const groupedKeys : {[key: string]: GroupItemView[]} = {};
     groups.forEach(group => {   
       const keyProp = new Property();
@@ -289,20 +262,20 @@ export class ComplectItemsComponent implements OnInit, OnChanges {
         groupValue: keyProp,
         groupId: group.id
       } as GroupItemView]
-      .concat(this.getItemViews(this.items ?? [], group.items));
+      .concat(this.getItemViews(items, group.items));
     });
-    return this.fillGroupViews(groupedKeys);
+    return this.fillGroupViews(groupedKeys, properties);
   }
 
-  getItemsByGrouppingField(groups: GroupDto[], items: Item[], groupPropertyId: string | null | undefined) : GroupItemView[]{
+  getItemsByGrouppingField(groups: GroupDto[], items: Item[], properties: PropertyDto[], groupPropertyId: string | null | undefined) : GroupItemView[]{
     let complectItems : GroupItemView[] = this.getItemViews(items, groups.map(g => g.items)?.flat() ?? []);
 
     if (groupPropertyId) 
-      complectItems = this.groupItemsByProp(complectItems, groupPropertyId)
+      complectItems = this.groupItemsByProp(complectItems, properties, groupPropertyId)
     return complectItems;
   }
 
-  groupItemsByProp(items: GroupItemView[], propertyId: string) : GroupItemView[] {
+  groupItemsByProp(items: GroupItemView[], properties: PropertyDto[], propertyId: string) : GroupItemView[] {
 
     const groupedKeys = items.reduce((group: {[key: string]: GroupItemView[]}, item) => {
       const keyProp = item.values.find(i => i.id == propertyId);
@@ -318,17 +291,17 @@ export class ComplectItemsComponent implements OnInit, OnChanges {
       return group;
     }, {});
 
-    return this.fillGroupViews(groupedKeys);
+    return this.fillGroupViews(groupedKeys, properties);
   }
 
-  fillGroupViews(groupedKeys: {[key: string]: GroupItemView[]}) : GroupItemView[] {
+  fillGroupViews(groupedKeys: {[key: string]: GroupItemView[]}, properties: PropertyDto[]) : GroupItemView[] {
     let result: GroupItemView[] = [];
 
     Object.keys(groupedKeys).forEach(key => {
 
       result = result.concat(groupedKeys[key]);
       const summArray: number[] = []
-      this.getPropertiesFiltered().forEach(p => {
+      properties.forEach(p => {
         summArray.push(0);
       })
 
@@ -347,7 +320,7 @@ export class ComplectItemsComponent implements OnInit, OnChanges {
           summ += item.count;
           return summ;
         }, 0),
-        values: this.getPropertiesFiltered().map((p, idx) => {
+        values: properties.map((p, idx) => {
           const prop = Object.assign(new Property(), p);
           if (prop.valueType === ValueTypeEnum.Decimal || prop.valueType === ValueTypeEnum.Number)
             prop.value = summArray[idx].toString();
@@ -365,27 +338,27 @@ export class ComplectItemsComponent implements OnInit, OnChanges {
   changeItemGroup(id: string, oldGroupId: string, newGroupId: string){
     if (oldGroupId === newGroupId)
       return;
-    const oldGroup = this._complect?.groups.find(g => g.id == oldGroupId);
-    const newGroup = this._complect?.groups.find(g => g.id == newGroupId);
-    const item = oldGroup?.items?.find(i => i.itemId == id)
-    if (!oldGroup || !newGroup || !item)
-      return;
-    
-    const complectItemForDelete = {
-      itemId: item.itemId,
-      groupId: item.groupId,
-      count: item.count} as GroupItemDto;
-    const complectItemForAdd = {
+    this.complect$.pipe(take(1)).subscribe(complect => {
+      const oldGroup = complect?.groups.find(g => g.id == oldGroupId);
+      const newGroup = complect?.groups.find(g => g.id == newGroupId);
+      const item = oldGroup?.items?.find(i => i.itemId == id)
+      if (!oldGroup || !newGroup || !item)
+        return;
+      
+      const complectItemForDelete = {
         itemId: item.itemId,
-        groupId: newGroup.id,
+        groupId: item.groupId,
         count: item.count} as GroupItemDto;
-    this.complectsService.deleteGroupItem(complectItemForDelete);
-    this.resetDataSource();
-    this.complectsService.addGroupItemToGroup(complectItemForAdd,newGroup)
-      .subscribe(_ => this.resetDataSource());
+      const complectItemForAdd = {
+          itemId: item.itemId,
+          groupId: newGroup.id,
+          count: item.count} as GroupItemDto;
+      this.complectsService.deleteGroupItem(complectItemForDelete);
+      this.complectsService.addGroupItemToGroup(complectItemForAdd,newGroup);
+    });
   }
 
-  //#endregion
+//#endregion
 
 //#region conditions
 
@@ -406,54 +379,50 @@ export class ComplectItemsComponent implements OnInit, OnChanges {
 //#region open dialogs
 
   openEditComplectDialog(): void {
-    const dialogRef = this.dialog.open(ComplectEditDialogComponent, {
-      data: this.complect,
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result)
-        this.complect = result;
-        this.complectChange.emit(result);
-    });
-  }
-
-  openCloneComplectDialog(): void {
-    if (this.complect) {
-      const newItem = Object.assign({} as ComplectDto, this.complect);
-      newItem.id = '';
-      newItem.groups = this.complect.groups.map(g => {
-        const group = Object.assign({} as GroupDto, g);
-        group.id = crypto.randomUUID();
-        group.items = g.items.map(i => {
-          const item = Object.assign({} as GroupItemDto, i);
-          item.groupId = group.id ?? '';
-          return item;
-        })
-        return group;
-      });
+    this.complect$.pipe(take(1)).subscribe(complect => {
       const dialogRef = this.dialog.open(ComplectEditDialogComponent, {
-        data: newItem,
+        data: complect,
       });
   
       dialogRef.afterClosed().subscribe(result => {
         if (result)
-        {
-          this.complect = result;
           this.complectChange.emit(result);
-        }
-          
       });
-    } 
+    })
+    
+  }
+
+  openCloneComplectDialog(): void {
+    this.complect$.pipe(take(1)).subscribe(complect => {
+      if (complect) {
+        const newItem = Object.assign({} as ComplectDto, complect);
+        newItem.id = '';
+        newItem.groups = complect.groups.map(g => {
+          const group = Object.assign({} as GroupDto, g);
+          group.id = crypto.randomUUID();
+          group.items = g.items.map(i => {
+            const item = Object.assign({} as GroupItemDto, i);
+            item.groupId = group.id ?? '';
+            return item;
+          })
+          return group;
+        });
+        const dialogRef = this.dialog.open(ComplectEditDialogComponent, {
+          data: newItem,
+        });
+    
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            this.complectChange.emit(result);
+          }
+        });
+      } 
+    })
   }
 
   openEditItemDialog(item: Item) {
-    const dialogRef = this.dialog.open(ItemEditDialogComponent, {
+    this.dialog.open(ItemEditDialogComponent, {
       data: item,
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      // if (result)
-      //   item = result;
     });
   }
 
@@ -466,14 +435,12 @@ export class ComplectItemsComponent implements OnInit, OnChanges {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result && this.complect){
-
-        this.complectsService.addItemToGroup(result, this.complect.groups[0]).subscribe({
-          next: () =>{
-          },
-          error: error => this.toastr.error(error.error)
-        });
-      };
+      this.complect$.pipe(take(1)).subscribe(complect => {
+        if (result && complect){
+          const group = complect.groups.find(g => g.id === item.groupId) ?? complect.groups[0];
+          this.complectsService.addItemToGroup(result, group);
+        };
+      })    
     });
   }
 
@@ -511,21 +478,22 @@ export class ComplectItemsComponent implements OnInit, OnChanges {
   }
 
   openAddGroupDialog() {
-    if (this.complect) {
-      const dialogRef = this.dialog.open(GroupEditDialogComponent, {
-        data: {complectId: this.complect?.id, items: [] as GroupItemDto[]} as GroupDto,
-      });
-    }
+    this.complect$.pipe(take(1)).subscribe(complect => {
+      if (complect) {
+        const dialogRef = this.dialog.open(GroupEditDialogComponent, {
+          data: {complectId: complect?.id, items: [] as GroupItemDto[]} as GroupDto,
+        });
+      }
+    });
   }
 
   openEditGroupDialog(view: GroupItemView) {
-    const group = this.complect?.groups?.find(g => g.id === view.groupId)
-    if (group) {
-      
-      const dialogRef = this.dialog.open(GroupEditDialogComponent, {
-        data: group,
-      });
-    }
+    this.complect$.pipe(take(1)).subscribe(complect => {
+      const group = complect?.groups?.find(g => g.id === view.groupId)
+      if (group) {
+          this.dialog.open(GroupEditDialogComponent, {data: group});
+      }
+    });
   }
 
   openDeleteGroupDialog(view: GroupItemView) {
@@ -536,9 +504,10 @@ export class ComplectItemsComponent implements OnInit, OnChanges {
     dialogRef.afterClosed().subscribe(result => {
       if (result)
       {
-        //console.log(view)
-        const group = {id: view.groupId ,complectId: this.complect?.id} as GroupDto;
-        this.complectsService.deleteGroup(group);
+        this.complect$.pipe(take(1)).subscribe(complect => {
+          const group = {id: view.groupId ,complectId: complect?.id} as GroupDto;
+          this.complectsService.deleteGroup(group);
+        })
       }  
     });
   }

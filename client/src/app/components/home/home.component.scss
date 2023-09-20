@@ -6,7 +6,7 @@
     gap: 5px;
     padding: 5px;
     .home__items {
-        min-width: 200px;       
+        position: relative;       
         app-items {
             flex-grow: 1;
             width: 100%;
@@ -21,7 +21,23 @@
 .home>* {
     flex: 0 0 auto;
     height: 100%;
-  }
+}
+
+.toggle-button {
+    position: absolute;
+    top: 0;
+    z-index: 100;
+    &.card-visible {
+        right: 0;
+    }
+    &.card-hidden {
+        left: 0;
+    }
+}
+
+.hidden {
+    display: none;
+}
 
 
 

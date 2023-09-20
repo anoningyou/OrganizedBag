@@ -15,7 +15,7 @@ export class HomeComponent implements OnInit, OnDestroy{
   
   itemsWidth = 300;
   get itemsWidthPx() {return `${this.itemsWidth}px`}
-  showComplects = true;
+  isItemsHidden = false;
   @ViewChild('home', {static: true}) homeElement?: ElementRef;
   @ViewChild('items', {static: true}) itemsElement?: ElementRef;
 
@@ -29,7 +29,6 @@ export class HomeComponent implements OnInit, OnDestroy{
     ) {
   }
   
-
   ngOnInit(): void {
     this.itemsService.loadAll();
 
@@ -38,10 +37,9 @@ export class HomeComponent implements OnInit, OnDestroy{
         this.currentComplectSource.next(complects[0])
     });
 
-    const subsctiption =  this.complectsService.complects$.subscribe(complects => {
+    const subsctiption = this.complectsService.complects$.subscribe(complects => {
       this.currentComplect$.pipe(take(1)).subscribe(currentComplect => {
         const complect = complects.find(c => c.id === currentComplect?.id);
-        //console.log(complect)
         this.currentComplectSource.next(!!complect ? Object.assign({}, complect) as ComplectDto : null);
       })
     });
@@ -56,10 +54,6 @@ export class HomeComponent implements OnInit, OnDestroy{
     this.itemsWidth = event.rectangle.width ?? 50;
   }
 
-  onComplectItemUpdated(event: GroupItemDto) {
-    this.complectsService.updateGroupItem(event);
-  }
-
   onCurrentComplectChange(event: ComplectDto | null) {
     this.complectsService.complects$.pipe(take(1)).subscribe(complects => {
         const complect = complects.find(c => c.id === event?.id);
@@ -67,5 +61,7 @@ export class HomeComponent implements OnInit, OnDestroy{
       })
   }
 
-
+  onToggleItems(){
+    this.isItemsHidden = !this.isItemsHidden;
+  }
 }

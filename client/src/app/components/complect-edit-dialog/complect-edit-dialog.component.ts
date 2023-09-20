@@ -21,7 +21,6 @@ export class ComplectEditDialogComponent {
       this.data = Object.assign({} as ComplectDto,data);
     }
       else this.data = this.complectsService.createNewComplect();
-      console.log(this.data)
   }
 
   getTitle(): string {
@@ -32,13 +31,8 @@ export class ComplectEditDialogComponent {
   }
 
   onOkClick() {
-    this.complectsService.saveComplect(this.data).subscribe({
-      next: () =>{
-          this.toastr.info('Done!');
-          this.dialogRef.close(this.data);
-        },
-      error: error => this.toastr.error(error.error)
-    })
+    this.complectsService.saveComplect(this.data)
+    this.dialogRef.close(this.data);
   }
   
   onNoClick(): void {

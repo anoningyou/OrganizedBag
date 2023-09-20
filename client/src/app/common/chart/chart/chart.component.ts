@@ -1,126 +1,211 @@
-import { group } from '@angular/animations';
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { Chart, ChartData, ChartEvent, ChartOptions, ChartType, LegendElement, LegendItem } from 'chart.js';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output } from '@angular/core';
+import { Chart, ChartData, ChartEvent, ChartOptions, ChartType, LegendElement, LegendItem, Plugin, PluginChartOptions } from 'chart.js';
+import { BehaviorSubject, Observable, Subscription, combineLatest, map, of, take } from 'rxjs';
+import { ValueTypeEnum } from 'src/app/enums/value-type';
+import { IChartValue } from 'src/app/models/chart-value';
 import { GroupDto } from 'src/app/models/dto/group-dto';
+import { GroupItemDto } from 'src/app/models/dto/group-item-dto';
 import PropertyDto from 'src/app/models/dto/property-dto';
+import { GroupItem } from 'src/app/models/group-item';
+import { IGgoupKeys } from 'src/app/models/group-keys';
 import { Item } from 'src/app/models/item';
-
-
 
 @Component({
   selector: 'app-chart',
   templateUrl: './chart.component.html',
-  styleUrls: ['./chart.component.scss'],
+  styleUrls: ['./chart.component.scss']
 })
-export class ChartComponent implements OnInit, OnChanges {
+
+export class ChartComponent implements OnInit, OnDestroy {
 
 //#region fields
+
+  private subsctiptions: Subscription[] = [];   
   chartData: ChartData<'doughnut'> = {} as ChartData<'doughnut'>;
+  
+  chartOptions: ChartOptions<'doughnut'> = {};
+  chartPlugins: Plugin<'doughnut'>[] = [];
+  doughnutChartType: ChartType = 'doughnut';
 
-  chartOptions: ChartOptions<'doughnut'> = {
-    responsive: false,
-    plugins: {
-        legend: {
-            display: true,
-            position: 'right',
-            labels: {
-                generateLabels(chart) {
-                  const labels = Chart.overrides.pie.plugins.legend.labels.generateLabels(chart);
-                  const data = chart.data.datasets[0].data;
-                  if(data && labels)
-                  for (let index = 0; index < labels.length; index++) {
-                    const label = labels[index];
-                    label.text = `${label.text} - ${data[index]}`
-                  }
-                  return labels;
-                },
-            }
-        }
-    }
-}
+  propertiesDigit$: Observable<PropertyDto []> = of([]);
 
+  private summPropertyIdSource = new BehaviorSubject<string | undefined>(undefined);
+  summPropertyId$ = this.summPropertyIdSource.asObservable();
 //#endregion
 
-//#region inputs
-
-  //#region items
-  private _items: Item[]  | null = [];
-  @Input() 
-    set items(items: Item[]  | null) {
-      this._items = items;
-    }
-    get items() { return this._items; }
-  //#endregion
-
-  //#region properties
-  private _properties: PropertyDto [] = [];
-  @Input() 
-    set properties(properties: PropertyDto [] | null) {
-      this._properties = properties ?? [];
-      //this.reloadChartData();
-    }
-    get properties() { return this._properties; }
-  //#endregion
-
-  //#region groups
-  private _groups: GroupDto [] = [];
-  @Input() 
-    set groups(groups: GroupDto [] | null | undefined) {
-      this._groups = groups ?? [];
-      //this.reloadChartData();
-    }
-    get groups() { return this._groups; }
-  //#endregion
-
-  //#region categoryGroupId
+//#region inputs & outputs
+  @Input() items$: Observable<Item[] | null> = of([]);
+  @Input() properties$: Observable<PropertyDto [] | null> = of([]);
+  @Input() groups$: Observable<GroupDto[] | null> = of([]);
+  @Input() groupPropertyId$: Observable<string | null> = of(null);
   @Input() categoryGroupId: string = 'category';
-  //#endregion
 
-  //#region groupPropertyId
-  private _groupPropertyId: string | undefined | null = this.categoryGroupId;
-  @Input() 
-    set groupPropertyId(groupPropertyId: string | undefined | null) {
-      this._groupPropertyId = groupPropertyId ?? this.categoryGroupId;
-      this.reloadChartData();
-    }
-    get groupPropertyId() { return this._groupPropertyId; }
-  //#endregion
-
-  //#region summPropertyId
-  private _summPropertyId: string | undefined | null;
-  @Input() 
-    set summPropertyId(summPropertyId: string | undefined | null) {
-      this._summPropertyId = summPropertyId;
-      this.reloadChartData();
-    }
-    get summPropertyId() { return this._summPropertyId; }
-  @Output() summPropertyIdChange: EventEmitter<string | null> = new EventEmitter();
-  //#endregion
-
+  @Input() summPropertyId: string | undefined;
+  @Output() summPropertyIdChanged = new EventEmitter<string | undefined >();
   //#endregion
 
   ngOnInit(): void {
-    this.reloadChartData();
+    this.chartPlugins.push(this.getHtmlLegendPlugin());
+    this.chartOptions = this.getChartOptions()
+    this.summPropertyIdSource.next(this.summPropertyId ?? 'count');
+
+    this.propertiesDigit$ = this.properties$.pipe(map(properties => {
+      return properties?.filter(p => p.valueType === ValueTypeEnum.Decimal 
+          || p.valueType === ValueTypeEnum.Number) ?? [];
+    }));
+
+    const subsctiption = combineLatest([
+      this.groups$,
+      this.propertiesDigit$,
+      this.items$,
+      this.groupPropertyId$,
+      this.summPropertyId$ 
+    ]).subscribe(data => {
+      this.chartData = this.getChartData(data[0],data[1],data[2],data[3], data[4]);
+    });
+    
+    this.subsctiptions.push(subsctiption);
+  }
+
+  ngOnDestroy(): void {
+    this.subsctiptions.forEach(s =>{s.unsubscribe()})
+  }
+
+  onSummPropertyIdChanged(id: string) {
+    this.summPropertyIdSource.next(id);
+    this.summPropertyIdChanged.emit(id);
+  }
+  //#region Doughnut settings
+
+  getHtmlLegendPlugin() {
+    let getOrCreateLegendList = (chart: any, id: any) => {
+      const legendContainer = document.getElementById(id);
+      let listContainer = legendContainer?.querySelector('ul');
+    
+      if (!listContainer && legendContainer) {
+        listContainer = document.createElement('ul');
+        listContainer.className = 'legend'
+        legendContainer.appendChild(listContainer);
+      }
+    
+      return listContainer;
+    };
+    
+    let htmlLegendPlugin: Plugin<'doughnut'> = {
+      id: 'htmlLegend',
+      afterUpdate(chart: any, args: any , options: any) {
+        const ul = getOrCreateLegendList(chart, 'legend-container');
+    
+        while (ul?.firstChild) {
+          ul.firstChild.remove();
+        }
+    
+        const items = chart.options.plugins.legend.labels.generateLabels(chart);
+        const data = chart.data.datasets[0].data;
+
+        items.forEach((item: any, i: number) => {
+          const li = document.createElement('li');
+          li.className = 'item'
+    
+          li.onclick = () => {
+            const {type} = chart.config;
+            if (type === 'pie' || type === 'doughnut') {
+              chart.toggleDataVisibility(item.index);
+            } else {
+              chart.setDatasetVisibility(item.datasetIndex, !chart.isDatasetVisible(item.datasetIndex));
+            }
+            chart.update();
+          };
+    
+          // Color box
+          const boxSpan = document.createElement('span');
+          boxSpan.style.background = item.fillStyle;
+          boxSpan.style.borderColor = item.strokeStyle;
+          boxSpan.style.borderWidth = item.lineWidth + 'px';
+          boxSpan.className = 'marker';
+    
+          // Text
+          const textContainer = document.createElement('p');
+          textContainer.className = 'name';
+          textContainer.style.color = item.fontColor;
+          textContainer.style.textDecoration = item.hidden ? 'line-through' : '';
+    
+          const text = document.createTextNode(item.text);
+          textContainer.appendChild(text);
+
+          // data
+          const dataContainer = document.createElement('p');
+          dataContainer.className = 'data';
+          dataContainer.style.color = item.fontColor;
+          dataContainer.style.textDecoration = item.hidden ? 'line-through' : '';
+    
+          const dataValue = document.createTextNode(data[i]);
+          dataContainer.appendChild(dataValue);
+    
+          li.appendChild(boxSpan);
+          li.appendChild(textContainer);
+          li.appendChild(dataContainer);
+          ul?.appendChild(li);
+        });
+      }
+    };
+    return htmlLegendPlugin;
   }
   
-  ngOnChanges(changes: SimpleChanges): void {
-    //console.log(changes)
-    this.reloadChartData();
-  }
-
-  // Doughnut
-
-  reloadChartData() {
-    this.chartData = this.getChartData();
-  }
-
-  getChartData(): ChartData<'doughnut'> {
-    const data = this.groups?.map(g=> {
-      return {
-        key: g.name,
-        value: g.items.length
+  getChartOptions() {
+    
+    let chartOptions: ChartOptions<'doughnut'>  = {
+      responsive: true,
+      plugins: {
+          // legend: {
+          //     display: true,
+          //     position: 'right',
+          //     labels: {
+          //         generateLabels(chart) {
+          //           const labels = Chart.overrides.pie.plugins.legend.labels.generateLabels(chart);
+          //           const data = chart.data.datasets[0].data;
+          //           if(data && labels)
+          //           for (let index = 0; index < labels.length; index++) {
+          //             const label = labels[index];
+          //             label.text = `${label.text} - ${data[index]}`
+          //           }
+          //           return labels;
+          //         },
+          //     }
+          // }
+          legend: {
+            display: false,
+          }
       }
-    })
+    }
+    return chartOptions;
+  }
+
+  //#endregion
+
+  
+  getChartData(groups: GroupDto [] | null, properties: PropertyDto [], items: Item[] | null,
+              groupPropertyId: string | null, summPropertyId: string | undefined): ChartData<'doughnut'> {
+    
+    const data: IChartValue [] = [];
+    if(groups && items){
+      let groupedKeys: IGgoupKeys = {};
+      if (!groupPropertyId || groupPropertyId === this.categoryGroupId)
+        groupedKeys = this.groupItemsByGroups(groups, items);
+      else
+        groupedKeys = this.groupItemsByGrouppingField(groups, items, groupPropertyId);
+
+        Object.keys(groupedKeys).forEach(key => {
+          data.push({
+            key: groupedKeys[key].name,
+            value: groupedKeys[key].items.reduce((summ: number, item) => {
+              return summ += !summPropertyId || summPropertyId === 'count'
+                            ? item.count
+                            : +(item.values.find(v => v.id === summPropertyId)?.value ?? '0') * item.count
+            }, 0)
+          } as IChartValue)
+        })
+    }
     return {
       labels: data?.map(d=> d.key),
       datasets: [
@@ -129,7 +214,44 @@ export class ChartComponent implements OnInit, OnChanges {
     } as ChartData<'doughnut'>;
   }
 
-  public doughnutChartType: ChartType = 'doughnut';
+  getGroupItems(items: Item[], groupItems: GroupItemDto []) : GroupItem[] {
+    return groupItems.map(gi => {
+      return {
+        groupItem: gi,
+        item: items.find(i => i.id === gi.itemId)
+      }
+    })
+    .filter(i => i.item)
+    .map(i => {
+      return Object.assign(new GroupItem, i.item, i.groupItem) as GroupItem
+    });
+  }
+
+  groupItemsByGroups(groups: GroupDto[], items: Item[]) : IGgoupKeys {
+    const groupedKeys : IGgoupKeys = {};
+    groups.forEach(group => {   
+      groupedKeys[group.id ?? ''] = { 
+        name:group.name ?? '',
+        items:this.getGroupItems(items, group.items)
+      };
+    });
+    return groupedKeys;
+  }
+
+  groupItemsByGrouppingField(groups: GroupDto[], items: Item[], groupPropertyId: string) : IGgoupKeys {
+    const complectItems : GroupItem[] = this.getGroupItems(items, groups.map(g => g.items)?.flat() ?? []);
+    return complectItems.reduce((group: IGgoupKeys, item) => {
+      const key = item.values.find(i => i.id == groupPropertyId)?.value ?? '';
+      if (!group[key]) {
+       group[key] = {name: key, items: []};
+      }
+      group[key].items.push(item);
+      return group;
+    }, {});
+  }
+
+
+  
 
   // events
   public chartClicked({

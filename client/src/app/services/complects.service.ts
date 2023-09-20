@@ -48,42 +48,34 @@ export class ComplectsService {
   }
 
   saveComplect(complect: ComplectDto) {
-    if (!complect.id) return this.addComplect(complect);
-    else return this.updateComplect(complect);
+    if (!complect.id)
+     this.addComplect(complect);
+    else 
+      this.updateComplect(complect);
   }
 
   addComplect(complect: ComplectDto) {
-    complect.id = crypto.randomUUID();
-    if (!complect.groups.length)
-      complect.groups.push(this.createNewGroup(complect.id));
-    else
-      complect.groups.forEach((group) => {
-        group.complectId = complect.id ?? '';
-      });
-
-    return this.complectsHttp.add(complect).pipe(
-      map((response: ComplectDto) => {
-        if (response) {
-          this.complects$.pipe(take(1)).subscribe((complects) => {
-            complects.push(response);
-            this.complectsSource.next(complects);
-          });
-        }
-      })
-    );
+    this.complects$.pipe(take(1)).subscribe((complects) => {
+      complect.id = crypto.randomUUID();
+      if (!complect.groups.length)
+        complect.groups.push(this.createNewGroup(complect.id));
+      else
+        complect.groups.forEach((group) => {
+          group.complectId = complect.id ?? '';
+        });
+      complects.push(complect);
+      this.complectsSource.next(complects);
+      this.complectsHttp.add(complect).subscribe(_ => {})
+    });
   }
 
   updateComplect(complect: ComplectDto) {
-    return this.complectsHttp.edit(complect).pipe(
-      map((response: ComplectDto) => {
-        if (response) {
-          var values = this.complectsSource.getValue() ?? [];
-          var idx = values.findIndex((v) => v.id === response.id);
-          values[idx] = response;
-          this.complectsSource.next(values);
-        }
-      })
-    );
+    this.complects$.pipe(take(1)).subscribe(complects => {
+      var idx = complects.findIndex((v) => v.id === complect.id);
+      complects[idx] = complect;
+      this.complectsSource.next(complects);
+      this.complectsHttp.edit(complect).subscribe(_ => {})
+    })
   }
 
   deleteComplect(id: string) {
@@ -147,21 +139,35 @@ export class ComplectsService {
   }
 
   addGroupItemToGroup(item: GroupItemDto, group: GroupDto) {
-    const dto = Object.assign({}, item) as GroupItemDto;
-    dto.groupId = group.id ?? '';
-    let existsCount = 0;
-    if (!group.items) group.items = [];
-    else {
-      const existItem = group.items.find((i) => i.itemId === item.itemId);
-      if (existItem) {
-        existsCount = existItem.count;
-        existItem.count += dto.count;
-        dto.count = existItem.count;
+    this.complects$.pipe(take(1)).subscribe(complects => {
+      const complect = complects.find(c => c.id === group.complectId);
+      const complectGroup = complect?.groups?.find(g => g.id === group.id)
+      if (!complectGroup)
+        return;
+      const dto = Object.assign({}, item) as GroupItemDto;
+      dto.groupId = complectGroup.id ?? '';
+      let existsCount = 0;
+      if (!complectGroup.items) 
+        complectGroup.items = [];
+      else {
+        const existItem = complectGroup.items.find((i) => i.itemId === item.itemId);
+        if (existItem) {
+          existsCount = existItem.count;
+          existItem.count += dto.count;
+          dto.count = existItem.count;
+        }
       }
-    }
-    if (!existsCount) group.items.push(dto);
-    if (existsCount) return this.complectsHttp.updateItem(dto);
-    else return this.complectsHttp.addItem(dto);
+
+      if (!existsCount) 
+        complectGroup.items.push(dto);
+
+      this.complectsSource.next(complects);
+
+      if (existsCount) 
+        this.complectsHttp.updateItem(dto).subscribe(_=>{});
+      else this.complectsHttp.addItem(dto).subscribe(_=>{});
+    })
+    
   }
 
   addItemToGroup(item: Item, group: GroupDto) {
@@ -188,7 +194,7 @@ export class ComplectsService {
           ) ?? -1;
         if (idx !== -1) complect.groups[groupIdx].items[idx] = groupItem;
       }
-
+      this.complectsSource.next(complects);
       this.complectsHttp.updateItem(groupItem).subscribe((response) => {});
     });
   }
@@ -208,6 +214,7 @@ export class ComplectsService {
         if (idx !== -1) group.items.splice(idx, 1);
       }
 
+      this.complectsSource.next(complects);
       this.complectsHttp.deleteItem(groupItem).subscribe((response) => {});
     });
   }

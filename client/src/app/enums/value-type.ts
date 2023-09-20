@@ -3,10 +3,7 @@ export enum ValueTypeEnum {
   String = 'String',
   Number = 'Number',
   Decimal = 'Decimal',
-  Checkbox = 'Checkbox',
-  RadioButton = 'RadioButton',
-  Combobox = 'Combobox',
+  PictureLink = 'PictureLink',
   Date = 'Date',
-  DictionarySystem = 'DictionarySystem',
-  DictionaryCustom = 'DictionaryCustom',
+  
 }
