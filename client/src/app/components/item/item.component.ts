@@ -65,13 +65,8 @@ export class ItemComponent  {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result)
-        this.itemsService.deleteItem(this.item.id).subscribe({
-          next: () =>{
-              this.toastr.info('Done!');
-            },
-          error: error => this.toastr.error(error.error)
-        })
+      if (result && !this.itemsService.deleteItem(this.item.id))
+        this.toastr.error("Deletion failed")
     });
   }
 

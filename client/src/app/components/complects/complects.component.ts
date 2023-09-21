@@ -83,19 +83,20 @@ export class ComplectsComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result && complect.id)
+      if (result && complect.id && this.complectsService.deleteComplect(complect.id)){
         combineLatest({
-          action: this.complectsService.deleteComplect(complect.id),
           currentComplect: this.currentComplect$,
           complects: this.complects$
         }).pipe(take(1)).subscribe({
           next: (data) =>{
+              
               this.toastr.info('Done!');
               if (complect.id === data.currentComplect?.id)
                 this.currentComplectChange.emit(!!data.complects?.length ? data.complects[0] : null);
             },
           error: error => this.toastr.error(error.error)
         })
+      }     
     });
   }
 

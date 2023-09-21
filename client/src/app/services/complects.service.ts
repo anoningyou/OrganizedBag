@@ -6,18 +6,48 @@ import { AccountService } from './account.service';
 import { GroupDto } from '../models/dto/group-dto';
 import { Item } from '../models/item';
 import { GroupItemDto } from '../models/dto/group-item-dto';
+import { BaseDataService } from './base-data.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ComplectsService {
+export class ComplectsService extends BaseDataService {
   private complectsSource = new BehaviorSubject<ComplectDto[]>([]);
   complects$ = this.complectsSource.asObservable();
 
-  constructor(
-    private complectsHttp: ComplectsHttpService,
-    private accountService: AccountService
-  ) {}
+  constructor(accountService: AccountService,
+    protected complectsHttp: ComplectsHttpService
+  ) {
+    super(accountService);
+    this.init();
+  }
+
+  override cleanData() {
+    localStorage.removeItem('complects');
+    this.complectsSource.next([]);
+  }
+
+  override mergeData() {
+      this.loadComplects().subscribe(_ => {});
+    //TODO realise merge local data to server
+  }
+
+  override loadAll() {
+    if (!!this.userId){
+      this.loadComplects().subscribe(_ => {});
+    }
+    else {
+      const complectsStr = localStorage.getItem('complects');
+      if (complectsStr){
+        const complects = JSON.parse(complectsStr) as ComplectDto [];
+        this.complectsSource.next(complects);
+       }
+    }
+
+    this.complects$.subscribe(complects => {
+      localStorage.setItem('complects',JSON.stringify(complects));
+    })
+  }
 
   loadComplects(): Observable<ComplectDto[]> {
     return this.complectsHttp.getAll().pipe(
@@ -65,7 +95,7 @@ export class ComplectsService {
         });
       complects.push(complect);
       this.complectsSource.next(complects);
-      this.complectsHttp.add(complect).subscribe(_ => {})
+      this.execAuthorisedHttp(this.complectsHttp.add(complect));
     });
   }
 
@@ -74,21 +104,17 @@ export class ComplectsService {
       var idx = complects.findIndex((v) => v.id === complect.id);
       complects[idx] = complect;
       this.complectsSource.next(complects);
-      this.complectsHttp.edit(complect).subscribe(_ => {})
+      this.execAuthorisedHttp(this.complectsHttp.edit(complect))
     })
   }
 
   deleteComplect(id: string) {
-    return this.complectsHttp.delete(id).pipe(
-      map((response: boolean) => {
-        if (response) {
-          this.complects$.pipe(take(1)).subscribe((items) => {
-            const newItems = items.filter((v) => v.id !== id);
-            this.complectsSource.next(newItems);
-          });
-        }
-      })
-    );
+    this.complects$.pipe(take(1)).subscribe((items) => {
+      const newItems = items.filter((v) => v.id !== id);
+      this.complectsSource.next(newItems);
+    });
+    this.execAuthorisedHttp(this.complectsHttp.delete(id));
+    return true;
   }
 
   saveGroup(dto: GroupDto) {
@@ -104,7 +130,7 @@ export class ComplectsService {
         if (complect) {
           complect.groups.push(dto);
           this.complectsSource.next(complects);
-          this.complectsHttp.addGroup(dto).subscribe((result) => {});
+          this.execAuthorisedHttp(this.complectsHttp.addGroup(dto));
           return dto;
         } else return null;
       })
@@ -119,7 +145,7 @@ export class ComplectsService {
         if (complect && idx != -1) {
           complect.groups[idx].name = dto.name;
           this.complectsSource.next(complects);
-          this.complectsHttp.updateGroup(dto).subscribe((result) => {});
+          this.execAuthorisedHttp(this.complectsHttp.updateGroup(dto));
           return dto;
         } else return null;
       })
@@ -133,7 +159,7 @@ export class ComplectsService {
       if (complect && dto.id) {
           complect.groups = complect.groups.filter(g => g.id !== dto.id);
           this.complectsSource.next(complects);
-          this.complectsHttp.deleteGroup(dto.id).subscribe((result) => {});
+          this.execAuthorisedHttp(this.complectsHttp.deleteGroup(dto.id));
       }
     });
   }
@@ -164,8 +190,8 @@ export class ComplectsService {
       this.complectsSource.next(complects);
 
       if (existsCount) 
-        this.complectsHttp.updateItem(dto).subscribe(_=>{});
-      else this.complectsHttp.addItem(dto).subscribe(_=>{});
+      this.execAuthorisedHttp(this.complectsHttp.updateItem(dto));
+      else this.execAuthorisedHttp(this.complectsHttp.addItem(dto));
     })
     
   }
@@ -195,7 +221,7 @@ export class ComplectsService {
         if (idx !== -1) complect.groups[groupIdx].items[idx] = groupItem;
       }
       this.complectsSource.next(complects);
-      this.complectsHttp.updateItem(groupItem).subscribe((response) => {});
+      this.execAuthorisedHttp(this.complectsHttp.updateItem(groupItem));
     });
   }
 
@@ -215,7 +241,7 @@ export class ComplectsService {
       }
 
       this.complectsSource.next(complects);
-      this.complectsHttp.deleteItem(groupItem).subscribe((response) => {});
+      this.execAuthorisedHttp(this.complectsHttp.deleteItem(groupItem));
     });
   }
 }

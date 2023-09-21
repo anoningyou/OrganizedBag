@@ -450,13 +450,8 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result)
-        this.itemsService.deleteItem(item.id).subscribe({
-          next: () =>{
-              this.toastr.info('Done!');
-            },
-          error: error => this.toastr.error(error.error)
-        })
+      if (result && !this.itemsService.deleteItem(item.id))
+        this.toastr.error("Deletion failed")
     });
   }
 

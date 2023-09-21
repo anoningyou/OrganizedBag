@@ -32,7 +32,7 @@ export class GroupEditDialogComponent {
       next: (result) =>{
         if(result){
           this.toastr.info('Done!');
-          this.dialogRef.close(this.data);
+          this.dialogRef.close(result);
         } else this.toastr.error('Error with saving group!')
           
         },

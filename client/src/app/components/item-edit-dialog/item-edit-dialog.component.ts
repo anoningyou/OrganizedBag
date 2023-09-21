@@ -65,13 +65,8 @@ export class ItemEditDialogComponent implements OnInit {
     this.data.values.forEach(v => {
       v.value = values[v.id]
     });
-    this.itemsService.saveItem(this.data).subscribe({
-      next: (response: ItemDto) =>{
-          this.toastr.info('Done!');
-          this.dialogRef.close(response);
-        },
-      error: error => this.toastr.error(error.error)
-    })
+    const item = this.itemsService.saveItem(this.data)
+    this.dialogRef.close(item);
   }
   
   onNoClick(): void {

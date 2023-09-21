@@ -1,4 +1,4 @@
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import PropertyDto from '../models/dto/property-dto';
 import { BehaviorSubject, Observable, combineLatest, map, take } from 'rxjs';
 import { ItemDto } from '../models/dto/item-dto';
@@ -9,11 +9,13 @@ import { Item } from '../models/item';
 import { Property } from '../models/property';
 import { PropertyValueDto } from '../models/dto/property-value-dto';
 import { PropertyParamDto } from '../models/dto/property-param-dto';
+import { BaseDataService } from './base-data.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ItemsService {
+export class ItemsService extends BaseDataService {
+  
   private itemsSource = new BehaviorSubject<ItemDto[]>([]);
   items$ = this.itemsSource.asObservable();
 
@@ -34,10 +36,42 @@ export class ItemsService {
   }))
 
   constructor(
-    private itemsHttp: ItemsHttpService,
-    private propertiesHttp: PropertiesHttpService,
-    private accountService: AccountService
+    protected itemsHttp: ItemsHttpService,
+    protected propertiesHttp: PropertiesHttpService,
+    accountService: AccountService,
   ) {
+    super(accountService);
+    this.init();
+  }
+
+  override cleanData() {
+    localStorage.removeItem('items');
+    this.itemsSource.next([]);
+  }
+
+  override mergeData() {
+    this.loadProperties().subscribe((_) => {
+        this.loadItems().subscribe((ites) => {})
+    });
+    //TODO realise merge local data to server
+  }
+
+  override loadAll() {
+    this.loadProperties().subscribe((_) => {
+      if (!!this.userId)
+        this.loadItems().subscribe((_) => {});
+      else {
+        const itemsStr = localStorage.getItem('items');
+        if (itemsStr){
+          const items = JSON.parse(itemsStr) as ItemDto [];
+          this.itemsSource.next(items);
+        }
+      }
+
+      this.items$.subscribe(items => {
+        localStorage.setItem('items',JSON.stringify(items));
+      })
+    });
   }
 
   loadProperties(): Observable<PropertyDto[]> {
@@ -60,16 +94,6 @@ export class ItemsService {
     );
   }
 
-  loadAll() {
-    this.loadProperties().subscribe((_) => {
-      this.accountService.currentUser$.pipe(take(1)).subscribe((user) => {
-        if (user)
-          this.loadItems().subscribe((_) => {
-          });
-      });
-    });
-  }
-
   createNewItem(): Item {
     const item = new Item();
     item.values = (this.propertiesSource.getValue() ?? []).map((prop) => {
@@ -79,8 +103,10 @@ export class ItemsService {
   }
 
   saveItem(item: Item) {
-    if (!item.id) return this.addItem(item);
-    else return this.updateItem(item);
+    if (!item.id)
+     return this.addItem(item);
+    else
+     return this.updateItem(item);
   }
 
   addItem(item: Item) {
@@ -90,17 +116,15 @@ export class ItemsService {
         return { propertyId: v.id, value: v.value } as PropertyValueDto;
       }),
     } as ItemDto;
-    return this.itemsHttp.add(itemDto).pipe(
-      map((response: ItemDto) => {
-        if (response) {
-          this.items$.pipe(take(1)).subscribe((items) => {
-            items.push(response);
-            this.itemsSource.next(items);
-          });
-        }
-        return response;
-      })
-    );
+
+    this.items$.pipe(take(1)).subscribe((items) => {
+      items.push(itemDto);
+      this.itemsSource.next(items);
+    });
+
+    this.execAuthorisedHttp(this.itemsHttp.add(itemDto));   
+
+    return itemDto;
   }
 
   updateItem(item: Item) {
@@ -110,53 +134,37 @@ export class ItemsService {
         return { propertyId: v.id, value: v.value } as PropertyValueDto;
       }),
     } as ItemDto;
-    return this.itemsHttp.edit(itemDto).pipe(
-      map((response: ItemDto) => {
-        if (response) {
-          this.items$.pipe(take(1)).subscribe((items) => {
-            var idx = items.findIndex((v) => v.id === response.id);
-            items[idx] = response;
-            this.itemsSource.next(items);
-          });
-        }
-        return response;
-      })
-    );
+
+    this.items$.pipe(take(1)).subscribe((items) => {
+      var idx = items.findIndex((v) => v.id === itemDto.id);
+      items[idx] = itemDto;
+      this.itemsSource.next(items);
+    });
+
+    this.execAuthorisedHttp(this.itemsHttp.edit(itemDto));   
+
+    return itemDto;
   }
 
   deleteItem(itemId: string) {
-    return this.itemsHttp.delete(itemId).pipe(
-      map((response: boolean) => {
-        if (response) {
-          this.items$.pipe(take(1)).subscribe((items) => {
-            const newItems = items.filter((v) => v.id !== itemId);
-            this.itemsSource.next(newItems);
-          });
-        }
-      })
-    );
+    this.items$.pipe(take(1)).subscribe((items) => {
+      const newItems = items.filter((v) => v.id !== itemId);
+      this.itemsSource.next(newItems);
+    });
+
+    this.execAuthorisedHttp(this.itemsHttp.delete(itemId));   
+
+    return true;
   }
 
   updatePropertyParam(param: PropertyParamDto) {
-    this.accountService.takeCurrentUser().subscribe((user) => {
-      if (user) {
-        this.propertiesHttp.updateParam(param).subscribe((response) => {
-          this.resetPropertyParams([response]);
-        });
-      } else {
-        this.resetPropertyParams([param]);
-      }
-    });
+    this.resetPropertyParams([param]);
+    this.execAuthorisedHttp(this.propertiesHttp.updateParam(param)); 
   }
 
   updatePropertyParams(params: PropertyParamDto[]) {
-    this.accountService.takeCurrentUser().pipe(take(1)).subscribe((user) => {
-      this.resetPropertyParams(params);
-      if (user) {
-        this.propertiesHttp.updateParams(params).subscribe((response) => {
-        });
-      }
-    });
+    this.resetPropertyParams(params);
+    this.execAuthorisedHttp(this.propertiesHttp.updateParams(params)); 
   }
 
   resetPropertyParams(params: PropertyParamDto[]) {

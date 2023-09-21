@@ -30,19 +30,18 @@ export class HomeComponent implements OnInit, OnDestroy{
   }
   
   ngOnInit(): void {
-    this.itemsService.loadAll();
-
-    this.complectsService.loadComplects().pipe(take(1)).subscribe(complects => {
-      if (complects?.length)
-        this.currentComplectSource.next(complects[0])
-    });
 
     const subsctiption = this.complectsService.complects$.subscribe(complects => {
       this.currentComplect$.pipe(take(1)).subscribe(currentComplect => {
-        const complect = complects.find(c => c.id === currentComplect?.id);
-        this.currentComplectSource.next(!!complect ? Object.assign({}, complect) as ComplectDto : null);
+        if (!currentComplect && complects.length)
+          this.currentComplectSource.next(complects[0]);
+        else {
+          const complect = complects.find(c => c.id === currentComplect?.id);
+          this.currentComplectSource.next(!!complect ? Object.assign({}, complect) as ComplectDto : null);
+        }
       })
     });
+    
     this.subsctiptions.push(subsctiption);
   }
 

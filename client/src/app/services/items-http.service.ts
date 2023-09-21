@@ -25,7 +25,6 @@ export class ItemsHttpService extends BaseHttpService {
   }
 
   delete(model: string) {
-    console.log(model)
     const params = new HttpParams()
         .set('id', model);
     return this.http.delete<boolean>(`${this.rootUrl}delete`, {params});
