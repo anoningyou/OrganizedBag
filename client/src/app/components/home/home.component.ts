@@ -5,6 +5,8 @@ import { ComplectDto } from 'src/app/models/dto/complect-dto';
 import { GroupItemDto } from 'src/app/models/dto/group-item-dto';
 import { ComplectsService } from 'src/app/services/complects.service';
 import { ItemsService } from 'src/app/services/items.service';
+import { HostListener } from "@angular/core";
+import { TabsEnum } from 'src/app/enums/tabs';
 
 @Component({
   selector: 'app-home',
@@ -13,9 +15,12 @@ import { ItemsService } from 'src/app/services/items.service';
 })
 export class HomeComponent implements OnInit, OnDestroy{
   
+  mobileWidth = 992;
+  isMobile = false;
   itemsWidth = 300;
-  get itemsWidthPx() {return `${this.itemsWidth}px`}
   isItemsHidden = false;
+  tabsEnum: typeof TabsEnum = TabsEnum;
+  activeTab: TabsEnum = TabsEnum.ComplectItems;
   @ViewChild('home', {static: true}) homeElement?: ElementRef;
   @ViewChild('items', {static: true}) itemsElement?: ElementRef;
 
@@ -30,7 +35,7 @@ export class HomeComponent implements OnInit, OnDestroy{
   }
   
   ngOnInit(): void {
-
+    this.onResize();
     const subsctiption = this.complectsService.complects$.subscribe(complects => {
       this.currentComplect$.pipe(take(1)).subscribe(currentComplect => {
         if (!currentComplect && complects.length)
@@ -42,7 +47,7 @@ export class HomeComponent implements OnInit, OnDestroy{
       })
     });
     
-    this.subsctiptions.push(subsctiption);
+    this.subsctiptions.push(subsctiption); 
   }
 
   ngOnDestroy(): void {
@@ -63,4 +68,43 @@ export class HomeComponent implements OnInit, OnDestroy{
   onToggleItems(){
     this.isItemsHidden = !this.isItemsHidden;
   }
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.isMobile = window.innerWidth <= this.mobileWidth;
+  }
+
+  onActiveTabChange(tab: TabsEnum) {
+    console.log(tab)
+    this.activeTab = tab;
+  }
+
+  getItemsWidth() {
+    if (this.isMobile)
+      return "100%";
+    else if (this.isItemsHidden)
+      return "0";
+    else
+      return `${this.itemsWidth}px`;
+  }
+
+  getItemsMinWidth() {
+    if (this.isMobile)
+      return "100%";
+    else if (this.isItemsHidden)
+      return "0";
+    else
+      return "200px";
+  }
+
+  getItemsStyle(): { [klass: string]: string; } {
+    if (this.isMobile)
+      return {}
+    else
+      return {
+        'width': this.isItemsHidden? "0" : `${this.itemsWidth}px`,
+        'min-width': this.isItemsHidden? "0" : "200px"
+    }
+  }
+
 }

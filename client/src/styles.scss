@@ -63,14 +63,16 @@ a{
     height: 24px;
 }
 
-.mat-mdc-icon-button.small-button .mat-icon{
-    width: 20px;
-    height: 20px;
-    font-size: 20px;
-    position: absolute;
-    top: 2px;
-    left: 2px;
-}
+.mat-mdc-icon-button.small-button {
+    .mat-icon{
+        width: 20px;
+        height: 20px;
+        font-size: 20px;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+    }
+} 
 
 .resizable {
     position: relative;    

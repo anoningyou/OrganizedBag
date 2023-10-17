@@ -1,16 +1,12 @@
-<h1 mat-dialog-title>{{getTitle()}}</h1>
+<h1 mat-dialog-title>Edit count</h1>
 <form class="form" [formGroup]="form" (ngSubmit)="form.valid && onOkClick()" autocomplete="off">
 <div mat-dialog-content>
-  <ng-container *ngFor="let prop of data.values" >
     <app-input 
-      [formControl]="$any(form.controls[prop.id])" 
-      [valueType]="prop.valueType"
-      [label]="prop.name">
+      [formControl]="$any(form.controls['count'])" 
+      [valueType]="valueTypeEnum.Number"
+      [label]="'Count'"
+      [min]="1">
     </app-input>
-
-
-  </ng-container>
-  
 </div>
 <div mat-dialog-actions [align]="'end'">
   <button mat-raised-button color="basic"  (click)="onNoClick()" type="button">Cancel</button>

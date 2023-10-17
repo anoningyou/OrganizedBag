@@ -5,6 +5,10 @@
     height: 100%;
     gap: 5px;
     padding: 5px;
+    >*{
+        flex: 0 0 auto;
+        height: 100%;
+    }
     .home__items {
         position: relative;       
         app-items {
@@ -17,10 +21,6 @@
         flex-shrink: 1;
         min-width: 280px;
     }
-}
-.home>* {
-    flex: 0 0 auto;
-    height: 100%;
 }
 
 .toggle-button {
@@ -37,6 +37,39 @@
 
 .hidden {
     display: none;
+}
+
+@media only screen and (max-width: 992px) {
+    .home{
+        flex-wrap: wrap;
+        justify-content: space-between;
+        >*{
+            flex-grow: 1;
+            width: auto;
+            min-width: none;
+        }
+        >.active {
+            order: -1;
+            flex: 1 0 100%;
+            height: calc(100% - 70px);
+        }
+        >.inactive {
+            flex-grow: 0;
+            flex-shrink: 1;
+            height: 60px;
+            max-width: 50%;
+            &.home__complect-items {
+                order: 3;
+                flex-grow: 1;
+                flex-shrink: 0;
+                width: calc(100% - 65px);
+                max-width: 100%;
+            }
+        }
+    }
+    .toggle-button {
+        display: none;
+    }
 }
 
 

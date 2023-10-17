@@ -19,6 +19,9 @@ import { Observable, combineLatest, map, of, pipe, take } from 'rxjs';
 })
 export class ComplectsComponent implements OnInit {
 
+  @Input() isMobile = false;
+  @Input() isActive = false;
+  @Output() isActiveChange: EventEmitter<void> = new EventEmitter();
   @Input() complects$: Observable<ComplectDto[] | null> = of(null);
   @Input() currentComplect$: Observable<ComplectDto | null> = of(null);
   @Output() currentComplectChange = new EventEmitter<ComplectDto | null>();
@@ -106,6 +109,10 @@ export class ComplectsComponent implements OnInit {
 
   onToggleCard(){
     this.isCardHidden = !this.isCardHidden;
+  }
+
+  onActiveClick() {
+    this.isActiveChange.emit()
   }
 
 }

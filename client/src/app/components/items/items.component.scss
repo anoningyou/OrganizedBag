@@ -116,3 +116,12 @@
     left: 0;
     bottom: 0;
 }
+
+.mobile-preview {
+    height: 100%;
+    padding: 0 5px;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

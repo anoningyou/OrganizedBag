@@ -7,6 +7,7 @@ import { GroupDto } from '../models/dto/group-dto';
 import { Item } from '../models/item';
 import { GroupItemDto } from '../models/dto/group-item-dto';
 import { BaseDataService } from './base-data.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({
   providedIn: 'root',
@@ -86,7 +87,7 @@ export class ComplectsService extends BaseDataService {
 
   addComplect(complect: ComplectDto) {
     this.complects$.pipe(take(1)).subscribe((complects) => {
-      complect.id = crypto.randomUUID();
+      complect.id = uuidv4();
       if (!complect.groups.length)
         complect.groups.push(this.createNewGroup(complect.id));
       else
@@ -123,7 +124,7 @@ export class ComplectsService extends BaseDataService {
   }
 
   addGroup(dto: GroupDto) {
-    dto.id = crypto.randomUUID();
+    dto.id = uuidv4();
     return this.complects$.pipe(take(1)).pipe(
       map((complects: ComplectDto[]) => {
         const complect = complects.find((c) => c.id == dto.complectId);

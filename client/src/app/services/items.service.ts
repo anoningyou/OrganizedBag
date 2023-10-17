@@ -10,6 +10,7 @@ import { Property } from '../models/property';
 import { PropertyValueDto } from '../models/dto/property-value-dto';
 import { PropertyParamDto } from '../models/dto/property-param-dto';
 import { BaseDataService } from './base-data.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({
   providedIn: 'root',
@@ -111,7 +112,7 @@ export class ItemsService extends BaseDataService {
 
   addItem(item: Item) {
     const itemDto = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       values: item.values.map((v) => {
         return { propertyId: v.id, value: v.value } as PropertyValueDto;
       }),

@@ -20,13 +20,22 @@ import { GroupEditDialogComponent } from '../group-edit-dialog/group-edit-dialog
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { BehaviorSubject, Observable, Subscription, combineLatest, map, of, take } from 'rxjs';
 import { ColumnView } from 'src/app/models/column-view';
-import { ItemDto } from 'src/app/models/dto/item-dto';
+import { v4 as uuidv4 } from 'uuid';
+import { EditCountComponent } from 'src/app/common/dialog/edit-count/edit-count.component';
+import {animate, state, style, transition, trigger} from '@angular/animations';
 
 @Component({
   selector: 'app-complect-items',
   templateUrl: './complect-items.component.html',
   styleUrls: ['./complect-items.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({height: '0px', minHeight: '0'})),
+      state('expanded', style({height: '*'})),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
 })
 export class ComplectItemsComponent implements OnInit, OnDestroy {
 
@@ -50,19 +59,29 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
   
   private subsctiptions: Subscription[] = [];
 
+  dragDisabled = true;
+
+  expandedElement: GroupItemView | null = null;
+  
+
 //#endregion
 
 //#region inputs
 
+  @Input() isMobile = false;
+  @Input() isActive = false;
+  @Output() isActiveChange: EventEmitter<void> = new EventEmitter();
   @Input() properties$: Observable<PropertyDto [] | null> = of([]);
   @Input() items$: Observable<Item[] | null> = of([]);
   @Input() complect$: Observable<ComplectDto | null> = of(null);
 
-  @Input() showChart = true;
+  @Input() showChart = false;
   @Output() showChartChange: EventEmitter<boolean> = new EventEmitter();
 
   @Output() complectChange: EventEmitter<ComplectDto | null> = new EventEmitter();
 
+  @Input() currentCategoryId: string | undefined;
+  @Output() currentCategoryIdChange: EventEmitter<string | undefined> = new EventEmitter();
 //#endregion
 
 //#region events
@@ -102,6 +121,11 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     });
 
     this.subsctiptions.push(subsctiption);
+
+    this.complect$.subscribe(c => {
+      if (c?.groups?.findIndex(g => g.id === this.currentCategoryId) ?? -1 === -1)
+        this.onCurrentCategoryIdChanged(!!c?.groups?.length ? c.groups[0].id : undefined)
+    })
   }
 
   ngOnDestroy(): void {
@@ -126,6 +150,7 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
   }
 
   onItemDrop (event: CdkDragDrop<any>) {
+    this.dragDisabled = true;
     this.complect$.pipe(take(1)).subscribe(complect => {
       if (!complect)
         return;
@@ -150,33 +175,39 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     })
   }
 
-  onCountChange(event: any, item: GroupItem){
-    item.count = +event.srcElement.value ?? 1;
-    if (item.count < 1)
-      item.count = 1;
+  onItemDropMobile (event: CdkDragDrop<any>) {
     this.complect$.pipe(take(1)).subscribe(complect => {
-      if(complect) {
-        const complectItem = complect?.groups
-          .find(g => !!item.groupId && g.id === item.groupId)
-          ?.items.find(i => i.itemId == item.id);
-        if(complectItem){
-          complectItem.count = item.count;
-        }
-        this.complectsService.updateGroupItem({
-          itemId: item.id,
-          groupId: item.groupId,
-          count: item.count
-        } as GroupItemDto); 
-      }
-    });
-     
+      if (!complect || !this.currentCategoryId)
+        return;
+      const group = complect.groups.find(g => g.id === this.currentCategoryId);
+      if (!group)
+        return;
+      const item = event.previousContainer.data[event.previousIndex];
+      this.complectsService.addItemToGroup(item, group);
+    })
   }
 
   onChartToggleClick() {
     this.showChart = !this.showChart;
     this.showChartChange.emit(this.showChart);
   }
+  
+  onActiveClick() {
+    this.isActiveChange.emit()
+  }
 
+  onCurrentCategoryIdChanged(value: string | undefined) {
+    this.currentCategoryIdChange.emit(value)
+    this.currentCategoryId = value;
+  }
+
+  onItemClick(item: GroupItemView){
+    this.expandedElement = this.expandedElement === item ? null : item;
+  }
+
+  onExpandButtonClick(item: GroupItemView){
+    this.expandedElement = this.expandedElement === item ? null : item;
+  }
   
 
 //#endregion
@@ -204,21 +235,40 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
         width: '30px',
         class: 'item__category'
       });
+    else{
+      props.unshift({
+        columnDef: 'expand',
+        header: '',
+        property: null,
+        cell: (element: GroupItem) => '',
+        width: '20px',
+        class: 'expand'
+      });
+      props.unshift({
+        columnDef: 'move-item',
+        header: '',
+        property: null,
+        cell: () => '',
+        width: '30px',
+        class: 'move'
+      })
+    }
+       
     props.push({
       columnDef: 'count',
       header: 'Count',
       property: null,
       cell: (element: GroupItem) => `${element.count}`,
       width: '20px',
-      class: 'item__value item__count'
+      class: 'value count'
     });
     props.push({
       columnDef: 'actions',
-      header: 'Actions',
+      header: '',
       property: null,
       cell: (element: GroupItem) => '',
       width: '30px',
-      class: 'item__actions'
+      class: 'actions'
     });
     
     return props;
@@ -370,6 +420,10 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     return item.isSummary;
   }
 
+  isItem(index: number, item: GroupItemView): boolean{
+    return !item.isGroupBy && !item.isSummary;
+  }
+
   getChartLabel() {
     return `${this.showChart ? 'Hide' : 'Show'} chart`
   }
@@ -399,7 +453,7 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
         newItem.id = '';
         newItem.groups = complect.groups.map(g => {
           const group = Object.assign({} as GroupDto, g);
-          group.id = crypto.randomUUID();
+          group.id = uuidv4();
           group.items = g.items.map(i => {
             const item = Object.assign({} as GroupItemDto, i);
             item.groupId = group.id ?? '';
@@ -441,6 +495,32 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
           this.complectsService.addItemToGroup(result, group);
         };
       })    
+    });
+  }
+
+  openEditItemCountDialog(item: GroupItem) {
+    const dialogRef =this.dialog.open(EditCountComponent, {
+      data: item.count,
+    });
+
+    dialogRef.afterClosed().subscribe((result: number) => {
+      if (result && result > 0 && result !== item.count){
+        this.complect$.pipe(take(1)).subscribe(complect => {
+          if(complect) {
+            const complectItem = complect?.groups
+              .find(g => !!item.groupId && g.id === item.groupId)
+              ?.items.find(i => i.itemId == item.id);
+            if(complectItem){
+              complectItem.count = result;
+            }
+            this.complectsService.updateGroupItem({
+              itemId: item.id,
+              groupId: item.groupId,
+              count: result
+            } as GroupItemDto); 
+          }
+        });
+      }
     });
   }
 

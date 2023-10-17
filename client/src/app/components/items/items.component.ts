@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ItemsService } from 'src/app/services/items.service';
 import { ItemEditDialogComponent } from '../item-edit-dialog/item-edit-dialog.component';
@@ -17,6 +17,9 @@ import { ResizeEvent } from 'angular-resizable-element';
 })
 export class ItemsComponent implements OnInit{
 
+  @Input() isMobile = false;
+  @Input() isActive = false;
+  @Output() isActiveChange: EventEmitter<void> = new EventEmitter();
   @Input() properties$: Observable<PropertyDto [] | null> = of([]);
   @Input() items$: Observable<Item[] | null> = of([]);
 
@@ -89,6 +92,11 @@ export class ItemsComponent implements OnInit{
   onResizeEnd(event: ResizeEvent, prop: PropertyDto){
     prop.params.listWidth = event.rectangle.width ?? 50;
     this.itemsService.updatePropertyParam(prop.params);
+  }
+
+  onActiveClick() {
+    console.log("sdffds")
+    this.isActiveChange.emit();
   }
 
   

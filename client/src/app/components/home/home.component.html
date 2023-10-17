@@ -1,11 +1,13 @@
 <section class="home" #home>
-    <div class="home__block home__items resizable"
+    <div class="home__block home__items"
+        [ngClass]="activeTab === tabsEnum.Items ? 'active' : 'inactive'"
+        [class.resizable]="!isMobile"
         #items
-        [ngStyle]="{'width': isItemsHidden ? '0' : itemsWidthPx, 'min-width': isItemsHidden ? '0' : '200px' }"
+        [ngStyle]="getItemsStyle()"
         mwlResizable
         [enableGhostResize]="false"
         (resizeEnd)="onItemsResizeEnd($event)">
-        <div class="toggle-button" [ngClass]="isItemsHidden ? 'card-hidden' : 'card-visible'">
+        <div *ngIf="!isMobile" class="toggle-button" [ngClass]="isItemsHidden ? 'card-hidden' : 'card-visible'">
             <button mat-icon-button 
                           color="primary"                    
                           matTooltip="{{isItemsHidden ? 'Show packs' : 'Hide packs'}}"
@@ -14,12 +16,19 @@
                         </button>
           </div>
         <app-items
+            [isMobile]="isMobile"
+            [isActive]="activeTab === tabsEnum.Items"
+            (isActiveChange)="onActiveTabChange(tabsEnum.Items)"
             [properties$]="itemsService.properties$"
             [items$]="itemsService.itemObjects$">
         </app-items>
-        <div class="resize-handle-right" mwlResizeHandle [resizeEdges]="{ right: true }"></div>
+        <div class="resize-handle-right" *ngIf="!isMobile" mwlResizeHandle [resizeEdges]="{ right: true }"></div>
     </div>
     <app-complect-items class="home__block home__complect-items"
+        [ngClass]="activeTab === tabsEnum.ComplectItems ? 'active' : 'inactive'"
+        [isMobile]="isMobile"
+        [isActive]="activeTab === tabsEnum.ComplectItems"
+        (isActiveChange)="onActiveTabChange(tabsEnum.ComplectItems)"
         [complect$]="currentComplect$"
         [items$]="itemsService.itemObjects$"
         [properties$]="itemsService.properties$"
@@ -27,6 +36,10 @@
         
     ></app-complect-items>
     <app-complects class="home__block home__complects"
+        [ngClass]="activeTab === tabsEnum.Complects ? 'active' : 'inactive'"
+        [isMobile]="isMobile"
+        [isActive]="activeTab === tabsEnum.Complects"
+        (isActiveChange)="onActiveTabChange(tabsEnum.Complects)"
         [complects$]="complectsService.complects$"
         [currentComplect$]="currentComplect$"
         (currentComplectChange)="onCurrentComplectChange($event)"

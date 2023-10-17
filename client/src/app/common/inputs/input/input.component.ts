@@ -12,7 +12,7 @@ export class InputComponent implements ControlValueAccessor, OnInit {
   @Input() label = ''
   @Input() valueType = ValueTypeEnum.Unknown;
   @Input() type = 'text';
-  @Input() step = 1;
+  @Input() step: number | undefined = undefined;
   @Input() min: number | Date | null = null;
   @Input() max: number | Date | null = null;
 
@@ -29,12 +29,17 @@ export class InputComponent implements ControlValueAccessor, OnInit {
   setControlType(valueTypeEnum: string) {
     switch (valueTypeEnum) {
       case ValueTypeEnum.Number:
-        this.min = 0;
+        if (this.min === undefined || this.min === null || isNaN(+this.min))
+          this.min = 0;
+        if (this.step === undefined || this.step === null || isNaN(+this.step))
+          this.step = 1;
         this.type = 'number';
         break;
       case ValueTypeEnum.Decimal:
-        this.min = 0;
-        this.step = 0.01;
+        if (this.min === undefined || this.min === null || isNaN(+this.min))
+          this.min = 0;
+        if (this.step === undefined || this.step === null || isNaN(+this.step))
+          this.step = 0.01;
         this.type = 'number';
         break;
       case ValueTypeEnum.Date:
@@ -77,6 +82,13 @@ export class InputComponent implements ControlValueAccessor, OnInit {
     }
     else if (this.ngControl.hasError('maxlength')) {
       return `${this.label} must be at most ${this.ngControl.errors?.['maxlength'].requiredLength} characters`;
+    }
+    else if (this.ngControl.hasError('min')) {
+      console.log(this.ngControl.errors)
+      return `${this.label} must be at least ${this.ngControl.errors?.['min'].min}`;
+    }
+    else if (this.ngControl.hasError('max')) {
+      return `${this.label} must be at most ${this.ngControl.errors?.['max'].max}`;
     }
     else if (this.ngControl.hasError('notMatching')) {
       return `${this.label} do not match`;

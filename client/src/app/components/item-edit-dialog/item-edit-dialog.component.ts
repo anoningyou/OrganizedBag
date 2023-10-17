@@ -1,12 +1,10 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { ToastrService } from 'ngx-toastr';
 import { Item } from 'src/app/models/item';
 import { Property } from 'src/app/models/property';
 import { ItemsService } from 'src/app/services/items.service';
-import { ValueTypeEnum } from "../../enums/value-type";
-import { ItemDto } from 'src/app/models/dto/item-dto';
+
 @Component({
   selector: 'app-item-edit-dialog',
   templateUrl: './item-edit-dialog.component.html',
@@ -21,8 +19,7 @@ export class ItemEditDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<ItemEditDialogComponent>,
     @Inject(MAT_DIALOG_DATA) data: Item | undefined | null,
     private itemsService: ItemsService,
-    private fb: FormBuilder,
-    private toastr: ToastrService
+    private fb: FormBuilder
   ) {
     if (data){
       this.data = Object.assign(new Item(),data);

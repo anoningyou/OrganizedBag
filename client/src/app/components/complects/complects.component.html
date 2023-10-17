@@ -1,17 +1,29 @@
 <div class="container">
-  <div class="toggle-button" [ngClass]="isCardHidden ? 'card-hidden' : ''">
+  <div class="toggle-button" 
+    [ngClass]="isCardHidden ? 'card-hidden' : ''" 
+    *ngIf="!isMobile">
     <button mat-icon-button 
-                  color="primary"                    
-                  matTooltip="{{isCardHidden ? 'Show packs' : 'Hide packs'}}"
-                  (click)="onToggleCard()">
-                  <mat-icon>{{isCardHidden ? 'arrow_back_ios' : 'arrow_forward_ios'}}</mat-icon>
-                </button>
+      color="primary"                    
+      matTooltip="{{isCardHidden ? 'Show packs' : 'Hide packs'}}"
+      (click)="onToggleCard()">
+      <mat-icon>{{isCardHidden ? 'arrow_back_ios' : 'arrow_forward_ios'}}</mat-icon>
+    </button>
   </div>
-  <mat-card class="card" [ngClass]="isCardHidden ? 'hidden' : ''" >
-    <mat-card-header>
+  <mat-card class="card" [ngClass]="{'mobile': isMobile , 'inactive': !isActive, 'hidden': !isMobile && isCardHidden}" >
+    <mat-card-header class="mobile-preview" *ngIf="isMobile && !isActive">
+      <button mat-icon-button 
+        color="primary" 
+        aria-label="Show items" 
+        matTooltip="Show items"
+        (click)="onActiveClick()">
+        <mat-icon>view_quilt</mat-icon>
+      </button>
+    </mat-card-header>
+     
+    <mat-card-header *ngIf="!isMobile || isActive">
       <mat-card-title>My packs</mat-card-title>
     </mat-card-header>
-    <mat-card-content>
+    <mat-card-content *ngIf="!isMobile || isActive">
       <ul class="complect-list">
         <li class="complect-list__item" 
         *ngFor="let complect of orderedComplects$ | async"
