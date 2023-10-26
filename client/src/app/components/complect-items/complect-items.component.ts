@@ -24,6 +24,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { EditCountComponent } from 'src/app/common/dialog/edit-count/edit-count.component';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 
+
 @Component({
   selector: 'app-complect-items',
   templateUrl: './complect-items.component.html',
@@ -60,6 +61,7 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
   private subsctiptions: Subscription[] = [];
 
   dragDisabled = true;
+
 
   expandedElement: GroupItemView | null = null;
   
@@ -201,14 +203,9 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     this.currentCategoryId = value;
   }
 
-  onItemClick(item: GroupItemView){
-    this.expandedElement = this.expandedElement === item ? null : item;
-  }
-
   onExpandButtonClick(item: GroupItemView){
     this.expandedElement = this.expandedElement === item ? null : item;
   }
-  
 
 //#endregion
 
@@ -237,22 +234,23 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
       });
     else{
       props.unshift({
-        columnDef: 'expand',
-        header: '',
-        property: null,
-        cell: (element: GroupItem) => '',
-        width: '20px',
-        class: 'expand'
-      });
-      props.unshift({
         columnDef: 'move-item',
         header: '',
         property: null,
         cell: () => '',
         width: '30px',
         class: 'move'
-      })
+      }) 
     }
+
+    props.unshift({
+      columnDef: 'expand',
+      header: '',
+      property: null,
+      cell: (element: GroupItem) => '',
+      width: '20px',
+      class: 'expand'
+    });
        
     props.push({
       columnDef: 'count',

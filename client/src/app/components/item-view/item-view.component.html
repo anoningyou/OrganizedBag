@@ -1,0 +1,23 @@
+<mat-card class="item"
+     *ngIf="item">
+     <mat-card-content>
+        <mat-table [dataSource]="item.values">
+            <!-- name Definition -->
+            <ng-container matColumnDef="name">
+              <mat-cell *matCellDef="let row"> {{row.name}} </mat-cell>
+            </ng-container>
+          
+            <!-- value Definition -->
+            <ng-container matColumnDef="value">
+                <mat-cell *matCellDef="let row"> 
+                    <app-item-value class="value" 
+                        [property]="row"
+                        [value]="row.value">
+                    </app-item-value>
+                </mat-cell>
+            </ng-container>
+            <!--  Row Declarations -->
+            <mat-row *matRowDef="let row; columns: ['name', 'value']"></mat-row>
+        </mat-table>
+     </mat-card-content>
+</mat-card>

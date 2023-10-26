@@ -85,7 +85,7 @@
     },
     {
         "Id": "510AFAEE-697C-44CB-99E4-96CF0891EB9B",
-        "Name": "Acquisition date",
+        "Name": "Date",
         "ValueType": 10,
         "ParamCommon": {
             "PropertyId": "510AFAEE-697C-44CB-99E4-96CF0891EB9B",

@@ -112,6 +112,7 @@
 .row {
     min-height: 30px;
     overflow-wrap: break-word;
+    position: relative;
 
     &:hover .actions .buttons-container,
     &:hover .buttons-container {
@@ -119,7 +120,7 @@
     }
 
     &.group-item, &.group-item:hover {
-        background-color: rgba(0, 0, 0, .06);
+        background-color: rgba(0, 0, 0, .04);
     }
 
     .drag-placeholder {
@@ -147,30 +148,56 @@
     }
 
     .move {
-        max-width: 30px;
-        width: 30px;
-        padding: 0;
-        
-        .reorder-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
+        position: relative;
+        width: 0;
+        max-width: 0;
+        min-width: 0;
+        padding-left: 0;
+        padding-right: 0;
+        overflow: visible;
+
+        .reorder{
+            position: absolute;
+            left: -5px;
+            top: 0;
+            z-index: 100;
             cursor: move;
-    
-            .reorder{
-                display: block;
-                color: rgba(0, 0, 0, .2);
-            }  
-        }
+            display: block;
+            color: rgba(0, 0, 0, .2);
+        }  
     }
 
     .expand {
-        max-width: 30px;
-        width: 40px;
+        max-width: 0;
+        width: 0;
         padding: 0;
+
+        .expand-button {
+            display: none;
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            z-index: 100;
+            width: 50%;
+            height: 6px;
+            margin-left: -25%;
+            border-radius: 0 0 5px 5px;
+            border: 1px solid rgb(200, 198, 198);
+            box-shadow: rgb(200, 198, 198);
+            background: 1px rgb(240, 240, 240);
+            cursor: pointer;
+
+            &.expanded {
+                background: rgb(255, 255, 255);
+            }
+        }
     }
+
+    &:hover .expand .expand-button {
+        display: block;
+    }
+
+
 
     .count {
         max-width: 60px;
@@ -181,6 +208,14 @@
             padding: 5px;
             margin: auto 0;
         }
+    }
+
+    &.expanded-row, &.detail-row {
+        background-color: rgba(0, 0, 0, .03);
+    }
+
+    &.draggable-row {
+        border: red 1px solid;
     }
 }
 
@@ -221,7 +256,11 @@
     min-height: 0;
     .detail {
         overflow: hidden;
-        display: flex;
+        width: 100%;
+        app-item-view {
+            padding: 5px;
+        }
+        
     }
 }
 

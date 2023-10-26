@@ -1,0 +1,26 @@
+.item {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 5px;
+    .property-container{
+        .property {
+            display: flex;
+            gap: 5px;
+            justify-content: space-between;
+            .cell {
+                display: block;
+                min-height: 30px;
+                text-wrap: wrap;
+                word-break: break-all;
+                &.name {
+                    width: 30%;
+                }
+                &.value {
+                    width: 65%;
+                }
+            }
+        }
+    }
+}

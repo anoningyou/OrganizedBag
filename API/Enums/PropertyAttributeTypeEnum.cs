@@ -4,6 +4,7 @@ namespace API.Enums
     {
         Unknown = 0,
         DateFormat = 1,
-        DictionaryId = 2
+        DictionaryId = 2,
+        CoefficientId = 3
     }
 }

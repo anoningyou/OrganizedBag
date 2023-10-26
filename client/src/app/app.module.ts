@@ -30,6 +30,8 @@ import { ResizableModule } from 'angular-resizable-element';
 import { ItemsDiagramComponent } from './components/items-diagram/items-diagram.component';
 import { GroupEditDialogComponent } from './components/group-edit-dialog/group-edit-dialog.component';
 import { ChartModule } from './common/chart/chart.module';
+import { ItemViewComponent } from './components/item-view/item-view.component';
+import { LongPressModule,  } from './common/long-press/long-press.module';
 
 
 
@@ -51,7 +53,8 @@ import { ChartModule } from './common/chart/chart.module';
     ComplectItemsComponent,
     ComplectEditDialogComponent,
     ItemsDiagramComponent,
-    GroupEditDialogComponent
+    GroupEditDialogComponent,
+    ItemViewComponent
   ],
   imports: [
     BrowserModule,
@@ -66,7 +69,8 @@ import { ChartModule } from './common/chart/chart.module';
     InputsModule,
     DialogModule,
     ResizableModule,
-    ChartModule
+    ChartModule,
+    LongPressModule,
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: ErrorsInterceptor, multi: true},
