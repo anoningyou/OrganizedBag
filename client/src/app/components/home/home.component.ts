@@ -7,6 +7,7 @@ import { ComplectsService } from 'src/app/services/complects.service';
 import { ItemsService } from 'src/app/services/items.service';
 import { HostListener } from "@angular/core";
 import { TabsEnum } from 'src/app/enums/tabs';
+import { DeviceDetectorService } from 'ngx-device-detector';
 
 @Component({
   selector: 'app-home',
@@ -30,12 +31,13 @@ export class HomeComponent implements OnInit, OnDestroy{
   private subsctiptions: Subscription[] = [];
 
   constructor(public itemsService: ItemsService,
-    public complectsService: ComplectsService
+    public complectsService: ComplectsService,
+    private deviceService: DeviceDetectorService
     ) {
   }
   
   ngOnInit(): void {
-    this.onResize();
+    this.checkMobile();
     const subsctiption = this.complectsService.complects$.subscribe(complects => {
       this.currentComplect$.pipe(take(1)).subscribe(currentComplect => {
         if (!currentComplect && complects.length)
@@ -69,11 +71,6 @@ export class HomeComponent implements OnInit, OnDestroy{
     this.isItemsHidden = !this.isItemsHidden;
   }
 
-  @HostListener('window:resize', ['$event'])
-  onResize() {
-    this.isMobile = window.innerWidth <= this.mobileWidth;
-  }
-
   onActiveTabChange(tab: TabsEnum) {
     console.log(tab)
     this.activeTab = tab;
@@ -105,6 +102,10 @@ export class HomeComponent implements OnInit, OnDestroy{
         'width': this.isItemsHidden? "0" : `${this.itemsWidth}px`,
         'min-width': this.isItemsHidden? "0" : "200px"
     }
+  }
+
+  checkMobile(){
+    this.isMobile = this.deviceService.isMobile() || this.deviceService.isTablet();
   }
 
 }

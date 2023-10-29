@@ -1,14 +1,12 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NavComponent } from './components/nav/nav.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { HomeComponent } from './components/home/home.component';
-import { ItemsComponent } from './components/items/items.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDesignModule } from './common/mat-design/mat-design.module';
 import { LoginComponent } from './components/auth/login/login.component';
@@ -19,8 +17,6 @@ import { LoadingInterceptor } from './interceptors/loading.interceptor';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
 import { SharedModule } from './common/shared/shared.module';
 import { ItemComponent } from './components/item/item.component';
-import { ItemValueComponent } from './components/item-value/item-value.component';
-import { ItemEditDialogComponent } from './components/item-edit-dialog/item-edit-dialog.component';
 import { ComplectsComponent } from './components/complects/complects.component';
 import { ComplectItemsComponent } from './components/complect-items/complect-items.component';
 import { ComplectEditDialogComponent } from './components/complect-edit-dialog/complect-edit-dialog.component';
@@ -30,8 +26,11 @@ import { ResizableModule } from 'angular-resizable-element';
 import { ItemsDiagramComponent } from './components/items-diagram/items-diagram.component';
 import { GroupEditDialogComponent } from './components/group-edit-dialog/group-edit-dialog.component';
 import { ChartModule } from './common/chart/chart.module';
-import { ItemViewComponent } from './components/item-view/item-view.component';
 import { LongPressModule,  } from './common/long-press/long-press.module';
+import { ItemsModule } from './modules/items/items.module';
+import { ItemEditDialogModule } from './modules/dialogs/item-edit-dialog/item-edit-dialog.module';
+import { ItemValueModule } from './modules/item-value/item-value.module';
+import { ItemViewModule } from './modules/item-view/item-view.module';
 
 
 
@@ -43,18 +42,14 @@ import { LongPressModule,  } from './common/long-press/long-press.module';
     NavComponent,
     FooterComponent,
     HomeComponent,
-    ItemsComponent,
     LoginComponent,
     RegisterComponent,
     ItemComponent,
-    ItemValueComponent,
-    ItemEditDialogComponent,
     ComplectsComponent,
     ComplectItemsComponent,
     ComplectEditDialogComponent,
     ItemsDiagramComponent,
     GroupEditDialogComponent,
-    ItemViewComponent
   ],
   imports: [
     BrowserModule,
@@ -71,6 +66,10 @@ import { LongPressModule,  } from './common/long-press/long-press.module';
     ResizableModule,
     ChartModule,
     LongPressModule,
+    ItemsModule,
+    ItemEditDialogModule,
+    ItemValueModule,
+    ItemViewModule
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: ErrorsInterceptor, multi: true},

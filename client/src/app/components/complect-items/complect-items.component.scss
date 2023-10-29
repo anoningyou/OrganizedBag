@@ -264,10 +264,9 @@
     }
 }
 
-
 .end-row {
     display: flex;
-    justify-content: flex-start;
+    justify-content: flex-end;
     position: sticky;
     bottom: 0;
     width: 100%;
@@ -279,7 +278,7 @@
         .add-category-btn{
             position: absolute;
             top: 0;
-            left: 0;
+            right: 0;
         }
     }
 }

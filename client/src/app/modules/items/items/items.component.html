@@ -1,0 +1,192 @@
+<mat-card class="card" 
+          [ngClass]="{'mobile': isMobile , 'inactive': isMobile && !isActive}">
+  <mat-card-header class="mobile-preview" *ngIf="isMobile && !isActive">
+    <button mat-icon-button 
+            color="primary" 
+            aria-label="Show items" 
+            matTooltip="Show items"
+            (click)="onActiveClick()">
+      <mat-icon>list</mat-icon>
+    </button>
+  </mat-card-header>
+  <mat-card-header class="header" *ngIf="!isMobile || isActive">
+    
+    <mat-card-title >
+      <button mat-icon-button 
+              color="primary" 
+              aria-label="Show headers" 
+              matTooltip="Show headers"
+              [matMenuTriggerFor]="itemsListHeadersMenu">
+        <mat-icon>settings</mat-icon>
+      </button>
+        <mat-menu class="table-headers-menu" #itemsListHeadersMenu="matMenu" (click)="$event.stopPropagation()">
+          <ul class="table-headers-menu-list" *ngIf="propertiesSorted$ | async as propertiesSorted"
+              cdkDropList 
+              (cdkDropListDropped)="onDropHeader($event)"
+              [cdkDropListData]="propertiesSorted">
+            <li class="item"
+                *ngFor="let prop of propertiesSorted"
+                cdkDrag
+                cdkDragLockAxis="y"
+                cdkDragBoundary=".table-headers-menu-list">
+              <div class="drag-placeholder" *cdkDragPlaceholder></div>
+              <mat-checkbox class="ckeckbox" 
+                            [(ngModel)]="prop.params.listDisplay"
+                            [disableRipple]="true"
+                            (click)="$event.stopPropagation()"
+                            (change)="onItemHeaderSelected(prop.params)">
+                {{prop.name}}
+              </mat-checkbox> 
+              <mat-icon class="drag-handle" 
+                cdkDragHandle>
+                swap_vert
+              </mat-icon>
+            </li>
+          </ul>                          
+        </mat-menu>
+    <span class="header-name">My stuff</span>
+  </mat-card-title>
+    
+  </mat-card-header>
+  <mat-card-content class="content" *ngIf="!isMobile || isActive">
+
+
+    <mat-table class="items"
+              *ngIf="displayedColumns$ | async as tableColumns"
+              [dataSource]="dataSource"
+              multiTemplateDataRows
+              id="itemsList"
+              cdkDropList
+              #itemsList="cdkDropList"
+              cdkDropListConnectedTo="{{!isMobile ? 'complectItemsList' : 'complectItemsMobileList' }}"
+              cdkDropListSortingDisabled
+              [cdkDropListDisabled]="dragDisabled"
+              [cdkDropListData]="dataSource">
+        <ng-container *ngFor="let column of columnViews$ | async" [matColumnDef]="column.columnDef">
+
+            <!-- headers -->
+            <ng-container [ngSwitch]="column.columnDef">
+              <ng-template ngSwitchCase="{{column.columnDef === 'count' || column.columnDef === 'actions' || column.columnDef === 'move-item'}}">
+                <mat-header-cell *matHeaderCellDef sticky [ngClass]="column.class">
+                  <span>{{column.header}}</span>
+                </mat-header-cell>
+              </ng-template>
+
+              <ng-template ngSwitchDefault>
+                <mat-header-cell *matHeaderCellDef [ngClass]="column.class">
+                  <span>{{column.header}}</span>
+                </mat-header-cell>
+              </ng-template>
+            </ng-container>
+            
+            <mat-cell  [ngClass]="column.class"
+                        *matCellDef="let row" 
+                        [ngSwitch]="column.columnDef">
+
+              <ng-container *ngSwitchCase="'move-item'">
+                <mat-icon class="reorder"
+                          *ngIf="!row.isSummary"
+                          (mousedown)="dragDisabled = false;"
+                          (mouseUp)="dragDisabled = true;"
+                          (touchstart)="dragDisabled = false;"
+                          (touchend)="dragDisabled = true;"
+                          (click)="$event.stopPropagation();">
+                  more_vert
+                </mat-icon>
+              </ng-container>
+
+              <ng-container *ngSwitchCase="'count'">
+                  <span class="count-value">{{row.count}}</span>
+              </ng-container>
+
+              <ng-container *ngSwitchCase="'actions'">          
+                <div class="buttons-container">
+                  <button mat-icon-button 
+                          color="primary" 
+                          aria-label="Edit count" 
+                          class="small-button"
+                          (click)="openEditItemDialog(row, $event)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button 
+                          color="primary" 
+                          aria-label="Edit item" 
+                          class="small-button"
+                          (click)="openCloneItemDialog(row, $event)">
+                    <mat-icon>control_point_duplicate</mat-icon>
+                  </button>
+                  <button mat-icon-button 
+                          color="primary" 
+                          aria-label="Delete from complect" 
+                          class="small-button"
+                          (click)="openDeleteItemDialog(row, $event)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </ng-container>
+
+              <ng-container *ngSwitchCase="'category'">
+                <span class="category">{{column.cell(row)}}</span>
+              </ng-container>
+
+              <ng-container *ngSwitchDefault>
+                <app-item-value class="value" 
+                                [property]="column.property"
+                                [value]="column.cell(row)">
+                </app-item-value>
+              </ng-container>
+              
+            </mat-cell>
+          </ng-container>
+
+                  <!-- Detailed cell -->
+                  <ng-container matColumnDef="expandedDetail">
+                    <mat-cell class="detail-cell"
+                              *matCellDef="let element" [attr.colspan]="tableColumns.length">
+                      <div class="detail"
+                          [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
+                        <app-item-view *ngIf="element == expandedElement"
+                                        [item]="element">
+                        </app-item-view>
+                      </div>
+                    </mat-cell>
+                  </ng-container>
+                
+                  <!-- Header row -->
+                  <mat-header-row class="row table-header" 
+                                  *matHeaderRowDef="displayedColumns$ | async; sticky: true">
+                  </mat-header-row>
+                  
+                  <!-- Item row -->
+                  <mat-row class="row item" 
+                            [class.expanded-row]="expandedElement === row"
+                            *matRowDef="let row; columns: displayedColumns$ | async;"
+                            cdkDrag
+                            [cdkDragData]="row"
+                            (cdkDragStarted)="onDragStarted($event)"
+                            (cdkDragEnded)="onDragEnded()"
+                            (click)="onItemClick(row, $event)"
+                            [longPress] = "true"
+                            (onLongPress)="onItemLongPress(row, $event)">
+                    <div class="drag-placeholder" *cdkDragPlaceholder></div>
+                  </mat-row>
+          
+                  <!-- Detailed row -->
+                  <mat-row class="row detail-row" *matRowDef="let row; columns: ['expandedDetail'];" ></mat-row>
+          
+    </mat-table>
+
+    <div class="end-row">
+      <button mat-icon-button 
+              color="primary" 
+              aria-label="Add item" 
+              class="add-btn"
+              matTooltip="Add"
+              (click)="openAddItemDialog()">
+        <mat-icon>add</mat-icon>
+      </button>   
+    </div>
+  </mat-card-content>
+</mat-card>
+
+

@@ -11,7 +11,6 @@ import { ItemsService } from 'src/app/services/items.service';
 import { ComplectEditDialogComponent } from '../complect-edit-dialog/complect-edit-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray } from '@angular/cdk/drag-drop';
-import { ItemEditDialogComponent } from '../item-edit-dialog/item-edit-dialog.component';
 import { YesNoComponent } from 'src/app/common/dialog/yes-no/yes-no.component';
 import { ValueTypeEnum } from 'src/app/enums/value-type';
 import { GroupDto } from 'src/app/models/dto/group-dto';
@@ -23,6 +22,7 @@ import { ColumnView } from 'src/app/models/column-view';
 import { v4 as uuidv4 } from 'uuid';
 import { EditCountComponent } from 'src/app/common/dialog/edit-count/edit-count.component';
 import {animate, state, style, transition, trigger} from '@angular/animations';
+import { ItemEditDialogComponent } from 'src/app/modules/dialogs/item-edit-dialog/item-edit-dialog/item-edit-dialog.component';
 
 
 @Component({
@@ -156,21 +156,23 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     this.complect$.pipe(take(1)).subscribe(complect => {
       if (!complect)
         return;
-
-        const newGroupElementIndex = event.currentIndex === 0 ? 1 : event.currentIndex - 1;
+      const newGroupElementIndex = event.currentIndex === 0 ? 1 : event.currentIndex - 1;
       let newGroupElement = event.container.data.data[newGroupElementIndex];
+        
       if (!newGroupElement)
         return;
 
       if (!newGroupElement.groupId)
         newGroupElement = event.container.data.data[newGroupElementIndex - 1];
+      
 
       if (event.previousContainer === event.container) {
+        
         const item = event.previousContainer.data.data[event.previousIndex];
         this.changeItemGroup(item.id, item.groupId, newGroupElement.groupId);
       } 
       else {
-        const item = event.previousContainer.data[event.previousIndex];
+        const item = event.item.data as Item;
         const group = complect.groups.find(g => g.id === newGroupElement.groupId) ?? complect.groups[0];
         this.complectsService.addItemToGroup(item, group);
       }

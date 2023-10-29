@@ -3,9 +3,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { Item } from 'src/app/models/item';
 import { Property } from 'src/app/models/property';
 import { ItemsService } from 'src/app/services/items.service';
-import { ItemEditDialogComponent } from '../item-edit-dialog/item-edit-dialog.component';
 import { YesNoComponent } from 'src/app/common/dialog/yes-no/yes-no.component';
 import { ToastrService } from 'ngx-toastr';
+import { ItemEditDialogComponent } from 'src/app/modules/dialogs/item-edit-dialog/item-edit-dialog/item-edit-dialog.component';
 
 @Component({
   selector: 'app-item',
@@ -28,11 +28,6 @@ export class ItemComponent  {
 
   getWidth(property: Property) {
     return `${property.params?.listWidth ?? 50}px`;
-  }
-
-  get header() {
-    //console.log(this.item.values.find(i => i.id === 'C751FFD9-98C5-4851-A06E-27DC4DFA31EB'));
-    return this.item.values.find(i => i.id === 'C751FFD9-98C5-4851-A06E-27DC4DFA31EB'.toLowerCase())?.value;
   }
 
   openEditItemDialog() {

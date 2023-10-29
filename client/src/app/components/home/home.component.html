@@ -1,5 +1,5 @@
-<section class="home" #home>
-    <div class="home__block home__items"
+<section class="home" [class.mobile]="isMobile" #home>
+    <div class="block items"
         [ngClass]="activeTab === tabsEnum.Items ? 'active' : 'inactive'"
         [class.resizable]="!isMobile"
         #items
@@ -24,7 +24,7 @@
         </app-items>
         <div class="resize-handle-right" *ngIf="!isMobile" mwlResizeHandle [resizeEdges]="{ right: true }"></div>
     </div>
-    <app-complect-items class="home__block home__complect-items"
+    <app-complect-items class="block complect-items"
         [ngClass]="activeTab === tabsEnum.ComplectItems ? 'active' : 'inactive'"
         [isMobile]="isMobile"
         [isActive]="activeTab === tabsEnum.ComplectItems"
@@ -35,7 +35,7 @@
         (complectChange)="onCurrentComplectChange($event)"
         
     ></app-complect-items>
-    <app-complects class="home__block home__complects"
+    <app-complects class="block complects"
         [ngClass]="activeTab === tabsEnum.Complects ? 'active' : 'inactive'"
         [isMobile]="isMobile"
         [isActive]="activeTab === tabsEnum.Complects"

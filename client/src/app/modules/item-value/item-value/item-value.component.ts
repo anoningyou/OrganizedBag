@@ -8,7 +8,7 @@ import PropertyDto from 'src/app/models/dto/property-dto';
   styleUrls: ['./item-value.component.scss']
 })
 export class ItemValueComponent {
- @Input() property: PropertyDto | null | undefined;
- @Input() value: string | null | undefined;
- valueTypeEnum: typeof ValueTypeEnum = ValueTypeEnum;
-}
+  @Input() property: PropertyDto | null | undefined;
+  @Input() value: string | null | undefined;
+  valueTypeEnum: typeof ValueTypeEnum = ValueTypeEnum;
+ }
