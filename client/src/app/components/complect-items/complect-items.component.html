@@ -159,20 +159,12 @@
               >more_vert</mat-icon>
             </ng-container>
 
-            <ng-container *ngSwitchCase="'expand'">
-              <button class="small-button expand-button"
-                      [class.expanded]="expandedElement === row"
-                      *ngIf="!row.isSummary" 
-                      aria-label="expand row" 
-                      (click)="onExpandButtonClick(row); $event.stopPropagation()">
-
-              </button>
-            </ng-container>
-
+            <!-- count cell -->
             <ng-container *ngSwitchCase="'count'">
                 <span class="count-value">{{row.count}}</span>
             </ng-container>
 
+            <!-- actions cell -->
             <ng-container *ngSwitchCase="'actions'">          
               <div class="buttons-container" *ngIf="!row.isSummary">
                 <button mat-icon-button 
@@ -199,6 +191,7 @@
               </div>
             </ng-container>
 
+            <!-- category cell -->
             <ng-container *ngSwitchCase="'category'">
               <span class="category">{{column.cell(row)}}</span>
             </ng-container>
@@ -247,7 +240,9 @@
         <!-- Detailed cell -->
         <ng-container matColumnDef="expandedDetail">
           <mat-cell class="detail-cell"
-            *matCellDef="let element" [attr.colspan]="tableColumns.length">
+                    *matCellDef="let element" 
+                    [attr.colspan]="tableColumns.length"
+                    [class.hidden]="element !== expandedElement">
             <div class="detail"
                  [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
               <app-item-view *ngIf="element == expandedElement"
@@ -269,8 +264,11 @@
                   cdkDrag
                   [cdkDragData]="row"
                   cdkDragLockAxis="y"
-                  cdkDragBoundary="#complectItemsList">
-          <div class="drag-placeholder"  *cdkDragPlaceholder></div>
+                  cdkDragBoundary="#complectItemsList"
+                  (click)="onItemClick(row, $event)"
+                  [longPress] = "true"
+                  (onLongPress)="onItemLongPress(row, $event)">
+          <!-- <div class="drag-placeholder"  *cdkDragPlaceholder></div> -->
         </mat-row>
 
         <!-- Detailed row -->

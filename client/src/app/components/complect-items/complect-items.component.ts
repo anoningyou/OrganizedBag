@@ -209,6 +209,20 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     this.expandedElement = this.expandedElement === item ? null : item;
   }
 
+  onItemClick(item: GroupItemView, event: MouseEvent){
+    if (this.isMobile)
+      return;
+    this.expandedElement = this.expandedElement === item ? null : item;
+    event.stopPropagation();
+  }
+
+  onItemLongPress(item: GroupItemView, event: MouseEvent) {
+    if (!this.isMobile)
+      return;
+    this.expandedElement = this.expandedElement === item ? null : item;
+      event.stopPropagation();
+  }
+
 //#endregion
 
 //#region properties
@@ -245,14 +259,14 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
       }) 
     }
 
-    props.unshift({
-      columnDef: 'expand',
-      header: '',
-      property: null,
-      cell: (element: GroupItem) => '',
-      width: '20px',
-      class: 'expand'
-    });
+    // props.unshift({
+    //   columnDef: 'expand',
+    //   header: '',
+    //   property: null,
+    //   cell: (element: GroupItem) => '',
+    //   width: '20px',
+    //   class: 'expand'
+    // });
        
     props.push({
       columnDef: 'count',

@@ -142,10 +142,12 @@
                   <!-- Detailed cell -->
                   <ng-container matColumnDef="expandedDetail">
                     <mat-cell class="detail-cell"
-                              *matCellDef="let element" [attr.colspan]="tableColumns.length">
+                              *matCellDef="let element" 
+                              [attr.colspan]="tableColumns.length"
+                              [class.hidden]="element !== expandedElement">
                       <div class="detail"
-                          [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
-                        <app-item-view *ngIf="element == expandedElement"
+                          [@detailExpand]="element === expandedElement ? 'expanded' : 'collapsed'">
+                        <app-item-view *ngIf="element === expandedElement"
                                         [item]="element">
                         </app-item-view>
                       </div>

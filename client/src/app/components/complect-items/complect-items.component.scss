@@ -19,6 +19,7 @@
 .chart-container {
     height: 40%;
     margin-bottom: 4px;
+    
     .chart {
         height: fit-content;
     }
@@ -89,24 +90,17 @@
         }
 
         .drag-placeholder {
-            background: #ccc;
+            background: red;//#ccc;
             border: dotted 3px #999;
-            min-height: 40px;
+            min-height: 100px;
             transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-        }
-
-        
+        }       
     }
 }
 
 .complect-items {
     height: calc(100% - 75px);
     overflow-y: auto; 
-    .item{
-        .mat-mdc-cell {
-            border-bottom-width: 0!important;
-        }
-    } 
 }
 
 .row {
@@ -140,6 +134,7 @@
         .buttons-container {
             display: none;
             position: absolute;
+            top: 0;
             right: 0;
             z-index: 100;
             background-color: #fdfdfd;
@@ -167,40 +162,9 @@
         }  
     }
 
-    .expand {
-        max-width: 0;
-        width: 0;
-        padding: 0;
-
-        .expand-button {
-            display: none;
-            position: absolute;
-            top: -1px;
-            left: 50%;
-            z-index: 100;
-            width: 50%;
-            height: 6px;
-            margin-left: -25%;
-            border-radius: 0 0 5px 5px;
-            border: 1px solid rgb(200, 198, 198);
-            box-shadow: rgb(200, 198, 198);
-            background: 1px rgb(240, 240, 240);
-            cursor: pointer;
-
-            &.expanded {
-                background: rgb(255, 255, 255);
-            }
-        }
-    }
-
-    &:hover .expand .expand-button {
-        display: block;
-    }
-
-
-
     .count {
         max-width: 60px;
+
         .count-value {
             width: 50px;
             border: none;
@@ -213,6 +177,17 @@
     &.expanded-row, &.detail-row {
         background-color: rgba(0, 0, 0, .03);
     }
+
+    &.expanded-row{
+
+        .mat-mdc-cell {
+            border-bottom-width: 0!important;
+
+            .value {
+                display: none;
+            }
+        }
+    } 
 
     &.draggable-row {
         border: red 1px solid;
@@ -242,7 +217,8 @@
     }
 }
 
-.summary{
+.summary {
+
     .value{
         font-weight: 600;
     }
@@ -254,13 +230,11 @@
 
 .detail-row {
     min-height: 0;
+
     .detail {
         overflow: hidden;
         width: 100%;
-        app-item-view {
-            padding: 5px;
-        }
-        
+        padding-bottom: 5px;        
     }
 }
 

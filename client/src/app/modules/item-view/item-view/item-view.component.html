@@ -4,7 +4,7 @@
         <mat-table [dataSource]="item.values">
             <!-- name Definition -->
             <ng-container matColumnDef="name">
-              <mat-cell *matCellDef="let row"> {{row.name}} </mat-cell>
+              <mat-cell class="name" *matCellDef="let row"> {{row.name}} </mat-cell>
             </ng-container>
           
             <!-- value Definition -->

@@ -1,3 +1,12 @@
+.cdk-drag-preview {
+    box-sizing: border-box;
+    border-radius: 4px;
+    background: #F5F5F5;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+        0 8px 10px 1px rgba(0, 0, 0, 0.14),
+        0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
 .card {
     height: 100%;
     display: flex;
@@ -65,12 +74,6 @@
         display: flex;
     }
 
-    &.item{
-        .mat-mdc-cell {
-            border-bottom-width: 0!important;
-        }
-    } 
-
     .drag-placeholder {
         background: #FFFF;
         border: 3px dotted rgba(0, 0, 0, 0.14);
@@ -88,6 +91,7 @@
         .buttons-container {
             display: none;
             position: absolute;
+            top: 0;
             right: 0;
             z-index: 100;
             background-color: #fdfdfd;
@@ -124,6 +128,15 @@
     &.expanded-row, &.detail-row {
         background-color: rgba(0, 0, 0, .03);
     }
+
+    &.expanded-row{
+        .mat-mdc-cell {
+            border-bottom-width: 0!important;
+            .value {
+                display: none;
+            }
+        }
+    } 
 }
 
 .detail-row {
@@ -131,10 +144,7 @@
     .detail {
         overflow: hidden;
         width: 100%;
-        app-item-view {
-            padding: 5px;
-        }
-        
+        padding-bottom: 5px;    
     }
 }
 
@@ -156,3 +166,4 @@
         }
     }
 }
+
