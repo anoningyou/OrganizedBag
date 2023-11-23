@@ -125,9 +125,11 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     this.subsctiptions.push(subsctiption);
 
     this.complect$.subscribe(c => {
-      if (c?.groups?.findIndex(g => g.id === this.currentCategoryId) ?? -1 === -1)
+      if ((c?.groups?.findIndex(g => g.id === this.currentCategoryId) ?? -1) === -1)
         this.onCurrentCategoryIdChanged(!!c?.groups?.length ? c.groups[0].id : undefined)
     })
+
+    this.currentCategoryId = this.complectsService.currentGroup?.id;
   }
 
   ngOnDestroy(): void {
@@ -165,7 +167,6 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
       if (!newGroupElement.groupId)
         newGroupElement = event.container.data.data[newGroupElementIndex - 1];
       
-
       if (event.previousContainer === event.container) {
         
         const item = event.previousContainer.data.data[event.previousIndex];
@@ -176,18 +177,6 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
         const group = complect.groups.find(g => g.id === newGroupElement.groupId) ?? complect.groups[0];
         this.complectsService.addItemToGroup(item, group);
       }
-    })
-  }
-
-  onItemDropMobile (event: CdkDragDrop<any>) {
-    this.complect$.pipe(take(1)).subscribe(complect => {
-      if (!complect || !this.currentCategoryId)
-        return;
-      const group = complect.groups.find(g => g.id === this.currentCategoryId);
-      if (!group)
-        return;
-      const item = event.previousContainer.data[event.previousIndex];
-      this.complectsService.addItemToGroup(item, group);
     })
   }
 
@@ -203,10 +192,11 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
   onCurrentCategoryIdChanged(value: string | undefined) {
     this.currentCategoryIdChange.emit(value)
     this.currentCategoryId = value;
-  }
-
-  onExpandButtonClick(item: GroupItemView){
-    this.expandedElement = this.expandedElement === item ? null : item;
+    this.complect$.pipe(take(1)).subscribe(complect => {
+      if (complect) {
+        this.complectsService.currentGroup = complect.groups.find(g => g.id == value);
+      }
+    })
   }
 
   onItemClick(item: GroupItemView, event: MouseEvent){
@@ -219,8 +209,12 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
   onItemLongPress(item: GroupItemView, event: MouseEvent) {
     if (!this.isMobile)
       return;
-    this.expandedElement = this.expandedElement === item ? null : item;
-      event.stopPropagation();
+    if (!this.dragDisabled) {
+      this.expandedElement = null;
+    }
+    else
+      this.expandedElement = this.expandedElement === item ? null : item;
+    event.stopPropagation();
   }
 
 //#endregion
@@ -603,4 +597,9 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
 
 //#endregion
 
+//#region actions
+changeDragDisabled(disabled: boolean) {
+  this.dragDisabled = disabled;
+}
+//#endregion
 }

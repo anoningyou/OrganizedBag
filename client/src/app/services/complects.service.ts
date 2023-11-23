@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { ComplectDto } from '../models/dto/complect-dto';
 import { BehaviorSubject, Observable, map, take } from 'rxjs';
 import { ComplectsHttpService } from './complects-http.service';
@@ -15,6 +15,9 @@ import { v4 as uuidv4 } from 'uuid';
 export class ComplectsService extends BaseDataService {
   private complectsSource = new BehaviorSubject<ComplectDto[]>([]);
   complects$ = this.complectsSource.asObservable();
+
+  currentGroup: GroupDto | undefined;
+  groupItemAdded: EventEmitter<GroupItemDto> = new EventEmitter<GroupItemDto>();
 
   constructor(accountService: AccountService,
     protected complectsHttp: ComplectsHttpService
@@ -189,10 +192,12 @@ export class ComplectsService extends BaseDataService {
         complectGroup.items.push(dto);
 
       this.complectsSource.next(complects);
+      this.groupItemAdded.emit(item);
 
       if (existsCount) 
-      this.execAuthorisedHttp(this.complectsHttp.updateItem(dto));
-      else this.execAuthorisedHttp(this.complectsHttp.addItem(dto));
+        this.execAuthorisedHttp(this.complectsHttp.updateItem(dto));
+      else 
+        this.execAuthorisedHttp(this.complectsHttp.addItem(dto));
     })
     
   }
@@ -203,7 +208,17 @@ export class ComplectsService extends BaseDataService {
       groupId: group.id,
       count: 1,
     } as GroupItemDto;
-    return this.addGroupItemToGroup(dto, group);
+    this.addGroupItemToGroup(dto, group);
+  }
+
+  addItemToCurrentGroup(item: Item) : boolean {
+    //console.log(this.currentGroup)
+    if(this.currentGroup){
+      this.addItemToGroup(item, this.currentGroup);
+      return true;
+    }
+    else
+      return false;
   }
 
   updateGroupItem(groupItem: GroupItemDto) {

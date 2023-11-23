@@ -84,7 +84,6 @@ export class InputComponent implements ControlValueAccessor, OnInit {
       return `${this.label} must be at most ${this.ngControl.errors?.['maxlength'].requiredLength} characters`;
     }
     else if (this.ngControl.hasError('min')) {
-      console.log(this.ngControl.errors)
       return `${this.label} must be at least ${this.ngControl.errors?.['min'].min}`;
     }
     else if (this.ngControl.hasError('max')) {

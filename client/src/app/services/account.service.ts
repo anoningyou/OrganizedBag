@@ -48,7 +48,6 @@ export class AccountService {
   register(model:any){
     return this.http.post<User>(`${this.baseUrl}${ServiceConstants.Account.Register}`,model).pipe(
       map(user => {
-        console.log(user);
         if(user) {
           this.setCurrentUser(user);
         }

@@ -1,5 +1,6 @@
 <mat-card class="card" 
-          [ngClass]="{'mobile': isMobile , 'inactive': isMobile && !isActive}">
+          [ngClass]="{'mobile': isMobile , 'inactive': isMobile && !isActive}"
+          >
   <mat-card-header class="mobile-preview" *ngIf="isMobile && !isActive">
     <button mat-icon-button 
             color="primary" 
@@ -58,7 +59,7 @@
               id="itemsList"
               cdkDropList
               #itemsList="cdkDropList"
-              cdkDropListConnectedTo="{{!isMobile ? 'complectItemsList' : 'complectItemsMobileList' }}"
+              cdkDropListConnectedTo="complectItemsList"
               cdkDropListSortingDisabled
               [cdkDropListDisabled]="dragDisabled"
               [cdkDropListData]="dataSource">
@@ -169,11 +170,13 @@
                             (cdkDragEnded)="onDragEnded()"
                             (click)="onItemClick(row, $event)"
                             [longPress] = "true"
-                            (onLongPress)="onItemLongPress(row, $event)">
+                            (onLongPress)="onItemLongPress(row, $event)"
+                            [@cardAnimator]="row === slidingElement ? 'slideOutRight' : ''" 
+                            (@cardAnimator.done)="onItemSwipeRightEnd(row)"
+                            (swiperight)="onItemSwipeRight(row)"
+                            >
                     <div class="drag-placeholder" *cdkDragPlaceholder></div>
                   </mat-row>
-          
-                  <!-- Detailed row -->
                   <mat-row class="row detail-row" *matRowDef="let row; columns: ['expandedDetail'];" ></mat-row>
           
     </mat-table>

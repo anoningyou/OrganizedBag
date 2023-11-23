@@ -12,8 +12,10 @@ import { ColumnView } from 'src/app/models/column-view';
 import { Property } from 'src/app/models/property';
 import { GroupItem} from 'src/app/models/group-item';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import {animate, state, style, transition, trigger} from '@angular/animations';
+import {animate, state, style, transition, trigger,keyframes} from '@angular/animations';
 import { YesNoComponent } from 'src/app/common/dialog/yes-no/yes-no.component';
+import * as kf from 'src/app/constants/keyframes';
+import { ComplectsService } from 'src/app/services/complects.service';
 
 @Component({
   selector: 'app-items',
@@ -26,6 +28,9 @@ import { YesNoComponent } from 'src/app/common/dialog/yes-no/yes-no.component';
       state('expanded', style({height: '*'})),
       transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
     ]),
+    trigger('cardAnimator', [
+      transition('* => slideOutRight', animate(300, keyframes(kf.slideOutRight))),
+    ])
   ],
 })
 export class ItemsComponent implements OnInit, OnDestroy{
@@ -53,6 +58,7 @@ export class ItemsComponent implements OnInit, OnDestroy{
   displayedColumns$: Observable<string []> = of([]);
 
   expandedElement: Item | null = null;
+  slidingElement: Item | null = null;
   dataSource: MatTableDataSource<Item> = new MatTableDataSource();
   @ViewChild(MatTable) table?: MatTable<Item>;
 
@@ -61,6 +67,7 @@ export class ItemsComponent implements OnInit, OnDestroy{
   //#endregion
   
   constructor(public itemsService: ItemsService,
+    public complectsService: ComplectsService,
     public dialog: MatDialog) {
   }
 
@@ -115,16 +122,15 @@ export class ItemsComponent implements OnInit, OnDestroy{
       }
     })?? [];
     
-    props.unshift({
-      columnDef: 'move-item',
-      header: '',
-      property: null,
-      cell: () => '',
-      width: '30px',
-      class: 'move'
-    }) 
-
-
+    if (!this.isMobile)
+      props.unshift({
+        columnDef: 'move-item',
+        header: '',
+        property: null,
+        cell: () => '',
+        width: '30px',
+        class: 'move'
+      }) 
        
     props.push({
       columnDef: 'actions',
@@ -184,6 +190,22 @@ export class ItemsComponent implements OnInit, OnDestroy{
         (f: any) => f.id === event.source.data.id
       ));
     }
+  }
+
+  onItemSwipeRight(item : Item) {
+    if (!this.isMobile) {
+      this.slidingElement = null
+      return;
+    }
+    
+    if (!this.slidingElement){
+      this.slidingElement = item;
+      this.complectsService.addItemToCurrentGroup(item);
+    }   
+  }
+
+  onItemSwipeRightEnd(item : Item) {
+    this.slidingElement = null;
   }
 
   //#endregion

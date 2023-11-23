@@ -32,10 +32,6 @@ import { ItemEditDialogModule } from './modules/dialogs/item-edit-dialog/item-ed
 import { ItemValueModule } from './modules/item-value/item-value.module';
 import { ItemViewModule } from './modules/item-view/item-view.module';
 
-
-
-
-
 @NgModule({
   declarations: [
     AppComponent,

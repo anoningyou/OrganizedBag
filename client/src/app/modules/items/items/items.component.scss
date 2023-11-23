@@ -9,10 +9,7 @@
 
 .card {
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    
+   
     .header {
         flex: 0 0 auto;
         display: flex;
@@ -22,6 +19,7 @@
             align-items: center;
         }
     }
+
     .content{
         height: calc(100% - 60px);
         display: flex;
@@ -30,6 +28,15 @@
         width: 100%;
         max-width: 100%;
         overflow-y: auto; 
+        overflow-x: hidden;
+    }
+
+    .mobile-preview {
+        height: 100%;
+        padding: 0 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }  
 }
 
@@ -164,6 +171,12 @@
             top: 0;
             right: 0;
         }
+    }
+}
+
+.card.mobile {
+    .item {
+        min-height: 60px;
     }
 }
 

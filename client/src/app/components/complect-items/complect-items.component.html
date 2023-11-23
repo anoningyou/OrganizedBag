@@ -1,118 +1,117 @@
-<mat-card class="complect-container" 
-  [ngClass]="{'mobile': isMobile , 'inactive': !isActive}">
+<mat-card class="complect-container card"
+          [ngClass]="{'mobile': isMobile , 'inactive': !isActive}">
   <mat-card-header class="mobile-preview"
-   *ngIf="isMobile && !isActive"
-   cdkDropList
-   #complectItemsMobileList="cdkDropList"
-   id="complectItemsMobileList"
-   cdkDropListConnectedTo="itemsList"
-
-   (cdkDropListDropped)="onItemDropMobile($event)"
-   >
+                   *ngIf="isMobile && !isActive">
     <div class="header">
-        <h4 class="name">{{(complect$ | async)?.name}} </h4>
-        <mat-form-field appearance="outline" class="small-outlined-select">
-          <mat-label>Category</mat-label>
-          <mat-select [value]="currentCategoryId" (valueChange)="onCurrentCategoryIdChanged($event)">
-            <mat-option
-              *ngFor="let group of (complect$ | async)?.groups" 
-              value="{{group.id}}">
-                {{group.name}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      
+      <h4 class="name">{{(complect$ | async)?.name}} </h4>
+      <mat-form-field appearance="outline"
+                      class="small-outlined-select">
+        <mat-label>Category</mat-label>
+        <mat-select [value]="currentCategoryId"
+                    (valueChange)="onCurrentCategoryIdChanged($event)">
+          <mat-option *ngFor="let group of (complect$ | async)?.groups"
+                      value="{{group.id}}">
+            {{group.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
     </div>
-    <button mat-icon-button 
-      color="primary" 
-      aria-label="Show items" 
-      matTooltip="Show items"
-      (click)="onActiveClick()">
+    <button mat-icon-button
+            color="primary"
+            aria-label="Show items"
+            matTooltip="Show items"
+            (click)="onActiveClick()">
       <mat-icon>work_outline</mat-icon>
     </button>
   </mat-card-header>
   <ng-container *ngIf="!isMobile || isActive">
-    <app-chart class="chart" 
-      *ngIf="showChart"
-      [items$]="items$"
-      [properties$]="properties$"
-      [categoryGroupId]="categoryGroupId"
-      [groupPropertyId$]="groupPropertyId$"
-      [groups$]="groups$">
+    <app-chart class="chart"
+               *ngIf="showChart"
+               [items$]="items$"
+               [properties$]="properties$"
+               [categoryGroupId]="categoryGroupId"
+               [groupPropertyId$]="groupPropertyId$"
+               [groups$]="groups$">
     </app-chart>
     <mat-card-header class="header">
       <mat-card-title class="title">
         <span class="header-name">{{(complect$ | async)?.name}} </span>
-        <button mat-icon-button 
-          color="primary" 
-          aria-label="Edit" 
-          class="small-button"
-          (click)="openEditComplectDialog()">
+        <button mat-icon-button
+                color="primary"
+                aria-label="Edit"
+                class="small-button"
+                (click)="openEditComplectDialog()">
           <mat-icon *ngIf="complect$ | async">edit</mat-icon>
           <mat-icon *ngIf="!(complect$ | async)">add</mat-icon>
         </button>
-        <button mat-icon-button 
+        <button mat-icon-button
                 *ngIf="complect$ | async"
-                color="primary" 
-                aria-label="Edit item" 
+                color="primary"
+                aria-label="Edit item"
                 class="small-button"
                 matTooltip="Clone"
                 (click)="openCloneComplectDialog()">
-                <mat-icon>control_point_duplicate</mat-icon>
+          <mat-icon>control_point_duplicate</mat-icon>
         </button>
       </mat-card-title>
       <mat-card-subtitle>
         {{(complect$ | async)?.description}}
       </mat-card-subtitle>
       <div class="buttons-container">
-        <mat-form-field appearance="outline" class="small-outlined-select">
+        <mat-form-field appearance="outline"
+                        class="small-outlined-select">
           <mat-label>Show by</mat-label>
-          <mat-select [value]="groupPropertyId$ | async" (valueChange)="onGroupPropertyIdChanged($event)">
-            <mat-option >None</mat-option>
+          <mat-select [value]="groupPropertyId$ | async"
+                      (valueChange)="onGroupPropertyIdChanged($event)">
+            <mat-option>None</mat-option>
             <mat-option value="{{categoryGroupId}}">Category</mat-option>
-            <mat-option
-              *ngFor="let prop of properties$ | async" 
-              value="{{prop.id}}">
-                {{prop.name}}
+            <mat-option *ngFor="let prop of properties$ | async"
+                        value="{{prop.id}}">
+              {{prop.name}}
             </mat-option>
           </mat-select>
         </mat-form-field>
-        <button mat-icon-button 
-          color="primary" 
-          aria-label="Show headers" 
-          matTooltip="Show headers"
-          [matMenuTriggerFor]="listHeadersMenu">
+        <button mat-icon-button
+                color="primary"
+                aria-label="Show headers"
+                matTooltip="Show headers"
+                [matMenuTriggerFor]="listHeadersMenu">
           <mat-icon>settings</mat-icon>
         </button>
-        <mat-menu class="table-headers-menu" #listHeadersMenu="matMenu" (click)="$event.stopPropagation()">
-          <ul class="table-headers-menu-list" *ngIf="propertiesSorted$ | async as propertiesSorted"
-            cdkDropList 
-            (cdkDropListDropped)="onHeaderDrop($event)"
-            [cdkDropListData]="propertiesSorted">
+        <mat-menu class="table-headers-menu"
+                  #listHeadersMenu="matMenu"
+                  (click)="$event.stopPropagation()">
+          <ul class="table-headers-menu-list"
+              *ngIf="propertiesSorted$ | async as propertiesSorted"
+              cdkDropList
+              (cdkDropListDropped)="onHeaderDrop($event)"
+              [cdkDropListData]="propertiesSorted">
             <li class="item"
-              *ngFor="let prop of propertiesSorted"
-              cdkDrag
-              cdkDragLockAxis="y"
-              cdkDragBoundary=".table-headers-menu-list" >
-              <div class="drag-placeholder" *cdkDragPlaceholder></div>
-              <mat-checkbox
-                  [(ngModel)]="prop.params.complectDisplay"
-                  [disableRipple]="true"
-                  (click)="$event.stopPropagation()"
-                  (change)="onTableHeaderSelected(prop.params)">
+                *ngFor="let prop of propertiesSorted"
+                cdkDrag
+                cdkDragLockAxis="y"
+                cdkDragBoundary=".table-headers-menu-list">
+              <div class="drag-placeholder"
+                   *cdkDragPlaceholder></div>
+              <mat-checkbox [(ngModel)]="prop.params.complectDisplay"
+                            [disableRipple]="true"
+                            (click)="$event.stopPropagation()"
+                            (change)="onTableHeaderSelected(prop.params)">
                 {{prop.name}}
-              </mat-checkbox> 
-              <mat-icon class="drag-handle" cdkDragHandle>
+              </mat-checkbox>
+              <mat-icon class="drag-handle"
+                        cdkDragHandle>
                 swap_vert
               </mat-icon>
             </li>
-          </ul>                          
+          </ul>
         </mat-menu>
-        <button mat-icon-button 
-          color="primary" 
-          aria-label="Toggle chart" 
-          [matTooltip]="getChartLabel()"
-          (click)="onChartToggleClick()">
+        <button mat-icon-button
+                color="primary"
+                aria-label="Toggle chart"
+                [matTooltip]="getChartLabel()"
+                (click)="onChartToggleClick()">
           <mat-icon>pie_chart</mat-icon>
         </button>
       </div>
@@ -120,72 +119,79 @@
     <mat-card-content class="complect-items">
 
       <mat-table *ngIf="displayedColumns$ | async as tableColumns"
-              [dataSource]="dataSource"
-              multiTemplateDataRows 
-              cdkDropList
-              #complectItemsList="cdkDropList"
-              id="complectItemsList"
-              cdkDropListConnectedTo="itemsList"
-              [cdkDropListData]="dataSource"
-              (cdkDropListDropped)="onItemDrop($event)"
-              [cdkDropListDisabled]="dragDisabled">
+                 [dataSource]="dataSource"
+                 multiTemplateDataRows
+                 cdkDropList
+                 #complectItemsList="cdkDropList"
+                 id="complectItemsList"
+                 cdkDropListConnectedTo="itemsList"
+                 [cdkDropListData]="dataSource"
+                 (cdkDropListDropped)="onItemDrop($event)"
+                 [cdkDropListDisabled]="dragDisabled">
 
-        <ng-container *ngFor="let column of columnViews$ | async" [matColumnDef]="column.columnDef">
+        <ng-container *ngFor="let column of columnViews$ | async"
+                      [matColumnDef]="column.columnDef">
 
           <!-- headers -->
           <ng-container [ngSwitch]="column.columnDef">
-            <ng-template ngSwitchCase="{{column.columnDef === 'count' || column.columnDef === 'actions' || column.columnDef === 'move-item'}}">
-              <mat-header-cell *matHeaderCellDef sticky [ngClass]="column.class">
+            <ng-template
+                         ngSwitchCase="{{column.columnDef === 'count' || column.columnDef === 'actions' || column.columnDef === 'move-item'}}">
+              <mat-header-cell *matHeaderCellDef
+                               sticky
+                               [ngClass]="column.class">
                 <span>{{column.header}}</span>
               </mat-header-cell>
             </ng-template>
 
             <ng-template ngSwitchDefault>
-              <mat-header-cell *matHeaderCellDef [ngClass]="column.class">
+              <mat-header-cell *matHeaderCellDef
+                               [ngClass]="column.class">
                 <span>{{column.header}}</span>
               </mat-header-cell>
             </ng-template>
           </ng-container>
-          
-          <mat-cell  [ngClass]="column.class" *matCellDef="let row" [ngSwitch]="column.columnDef">
+
+          <mat-cell [ngClass]="column.class"
+                    *matCellDef="let row"
+                    [ngSwitch]="column.columnDef">
 
             <ng-container *ngSwitchCase="'move-item'">
               <mat-icon class="reorder"
-                *ngIf="!row.isSummary"
-                (mousedown)="dragDisabled = false;"
-                (mouseUp)="dragDisabled = true;"
-                (touchstart)="dragDisabled = false;"
-                (touchend)="dragDisabled = true;"
-              >more_vert</mat-icon>
+                        *ngIf="!row.isSummary"
+                        (mousedown)="dragDisabled = false;"
+                        (mouseUp)="dragDisabled = true;"
+                        (touchstart)="dragDisabled = false;"
+                        (touchend)="dragDisabled = true;">more_vert</mat-icon>
             </ng-container>
 
             <!-- count cell -->
             <ng-container *ngSwitchCase="'count'">
-                <span class="count-value">{{row.count}}</span>
+              <span class="count-value">{{row.count}}</span>
             </ng-container>
 
             <!-- actions cell -->
-            <ng-container *ngSwitchCase="'actions'">          
-              <div class="buttons-container" *ngIf="!row.isSummary">
-                <button mat-icon-button 
-                  color="primary" 
-                  aria-label="Edit count" 
-                  class="small-button"
-                  (click)="openEditItemCountDialog(row)">
+            <ng-container *ngSwitchCase="'actions'">
+              <div class="buttons-container"
+                   *ngIf="!row.isSummary">
+                <button mat-icon-button
+                        color="primary"
+                        aria-label="Edit count"
+                        class="small-button"
+                        (click)="openEditItemCountDialog(row)">
                   <i class="mat-icon">±</i>
                 </button>
-                <button mat-icon-button 
-                  color="primary" 
-                  aria-label="Edit item" 
-                  class="small-button"
-                  (click)="openEditItemDialog(row)">
+                <button mat-icon-button
+                        color="primary"
+                        aria-label="Edit item"
+                        class="small-button"
+                        (click)="openEditItemDialog(row)">
                   <mat-icon>edit</mat-icon>
                 </button>
-                <button mat-icon-button 
-                  color="primary" 
-                  aria-label="Delete from complect" 
-                  class="small-button"
-                  (click)="openDeleteComplectItemDialog(row)">
+                <button mat-icon-button
+                        color="primary"
+                        aria-label="Delete from complect"
+                        class="small-button"
+                        (click)="openDeleteComplectItemDialog(row)">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
@@ -197,113 +203,117 @@
             </ng-container>
 
             <ng-container *ngSwitchDefault>
-              <app-item-value class="value" 
-                [property]="column.property"
-                [value]="column.cell(row)">
+              <app-item-value class="value"
+                              [property]="column.property"
+                              [value]="column.cell(row)">
               </app-item-value>
             </ng-container>
-            
+
           </mat-cell>
         </ng-container>
 
         <!-- Group header -->
         <ng-container matColumnDef="groupHeader">
-          <mat-cell class="cell" colspan="999"  *matCellDef="let groupBy">
-            <div class="container" >
+          <mat-cell class="cell"
+                    colspan="999"
+                    *matCellDef="let groupBy">
+            <div class="container">
               <span>{{groupBy.groupValue.name}}: "</span>
-              <app-item-value class="value" 
-                  [property]="groupBy.groupValue"
-                  [value]="groupBy.groupValue.value">
+              <app-item-value class="value"
+                              [property]="groupBy.groupValue"
+                              [value]="groupBy.groupValue.value">
               </app-item-value>
               <span>"</span>
             </div>
             <div class="buttons-container">
-              <button mat-icon-button 
-                color="primary" 
-                aria-label="Edit item" 
-                class="small-button"
-                (click)="openEditGroupDialog(groupBy)">
+              <button mat-icon-button
+                      color="primary"
+                      aria-label="Edit item"
+                      class="small-button"
+                      (click)="openEditGroupDialog(groupBy)">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button 
-                color="primary" 
-                aria-label="Delete from complect" 
-                class="small-button"
-                (click)="openDeleteGroupDialog(groupBy)">
+              <button mat-icon-button
+                      color="primary"
+                      aria-label="Delete from complect"
+                      class="small-button"
+                      (click)="openDeleteGroupDialog(groupBy)">
                 <mat-icon>delete</mat-icon>
               </button>
             </div>
-            
+
           </mat-cell>
         </ng-container>
 
         <!-- Detailed cell -->
         <ng-container matColumnDef="expandedDetail">
           <mat-cell class="detail-cell"
-                    *matCellDef="let element" 
+                    *matCellDef="let element"
                     [attr.colspan]="tableColumns.length"
                     [class.hidden]="element !== expandedElement">
             <div class="detail"
                  [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
               <app-item-view *ngIf="element == expandedElement"
-                            [item]="element">
+                             [item]="element">
               </app-item-view>
             </div>
           </mat-cell>
         </ng-container>
-      
+
         <!-- Header row -->
-        <mat-header-row class="row table-header" 
+        <mat-header-row class="row table-header"
                         *matHeaderRowDef="displayedColumns$ | async; sticky: true">
         </mat-header-row>
-        
+
         <!-- Item row -->
-        <mat-row class="row item" 
-                  [class.expanded-row]="expandedElement === row"
-                  *matRowDef="let row; columns: displayedColumns$ | async; when: isItem  "
-                  cdkDrag
-                  [cdkDragData]="row"
-                  cdkDragLockAxis="y"
-                  cdkDragBoundary="#complectItemsList"
-                  (click)="onItemClick(row, $event)"
-                  [longPress] = "true"
-                  (onLongPress)="onItemLongPress(row, $event)">
+        <mat-row class="row item"
+                 [class.expanded-row]="expandedElement === row"
+                 *matRowDef="let row; columns: displayedColumns$ | async; when: isItem  "
+                 cdkDrag
+                 [cdkDragData]="row"
+                 cdkDragLockAxis="y"
+                 cdkDragBoundary="#complectItemsList"
+                 (click)="onItemClick(row, $event)"
+                 [longPress]="true"
+                 (onLongPress)="onItemLongPress(row, $event)">
           <!-- <div class="drag-placeholder"  *cdkDragPlaceholder></div> -->
         </mat-row>
 
         <!-- Detailed row -->
-        <mat-row class="row detail-row" *matRowDef="let row; columns: ['expandedDetail']; when: isItem " ></mat-row>
+        <mat-row class="row detail-row"
+                 *matRowDef="let row; columns: ['expandedDetail']; when: isItem "></mat-row>
 
         <!-- Summary row -->
         <mat-row class="row summary"
-         *matRowDef="let row; columns: displayedColumns$ | async; when: isSummary"
-         cdkDrag
-         [cdkDragData]="row"
-         [cdkDragDisabled]="true">
+                 *matRowDef="let row; columns: displayedColumns$ | async; when: isSummary"
+                 cdkDrag
+                 [cdkDragData]="row"
+                 [cdkDragDisabled]="true">
         </mat-row>
 
         <!-- Group row -->
         <mat-row class="row group-item"
-          *matRowDef="let row; columns: ['groupHeader']; when: isGroup"
-          cdkDrag
-          [cdkDragData]="row"
-          [cdkDragDisabled]="true">
+                 *matRowDef="let row; columns: ['groupHeader']; when: isGroup"
+                 cdkDrag
+                 [cdkDragData]="row"
+                 [cdkDragDisabled]="true">
         </mat-row>
-    
+
       </mat-table>
-      <div class="end-row" *ngIf="complect$ | async">
+      <div class="end-row"
+           *ngIf="complect$ | async">
         <div class="buttons">
-          <button mat-icon-button 
-                  color="primary" 
-                  aria-label="Add category" 
+          <button mat-icon-button
+                  color="primary"
+                  aria-label="Add category"
                   class="add-category-btn"
                   matTooltip="Add category"
                   (click)="openAddGroupDialog()">
             <mat-icon>add</mat-icon>
-          </button>  
+          </button>
         </div>
       </div>
     </mat-card-content>
   </ng-container>
-  
+
 </mat-card>

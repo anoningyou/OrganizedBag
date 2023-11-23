@@ -72,7 +72,6 @@ export class HomeComponent implements OnInit, OnDestroy{
   }
 
   onActiveTabChange(tab: TabsEnum) {
-    console.log(tab)
     this.activeTab = tab;
   }
 

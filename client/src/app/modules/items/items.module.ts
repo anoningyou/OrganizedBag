@@ -11,6 +11,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { DialogModule } from 'src/app/common/dialog/dialog.module';
 import { LongPressDirective } from 'src/app/common/long-press/long-press.directive';
 import { LongPressModule } from 'src/app/common/long-press/long-press.module';
+import { HammerModule } from "node_modules/@angular/platform-browser";
 
 
 
@@ -29,7 +30,8 @@ import { LongPressModule } from 'src/app/common/long-press/long-press.module';
     BrowserModule,
     BrowserAnimationsModule,
     DialogModule,
-    LongPressModule
+    LongPressModule,
+    HammerModule
   ],
   exports: [
     ItemsComponent
