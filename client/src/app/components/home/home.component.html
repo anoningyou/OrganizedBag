@@ -33,6 +33,7 @@
         [items$]="itemsService.itemObjects$"
         [properties$]="itemsService.properties$"
         (complectChange)="onCurrentComplectChange($event)"
+        (currentCategoryChange)="onCurrentCategoryChange($event)"
         
     ></app-complect-items>
     <app-complects class="block complects"

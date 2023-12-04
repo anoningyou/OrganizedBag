@@ -8,6 +8,8 @@ import { ItemsService } from 'src/app/services/items.service';
 import { HostListener } from "@angular/core";
 import { TabsEnum } from 'src/app/enums/tabs';
 import { DeviceDetectorService } from 'ngx-device-detector';
+import { GroupEditDialogComponent } from '../group-edit-dialog/group-edit-dialog.component';
+import { GroupDto } from 'src/app/models/dto/group-dto';
 
 @Component({
   selector: 'app-home',
@@ -65,6 +67,10 @@ export class HomeComponent implements OnInit, OnDestroy{
         const complect = complects.find(c => c.id === event?.id);
         this.currentComplectSource.next(!!complect ? Object.assign({}, complect) as ComplectDto : null);
       })
+  }
+
+  onCurrentCategoryChange(event: GroupDto | null){
+    this.complectsService.setCurrentGroup(event);
   }
 
   onToggleItems(){

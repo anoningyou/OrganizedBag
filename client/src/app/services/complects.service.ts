@@ -16,7 +16,8 @@ export class ComplectsService extends BaseDataService {
   private complectsSource = new BehaviorSubject<ComplectDto[]>([]);
   complects$ = this.complectsSource.asObservable();
 
-  currentGroup: GroupDto | undefined;
+  private currentGroup = new BehaviorSubject<GroupDto | null>(null);
+  currentGroup$ = this.currentGroup.asObservable();
   groupItemAdded: EventEmitter<GroupItemDto> = new EventEmitter<GroupItemDto>();
 
   constructor(accountService: AccountService,
@@ -211,14 +212,15 @@ export class ComplectsService extends BaseDataService {
     this.addGroupItemToGroup(dto, group);
   }
 
-  addItemToCurrentGroup(item: Item) : boolean {
-    //console.log(this.currentGroup)
-    if(this.currentGroup){
-      this.addItemToGroup(item, this.currentGroup);
-      return true;
-    }
-    else
-      return false;
+  addItemToCurrentGroup(item: Item) : Observable<boolean> {
+    return this.currentGroup$.pipe(take(1), map(currentGroup => {
+      if(currentGroup){
+        this.addItemToGroup(item, currentGroup);
+        return true;
+      }
+      else
+        return false;
+    }));
   }
 
   updateGroupItem(groupItem: GroupItemDto) {
@@ -259,5 +261,9 @@ export class ComplectsService extends BaseDataService {
       this.complectsSource.next(complects);
       this.execAuthorisedHttp(this.complectsHttp.deleteItem(groupItem));
     });
+  }
+
+  setCurrentGroup(group: GroupDto | null | undefined) {
+    this.currentGroup.next(group ?? null);
   }
 }

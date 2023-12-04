@@ -133,3 +133,8 @@ a{
 .hidden {
     display: none;
 }
+
+.stretch-badge > .mat-badge-content {
+    width: auto;
+    min-width: 24px;
+}

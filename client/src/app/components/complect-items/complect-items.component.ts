@@ -57,14 +57,19 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
   columnViews$: Observable<ColumnView []> = of([]);
 
   displayedColumns$: Observable<string []> = of([]);
+
+  currentGroup$: Observable<GroupDto | null> = of(null);
+
+  currentGroupCount$: Observable<number> = of(0);
+
+  private currentCategoryId = new BehaviorSubject<string | undefined>(undefined);
+  currentCategoryId$ = this.currentCategoryId.asObservable();
   
   private subsctiptions: Subscription[] = [];
 
   dragDisabled = true;
 
-
   expandedElement: GroupItemView | null = null;
-  
 
 //#endregion
 
@@ -82,13 +87,13 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
 
   @Output() complectChange: EventEmitter<ComplectDto | null> = new EventEmitter();
 
-  @Input() currentCategoryId: string | undefined;
-  @Output() currentCategoryIdChange: EventEmitter<string | undefined> = new EventEmitter();
 //#endregion
 
 //#region events
 
   @Output() complectItemUpdated: EventEmitter<GroupItemDto> = new EventEmitter();
+
+  @Output() currentCategoryChange: EventEmitter<GroupDto | null> = new EventEmitter();
   
 //#endregion
 
@@ -116,24 +121,35 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     this.displayedColumns$ =  this.columnViews$.pipe(map(columns => {
         return columns.map(c => c.columnDef) ?? [];
       }));
+
+    this.currentGroup$ = combineLatest([this.complect$, this.currentCategoryId$]).pipe(map(c => {
+      const complect = c[0];
+      const currentCategoryId = c[1];
+      let group: GroupDto | null = null;
+      if (complect) {
+        group = complect.groups.find(g => g.id == currentCategoryId) ?? complect.groups[0] ?? null;
+      }
+  
+      if (currentCategoryId !== group?.id)
+        this.currentCategoryId.next(group?.id);
+      this.currentCategoryChange.emit(group);
+
+      return group;
+    }));
+  
+    this.currentGroupCount$ = this.currentGroup$.pipe(map(g => g?.items?.reduce((summ, i) => summ + i.count, 0 ) ?? 0));
     
     const subsctiption = combineLatest([this.groups$, this.items$, this.propertiesFiltered$,  this.groupPropertyId$]).subscribe(data => {
       this.dataSource.data = !!data[0] && !!data[1] ? this.getComplectItemViews(data[0], data[1], data[2], data[3]) : [];
       this.table?.renderRows();
     });
 
-    this.subsctiptions.push(subsctiption);
-
-    this.complect$.subscribe(c => {
-      if ((c?.groups?.findIndex(g => g.id === this.currentCategoryId) ?? -1) === -1)
-        this.onCurrentCategoryIdChanged(!!c?.groups?.length ? c.groups[0].id : undefined)
-    })
-
-    this.currentCategoryId = this.complectsService.currentGroup?.id;
+    this.subsctiptions.push(subsctiption); 
   }
 
   ngOnDestroy(): void {
-    this.subsctiptions.forEach(s =>{s.unsubscribe()})
+    this.subsctiptions.forEach(s =>{s.unsubscribe()});
+    this.currentCategoryChange.emit(null);
   }
 
   onGroupPropertyIdChanged(id: string) {
@@ -190,13 +206,9 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
   }
 
   onCurrentCategoryIdChanged(value: string | undefined) {
-    this.currentCategoryIdChange.emit(value)
-    this.currentCategoryId = value;
-    this.complect$.pipe(take(1)).subscribe(complect => {
-      if (complect) {
-        this.complectsService.currentGroup = complect.groups.find(g => g.id == value);
-      }
-    })
+    if (value !== this.currentCategoryId.value) {
+      this.currentCategoryId.next(value);
+    }     
   }
 
   onItemClick(item: GroupItemView, event: MouseEvent){

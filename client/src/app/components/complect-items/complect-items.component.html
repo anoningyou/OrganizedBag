@@ -5,9 +5,11 @@
     <div class="header">
       <h4 class="name">{{(complect$ | async)?.name}} </h4>
       <mat-form-field appearance="outline"
-                      class="small-outlined-select">
+                      class="small-outlined-select stretch-badge"
+                      [matBadge]="currentGroupCount$ | async"
+                      matBadgeOverlap="true">
         <mat-label>Category</mat-label>
-        <mat-select [value]="currentCategoryId"
+        <mat-select [value]="currentCategoryId$ | async"
                     (valueChange)="onCurrentCategoryIdChanged($event)">
           <mat-option *ngFor="let group of (complect$ | async)?.groups"
                       value="{{group.id}}">

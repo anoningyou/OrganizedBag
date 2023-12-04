@@ -200,7 +200,7 @@ export class ItemsComponent implements OnInit, OnDestroy{
     
     if (!this.slidingElement){
       this.slidingElement = item;
-      this.complectsService.addItemToCurrentGroup(item);
+      this.complectsService.addItemToCurrentGroup(item).subscribe(_ => {});
     }   
   }
 
