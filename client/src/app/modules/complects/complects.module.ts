@@ -1,22 +1,22 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ItemViewComponent } from './item-view/item-view.component';
+import { ComplectsComponent } from './complects/complects.component';
 import { MatDesignModule } from 'src/app/modules/common/mat-design/mat-design.module';
-import { ItemValueModule } from '../item-value/item-value.module';
+import { ComplectEditDialogModule } from '../complect-edit-dialog/complect-edit-dialog.module';
 
 
 
 @NgModule({
   declarations: [
-    ItemViewComponent
+    ComplectsComponent
   ],
   imports: [
     CommonModule,
     MatDesignModule,
-    ItemValueModule
+    ComplectEditDialogModule
   ],
   exports: [
-    ItemViewComponent
+    ComplectsComponent
   ],
 })
-export class ItemViewModule { }
+export class ComplectsModule { }

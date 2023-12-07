@@ -1,20 +1,27 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from './components/home/home.component';
-import { LoginComponent } from './components/auth/login/login.component';
-import { RegisterComponent } from './components/auth/register/register.component';
+
 
 const routes: Routes = [
-  {path: '', component: HomeComponent},
-  {path: 'login', component: LoginComponent},
-  {path: 'register', component: RegisterComponent},
+  {
+    path: '',
+    loadChildren: () => import("./modules/home/home.module").then(x => x.HomeModule)
+  },
+  {
+    path: 'login',
+    loadChildren: () => import("./modules/login/login.module").then(x => x.LoginModule)
+  },
+  {
+    path: 'register',
+    loadChildren: () => import("./modules/register/register.module").then(x => x.RegisterModule)
+  },
   {
     path: 'error',
-    loadChildren: () => import("./common/errors/errors.module").then(x => x.ErrorsModule)
+    loadChildren: () => import("./modules/common/errors/errors.module").then(x => x.ErrorsModule)
   },
   {
     path: '**', 
-    loadChildren: () => import("./common/errors/errors.module").then(x => x.ErrorsModule),
+    loadChildren: () => import("./modules/common/errors/errors.module").then(x => x.ErrorsModule),
      pathMatch: 'full'
   },
 ];

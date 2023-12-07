@@ -13,7 +13,7 @@ import { Property } from 'src/app/models/property';
 import { GroupItem} from 'src/app/models/group-item';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import {animate, state, style, transition, trigger,keyframes} from '@angular/animations';
-import { YesNoComponent } from 'src/app/common/dialog/yes-no/yes-no.component';
+import { YesNoComponent } from 'src/app/modules/common/dialog/yes-no/yes-no.component';
 import * as kf from 'src/app/constants/keyframes';
 import { ComplectsService } from 'src/app/services/complects.service';
 

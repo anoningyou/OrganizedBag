@@ -1,25 +1,27 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ItemEditDialogComponent } from './item-edit-dialog/item-edit-dialog.component';
-import { InputsModule } from 'src/app/modules/common/inputs/inputs.module';
+import { LoginComponent } from './login/login.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDesignModule } from 'src/app/modules/common/mat-design/mat-design.module';
+import { InputsModule } from 'src/app/modules/common/inputs/inputs.module';
+import { LoginRoutingModule } from './login-routing.module';
 
 
 
 @NgModule({
   declarations: [
-    ItemEditDialogComponent
+    LoginComponent
   ],
   imports: [
     CommonModule,
-    InputsModule,
     FormsModule,
     ReactiveFormsModule,
-    MatDesignModule
+    MatDesignModule,
+    InputsModule,
+    LoginRoutingModule
   ],
   exports: [
-    ItemEditDialogComponent
-  ],
+    LoginComponent
+  ]
 })
-export class ItemEditDialogModule { }
+export class LoginModule { }

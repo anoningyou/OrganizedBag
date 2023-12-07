@@ -1,22 +1,22 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ItemViewComponent } from './item-view/item-view.component';
+import { NavComponent } from './nav/nav.component';
 import { MatDesignModule } from 'src/app/modules/common/mat-design/mat-design.module';
-import { ItemValueModule } from '../item-value/item-value.module';
+import { RouterModule } from '@angular/router';
 
 
 
 @NgModule({
   declarations: [
-    ItemViewComponent
+    NavComponent
   ],
   imports: [
     CommonModule,
     MatDesignModule,
-    ItemValueModule
+    RouterModule 
   ],
   exports: [
-    ItemViewComponent
+    NavComponent
   ],
 })
-export class ItemViewModule { }
+export class NavModule { }

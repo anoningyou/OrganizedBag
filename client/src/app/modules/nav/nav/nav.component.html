@@ -1,0 +1,28 @@
+<mat-toolbar>
+    <a class="home-link" [routerLink]="'/'">
+        <mat-icon aria-hidden="false" aria-label="Home" fontIcon="home"></mat-icon>
+        <span class="text">Organize your bag!</span>
+    </a>
+    <div class="login-group">
+        <button class="person"
+            mat-button 
+            [matMenuTriggerFor]="menu">
+            <mat-icon class="icon">{{(accountService.currentUser$ | async) ? "person" :"person_outline"}}</mat-icon>
+            <p class="name">{{(accountService.currentUser$ | async)?.userName}}</p>
+        </button>
+
+        <mat-menu class="menu"
+            #menu="matMenu"
+            xPosition="before">
+            <div class="item" mat-menu-item *ngIf="accountService.currentUser$ | async">
+                <button class="button" mat-raised-button color="primary" (click)="logout()">Log out</button>
+            </div>
+            <div class="item" mat-menu-item *ngIf="!(accountService.currentUser$ | async)">
+                <a class="button" mat-raised-button color="primary" routerLink="login" >Login</a>
+            </div>
+            <div class="item" mat-menu-item *ngIf="!(accountService.currentUser$ | async)">
+                <a class="button" mat-raised-button color="primary" routerLink="register" >Register</a>
+            </div>   
+        </mat-menu>       
+    </div>   
+</mat-toolbar>
