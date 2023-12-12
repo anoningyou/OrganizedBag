@@ -7,7 +7,8 @@ import { ItemViewModule } from '../item-view/item-view.module';
 import { ItemValueModule } from '../item-value/item-value.module';
 import { FormsModule } from '@angular/forms';
 import { ChartModule } from 'src/app/modules/common/chart/chart.module';
-import { GroupEditDialogModule } from '../group-edit-dialog/group-edit-dialog.module';
+import { GroupEditDialogModule } from '../dialogs/group-edit-dialog/group-edit-dialog.module';
+
 
 
 

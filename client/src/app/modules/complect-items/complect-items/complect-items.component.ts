@@ -21,8 +21,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { EditCountComponent } from 'src/app/modules/common/dialog/edit-count/edit-count.component';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import { ItemEditDialogComponent } from 'src/app/modules/dialogs/item-edit-dialog/item-edit-dialog/item-edit-dialog.component';
-import { ComplectEditDialogComponent } from '../../complect-edit-dialog/complect-edit-dialog/complect-edit-dialog.component';
-import { GroupEditDialogComponent } from '../../group-edit-dialog/group-edit-dialog/group-edit-dialog.component';
+import { ComplectEditDialogComponent } from '../../dialogs/complect-edit-dialog/complect-edit-dialog/complect-edit-dialog.component';
+import { GroupEditDialogComponent } from '../../dialogs/group-edit-dialog/group-edit-dialog/group-edit-dialog.component';
 
 
 @Component({
@@ -264,15 +264,6 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
         class: 'move'
       }) 
     }
-
-    // props.unshift({
-    //   columnDef: 'expand',
-    //   header: '',
-    //   property: null,
-    //   cell: (element: GroupItem) => '',
-    //   width: '20px',
-    //   class: 'expand'
-    // });
        
     props.push({
       columnDef: 'count',

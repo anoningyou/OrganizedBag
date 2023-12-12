@@ -75,7 +75,7 @@ export class ComplectsService extends BaseDataService {
 
   createNewGroup(complectId: string | null = null): GroupDto {
     return {
-      id: undefined as string | undefined,
+      id: uuidv4(),
       name: 'Default group',
       complectId: null as string | null,
       items: [],

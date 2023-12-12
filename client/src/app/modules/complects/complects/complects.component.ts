@@ -7,7 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { GroupDto } from 'src/app/models/dto/group-dto';
 import { ComplectsService } from 'src/app/services/complects.service';
 import { Observable, combineLatest, map, of, pipe, take } from 'rxjs';
-import { ComplectEditDialogComponent } from '../../complect-edit-dialog/complect-edit-dialog/complect-edit-dialog.component';
+import { ComplectEditDialogComponent } from '../../dialogs/complect-edit-dialog/complect-edit-dialog/complect-edit-dialog.component';
 
 
 
