@@ -80,5 +80,16 @@ namespace API.Data
             .ProjectTo<ItemDto>(_mapper.ConfigurationProvider)
             .ToListAsync();
         }
+
+        public async Task<List<ItemDto>> GetByIdsAsync(List<Guid> ids)
+        {
+            return await _context.Items
+            .AsNoTracking()
+            .Where(i => ids.Contains(i.Id))
+            .Include(i => i.Values)
+            .ThenInclude(p => p.Property)
+            .ProjectTo<ItemDto>(_mapper.ConfigurationProvider)
+            .ToListAsync();
+        }
     }
 }

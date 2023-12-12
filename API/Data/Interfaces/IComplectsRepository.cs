@@ -8,6 +8,7 @@ namespace API.Data.Interfaces
         public ComplectDto Edit(ComplectDto complect, Guid userId);
         public void Remove(Guid id);
         public Task<List<ComplectDto>> GetAllAsync(Guid userId);
+        public Task<ComplectDto> GetByIdAsync(Guid id);
 
         public Task<GroupDto> AddGroupAsync(GroupDto dto);
         public void RemoveGroup(GroupDto dto);
@@ -16,5 +17,6 @@ namespace API.Data.Interfaces
         public Task<GroupItemDto> AddItemAsync(GroupItemDto dto);
         public void RemoveItem(GroupItemDto dto);
         public GroupItemDto UpdateItem(GroupItemDto dto);
+
     }
 }

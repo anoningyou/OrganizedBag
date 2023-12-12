@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using API.Data.Interfaces;
 using API.DTOs;
 using API.Entities;
@@ -19,6 +20,7 @@ namespace API.Data
         }
 
 #region Complects
+
         public async Task<ComplectDto> AddAsync(ComplectDto dto, Guid userId)
         {
             if (dto.Id == Guid.Empty)
@@ -58,6 +60,17 @@ namespace API.Data
             .ThenInclude(g => g.Items)
             .ProjectTo<ComplectDto>(_mapper.ConfigurationProvider)
             .ToListAsync();
+        }
+
+        public async Task<ComplectDto> GetByIdAsync(Guid userId)
+        {
+            return await _context.Complects
+            .AsNoTracking()
+            .Where(c => c.Id == userId)
+            .Include(c => c.Groups)
+            .ThenInclude(g => g.Items)
+            .ProjectTo<ComplectDto>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
         }
 
 #endregion

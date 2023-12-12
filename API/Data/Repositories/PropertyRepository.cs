@@ -49,6 +49,28 @@ namespace API.Data
             return result;  
         }
 
+        public async Task<List<PropertyDto>> GetByIdsAsync(List<Guid> ids, Guid? userId)
+        {
+            var props = await _context.Properties
+            .AsNoTracking()
+            .Where(p => ids.Contains(p.Id))
+            .Include(p=> p.Params.Where(x => x.UserId == userId))
+            .ToListAsync();
+            var result =  props.Select(p => {
+                var propertyDto = _mapper.Map<PropertyDto>(p);
+                var param = p.Params.FirstOrDefault();
+                propertyDto.Params = param != null ? _mapper.Map<PropertyParamDto>(param) : null;
+                return propertyDto;
+            }).ToList();
+
+            foreach (var prop in result)
+            {
+                prop.Params ??= await GetCommonPropertyParam(prop.Id);
+            }
+
+            return result;  
+        }
+
         public async Task<bool> AnyAsync()
         {
             return await _context.Properties.AnyAsync();

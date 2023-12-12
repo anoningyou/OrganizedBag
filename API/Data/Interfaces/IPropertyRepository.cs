@@ -16,5 +16,7 @@ namespace API.Data.Interfaces
         public Task<List<PropertyParamDto>> AddOrUpdateParamsAsync(List<PropertyParamDto> propertyParamDtos, Guid userId);
 
         public Task<PropertyParamDto> AddOrUpdateParamAsync(PropertyParamDto propertyParamDto, Guid userId);
+
+        public Task<List<PropertyDto>> GetByIdsAsync(List<Guid> ids, Guid? userId);
     }
 }

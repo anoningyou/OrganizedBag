@@ -11,5 +11,7 @@ namespace API.Data.Interfaces
         public void Remove(Guid id);
 
         public Task<List<ItemDto>> GetAllAsync(Guid userId);
+
+        public Task<List<ItemDto>> GetByIdsAsync(List<Guid> ids);
     }
 }

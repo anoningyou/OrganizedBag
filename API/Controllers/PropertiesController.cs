@@ -2,10 +2,12 @@ using API.Data;
 using API.Data.Interfaces;
 using API.DTOs;
 using API.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    [Authorize]
     public class PropertiesController : BaseApiController
     {
         private readonly IUnitOfWork _uow;
@@ -14,6 +16,7 @@ namespace API.Controllers
             _uow = uow;
         }
 
+        [AllowAnonymous]
         [HttpGet(nameof(GetAll))]
         public async Task<ActionResult<IEnumerable<PropertyDto>>> GetAll()
         {

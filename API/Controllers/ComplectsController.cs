@@ -1,10 +1,12 @@
 using API.Data.Interfaces;
 using API.DTOs;
 using API.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    [Authorize]
     public class ComplectsController: BaseApiController
     {
         private readonly IUnitOfWork _uow;
