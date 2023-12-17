@@ -1,0 +1,13 @@
+<section class="shared" [class.mobile]="isMobile" #shared>
+    <app-complect-items class="block complect-items active"
+    [isMobile]="isMobile"
+    [isActive]="true"
+    [complect$]="complect$"
+    [items$]="items$"
+    [properties$]="properties$"
+    [isReadonly]="true"
+    (propertyParamsChange)="onPropertyParamsChange($event)"
+    (propertyParamChange)="onPropertyParamChange($event)"
+    
+></app-complect-items>
+</section>

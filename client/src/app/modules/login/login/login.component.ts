@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AccountService } from 'src/app/services/account.service';
+import { NavigationService } from 'src/app/services/navigation-service.service';
 
 @Component({
   selector: 'app-login',
@@ -18,7 +19,8 @@ export class LoginComponent implements OnInit {
   constructor(public accountService: AccountService,
     private router: Router,
     private fb: FormBuilder,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private navigationService: NavigationService
      ){}
 
   ngOnInit(): void {
@@ -36,7 +38,8 @@ export class LoginComponent implements OnInit {
     const values = this.loginForm.value;
     this.accountService.login(values).subscribe({
       next: () =>{
-          this.router.navigateByUrl('/');
+          this.navigationService.back();
+          //this.router. navigateByUrl('/');
         },
       error: error => this.toastr.error(error.error)
     })
@@ -44,6 +47,7 @@ export class LoginComponent implements OnInit {
   
   cancel(){
     this.cancelLogin.emit(false);
-    this.router.navigateByUrl('/');
+    this.navigationService.back();
+    //this.router.navigateByUrl('/');
   }
 }

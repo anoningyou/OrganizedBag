@@ -16,6 +16,10 @@ const routes: Routes = [
     loadChildren: () => import("./modules/register/register.module").then(x => x.RegisterModule)
   },
   {
+    path: 'shared',
+    loadChildren: () => import("./modules/shared/shared.module").then(x => x.SharedModule)
+  },
+  {
     path: 'error',
     loadChildren: () => import("./modules/common/errors/errors.module").then(x => x.ErrorsModule)
   },

@@ -11,10 +11,9 @@ import { PropertyValueDto } from '../models/dto/property-value-dto';
 import { PropertyParamDto } from '../models/dto/property-param-dto';
 import { BaseDataService } from './base-data.service';
 import { v4 as uuidv4 } from 'uuid';
+import { ItemsManager } from '../managers/items-manager';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class ItemsService extends BaseDataService {
   
   private itemsSource = new BehaviorSubject<ItemDto[]>([]);
@@ -25,14 +24,7 @@ export class ItemsService extends BaseDataService {
 
   itemObjects$ = combineLatest({properties: this.properties$, items: this.items$}).pipe(map(data => {
     return data.items.map((i) => {
-      const item = Object.assign(new Item(), i) as Item;
-      item.values = data.properties.map((prop) => {
-        const value = i.values.find((v) => v.propertyId === prop.id);
-        const propertyValue = Object.assign(new Property(), prop) as Property;
-        propertyValue.value = value?.value;
-        return propertyValue;
-      });
-      return item;
+      return ItemsManager.getItem(i,data.properties);
     });
   }))
 

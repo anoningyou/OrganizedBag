@@ -40,6 +40,7 @@
       <mat-card-title class="title">
         <span class="header-name">{{(complect$ | async)?.name}} </span>
         <button mat-icon-button
+                *ngIf="!isReadonly"
                 color="primary"
                 aria-label="Edit"
                 class="small-button"
@@ -48,13 +49,23 @@
           <mat-icon *ngIf="!(complect$ | async)">add</mat-icon>
         </button>
         <button mat-icon-button
-                *ngIf="complect$ | async"
+                *ngIf="!isReadonly && (complect$ | async)"
                 color="primary"
                 aria-label="Edit item"
                 class="small-button"
                 matTooltip="Clone"
                 (click)="openCloneComplectDialog()">
           <mat-icon>control_point_duplicate</mat-icon>
+        </button>
+        <button mat-icon-button
+                *ngIf="(complect$ | async)?.isShared"
+                color="primary"
+                aria-label="Copy link to clipboard"
+                class="small-button"
+                matTooltip="Copy link to clipboard"
+                [cdkCopyToClipboard]="(complectLink$ | async) ?? ''"
+                (click)="onCopyToClipboard()">
+          <mat-icon>content_copy</mat-icon>
         </button>
       </mat-card-title>
       <mat-card-subtitle>
@@ -118,8 +129,10 @@
         </button>
       </div>
     </mat-card-header>
+
     <mat-card-content class="complect-items">
 
+<!-- Table -->
       <mat-table *ngIf="displayedColumns$ | async as tableColumns"
                  [dataSource]="dataSource"
                  multiTemplateDataRows
@@ -302,8 +315,10 @@
         </mat-row>
 
       </mat-table>
+<!-- End Table -->
+
       <div class="end-row"
-           *ngIf="complect$ | async">
+           *ngIf="!isReadonly && (complect$ | async)">
         <div class="buttons">
           <button mat-icon-button
                   color="primary"

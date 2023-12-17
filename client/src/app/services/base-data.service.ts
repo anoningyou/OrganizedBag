@@ -15,7 +15,7 @@ export abstract class BaseDataService {
 
   protected init() {
     this.accountService.currentUser$.subscribe((user) => {
-      if (this.userId ?? '' !== user?.id ?? '') {
+      if ((this.userId ?? '') !== (user?.id ?? '')) {
         if (!!this.userId) 
             this.cleanData();
         else 

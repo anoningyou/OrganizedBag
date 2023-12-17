@@ -21,6 +21,7 @@ import {MatNativeDateModule} from '@angular/material/core';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatSelectModule} from '@angular/material/select';
 import {MatBadgeModule} from '@angular/material/badge';
+import {ClipboardModule} from '@angular/cdk/clipboard';
 
 @NgModule({
   declarations: [],
@@ -48,7 +49,8 @@ import {MatBadgeModule} from '@angular/material/badge';
     MatNativeDateModule,
     MatCheckboxModule,
     MatSelectModule,
-    MatBadgeModule
+    MatBadgeModule,
+    ClipboardModule
   ]
 })
 export class MatDesignModule { }

@@ -4,6 +4,7 @@ namespace API.DTOs
     {
         public string Name { get; set; }
         public string Description { get; set; }
+        public bool IsShared { get; set; }
 
         public List<GroupDto> Groups { get; set; } = new List<GroupDto>();
     }

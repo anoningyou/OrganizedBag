@@ -1,7 +1,9 @@
 using API.DTOs;
 using API.Entities;
+using API.Extensions;
 using API.Interfaces;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +25,8 @@ namespace API.Controllers
             _tokenService = tokenService;           
         }
 
+        #region public
+        
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
@@ -69,10 +73,39 @@ namespace API.Controllers
             };
         }
 
+        [HttpGet(nameof(GetCurrentUser))]
+        [Authorize]
+        public async Task<ActionResult<UserDto>> GetCurrentUser()
+        {
+            var userId = User.GetUserId();
+
+            if(userId == Guid.Empty) 
+                return Unauthorized("Unauthorized");
+
+            var user = await _userManager.Users
+                .SingleOrDefaultAsync(x=>x.Id == userId);
+
+            if(user == null) 
+                return Unauthorized("Unauthorized");
+
+             return new UserDto
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Token = await _tokenService.CreateTocken(user)
+            };
+        }
+
+        #endregion
+
+        #region private
+
         private async Task<bool> UserExistAsync(string username)
         {
             return await _userManager.Users.AnyAsync(u => u.UserName== username.ToLower());
         }
+
+        #endregion
         
     }
 }

@@ -7,6 +7,7 @@ import { ItemsService } from 'src/app/services/items.service';
 import { TabsEnum } from 'src/app/enums/tabs';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { GroupDto } from 'src/app/models/dto/group-dto';
+import { PropertyParamDto } from 'src/app/models/dto/property-param-dto';
 
 @Component({
   selector: 'app-home',
@@ -68,6 +69,14 @@ export class HomeComponent implements OnInit, OnDestroy{
 
   onCurrentCategoryChange(event: GroupDto | null){
     this.complectsService.setCurrentGroup(event);
+  }
+
+  onPropertyParamChange(propertyParam: PropertyParamDto) {
+    this.itemsService.updatePropertyParam(propertyParam);
+  }
+
+  onPropertyParamsChange(propertyParams: PropertyParamDto[]) {
+    this.itemsService.updatePropertyParams(propertyParams);
   }
 
   onToggleItems(){

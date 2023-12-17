@@ -1,9 +1,11 @@
+using System.Net;
 using System.Text.Json.Serialization;
 using API.Data;
 using API.Data.Interfaces;
 using API.Entities;
 using API.Extensions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,7 +43,7 @@ app.UseCors(builder => builder
     .AllowAnyHeader()
     .AllowAnyMethod()
     .AllowCredentials()
-    .WithOrigins(new [] {"http://localhost:4200", "http://192.168.1.6:4200"})
+    .WithOrigins(new [] {"http://localhost:4200", "http://192.168.1.6:4200", "https://192.168.1.6:5001", "http://192.168.1.6:5000"})
 );
 
 app.UseAuthentication();
@@ -52,6 +54,7 @@ app.UseStaticFiles();
 
 
 app.MapControllers();
+app.MapFallbackToController("Index", "Fallback");
 
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;

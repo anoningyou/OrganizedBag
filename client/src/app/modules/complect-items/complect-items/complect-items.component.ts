@@ -7,7 +7,6 @@ import PropertyDto from 'src/app/models/dto/property-dto';
 import { Item } from 'src/app/models/item';
 import { GroupItem, GroupItemView } from 'src/app/models/group-item';
 import { Property } from 'src/app/models/property';
-import { ItemsService } from 'src/app/services/items.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray } from '@angular/cdk/drag-drop';
 import { YesNoComponent } from 'src/app/modules/common/dialog/yes-no/yes-no.component';
@@ -62,6 +61,8 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
 
   currentGroupCount$: Observable<number> = of(0);
 
+  complectLink$: Observable<string> = of('');
+
   private currentCategoryId = new BehaviorSubject<string | undefined>(undefined);
   currentCategoryId$ = this.currentCategoryId.asObservable();
   
@@ -77,6 +78,7 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
 
   @Input() isMobile = false;
   @Input() isActive = false;
+  @Input() isReadonly = false;
   @Output() isActiveChange: EventEmitter<void> = new EventEmitter();
   @Input() properties$: Observable<PropertyDto [] | null> = of([]);
   @Input() items$: Observable<Item[] | null> = of([]);
@@ -86,6 +88,7 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
   @Output() showChartChange: EventEmitter<boolean> = new EventEmitter();
 
   @Output() complectChange: EventEmitter<ComplectDto | null> = new EventEmitter();
+  
 
 //#endregion
 
@@ -94,10 +97,13 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
   @Output() complectItemUpdated: EventEmitter<GroupItemDto> = new EventEmitter();
 
   @Output() currentCategoryChange: EventEmitter<GroupDto | null> = new EventEmitter();
-  
+
+  @Output() propertyParamChange: EventEmitter<PropertyParamDto> = new EventEmitter();
+  @Output() propertyParamsChange: EventEmitter<PropertyParamDto[]> = new EventEmitter();
+
 //#endregion
 
-  constructor(public itemsService: ItemsService,
+  constructor(
     public complectsService: ComplectsService,
     public dialog: MatDialog,
     public toastr: ToastrService) {
@@ -145,6 +151,14 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     });
 
     this.subsctiptions.push(subsctiption); 
+
+    this.complectLink$ = this.complect$.pipe(map(c => {
+      if (!!c?.id){
+        return `${location.origin}/shared/${c.id}`;
+      }
+      else
+        return '';
+    }))
   }
 
   ngOnDestroy(): void {
@@ -157,7 +171,7 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
   }
 
   onTableHeaderSelected(param: PropertyParamDto){
-    this.itemsService.updatePropertyParam(param);
+    this.propertyParamChange.emit(param);
   }
 
   onHeaderDrop (event: CdkDragDrop<PropertyDto[]>) {
@@ -166,7 +180,7 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     propertyParams.forEach((param, idx) => {
       param.complectOrder = idx;
     });
-    this.itemsService.updatePropertyParams(propertyParams);
+    this.propertyParamsChange.emit(propertyParams);
   }
 
   onItemDrop (event: CdkDragDrop<any>) {
@@ -229,6 +243,10 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     event.stopPropagation();
   }
 
+  onCopyToClipboard() {
+    this.toastr.success('Link was copied to the clipboard')
+  }
+
 //#endregion
 
 //#region properties
@@ -254,7 +272,7 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
         width: '30px',
         class: 'item__category'
       });
-    else{
+    else if(!this.isReadonly){
       props.unshift({
         columnDef: 'move-item',
         header: '',
@@ -273,14 +291,17 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
       width: '20px',
       class: 'value count'
     });
-    props.push({
-      columnDef: 'actions',
-      header: '',
-      property: null,
-      cell: (element: GroupItem) => '',
-      width: '30px',
-      class: 'actions'
-    });
+    if (!this.isReadonly) {
+      props.push({
+        columnDef: 'actions',
+        header: '',
+        property: null,
+        cell: (element: GroupItem) => '',
+        width: '30px',
+        class: 'actions'
+      });
+    }
+    
     
     return props;
   }
@@ -532,17 +553,6 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
           }
         });
       }
-    });
-  }
-
-  openDeleteItemDialog(item: GroupItem) {
-    const dialogRef = this.dialog.open(YesNoComponent, {
-      data: 'Delete item?',
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result && !this.itemsService.deleteItem(item.id))
-        this.toastr.error("Deletion failed")
     });
   }
 
