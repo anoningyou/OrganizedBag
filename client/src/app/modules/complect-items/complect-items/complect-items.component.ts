@@ -22,6 +22,10 @@ import {animate, state, style, transition, trigger} from '@angular/animations';
 import { ItemEditDialogComponent } from 'src/app/modules/dialogs/item-edit-dialog/item-edit-dialog/item-edit-dialog.component';
 import { ComplectEditDialogComponent } from '../../dialogs/complect-edit-dialog/complect-edit-dialog/complect-edit-dialog.component';
 import { GroupEditDialogComponent } from '../../dialogs/group-edit-dialog/group-edit-dialog/group-edit-dialog.component';
+import { FileTypeEnum } from 'src/app/enums/file-type';
+import { SharedComplectDto } from 'src/app/models/dto/shared-complect-dto';
+import { SharedComplect } from 'src/app/models/shared-complest';
+import { ExportService } from 'src/app/services/export.service';
 
 
 @Component({
@@ -60,8 +64,6 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
   currentGroup$: Observable<GroupDto | null> = of(null);
 
   currentGroupCount$: Observable<number> = of(0);
-
-  complectLink$: Observable<string> = of('');
 
   private currentCategoryId = new BehaviorSubject<string | undefined>(undefined);
   currentCategoryId$ = this.currentCategoryId.asObservable();
@@ -106,7 +108,8 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
   constructor(
     public complectsService: ComplectsService,
     public dialog: MatDialog,
-    public toastr: ToastrService) {
+    public toastr: ToastrService,
+    private exportService: ExportService) {
   }
 
 //#region event listeners
@@ -151,14 +154,6 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     });
 
     this.subsctiptions.push(subsctiption); 
-
-    this.complectLink$ = this.complect$.pipe(map(c => {
-      if (!!c?.id){
-        return `${location.origin}/shared/${c.id}`;
-      }
-      else
-        return '';
-    }))
   }
 
   ngOnDestroy(): void {
@@ -608,11 +603,28 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     });
   }
 
-//#endregion
+  //#endregion
 
-//#region actions
-changeDragDisabled(disabled: boolean) {
-  this.dragDisabled = disabled;
-}
-//#endregion
+  //#region actions
+
+  changeDragDisabled(disabled: boolean) {
+    this.dragDisabled = disabled;
+  }
+
+  exportComplect(fileType: FileTypeEnum){
+
+    combineLatest([this.complect$, this.items$, this.properties$]).pipe(take(1))
+    .subscribe(data => {
+      if (!data[0] || !data[1] || !data[2])
+        return;
+        const sharedComplect: SharedComplect = {
+          complect: data[0],
+          items: data[1],
+          properties: data[2]
+        };
+        this.exportService.saveToFile(sharedComplect, fileType);
+    })    
+  }
+
+  //#endregion
 }

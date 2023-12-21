@@ -1,0 +1,71 @@
+<button mat-icon-button
+                *ngIf="!isReadonly"
+                color="primary"
+                aria-label="Edit"
+                class="small-button"
+                (click)="onEditComplectClick()">
+          <mat-icon *ngIf="complect$ | async">edit</mat-icon>
+          <mat-icon *ngIf="!(complect$ | async)">add</mat-icon>
+        </button>
+        <button mat-icon-button
+                *ngIf="!isReadonly && (complect$ | async)"
+                color="primary"
+                aria-label="Edit item"
+                class="small-button"
+                matTooltip="Clone"
+                (click)="onCloneComplectClick()">
+          <mat-icon>control_point_duplicate</mat-icon>
+        </button>
+        <button mat-icon-button 
+                color="primary"
+                aria-label="Import"
+                class="small-button"
+                matTooltip="Import"
+                *ngIf="(complect$ | async)">
+          <mat-icon>download</mat-icon>
+        </button>
+        <button mat-icon-button 
+                color="primary"
+                aria-label="Export"
+                class="small-button"
+                matTooltip="Export"
+                *ngIf="(complect$ | async)"
+                [matMenuTriggerFor]="exportMenu">
+          <mat-icon>ios_share</mat-icon>
+        </button>
+        <mat-menu #exportMenu="matMenu">
+          <button mat-menu-item
+                *ngIf="(complect$ | async)?.isShared"
+                color="primary"
+                aria-label="Copy link to clipboard"
+                matTooltip="Copy link to clipboard"
+                [cdkCopyToClipboard]="(complectLink$ | async) ?? ''"
+                (click)="onCopyToClipboard()">
+            <mat-icon color="primary">content_copy</mat-icon>
+            Link
+          </button>
+          <button mat-menu-item
+                color="primary"
+                aria-label="Save as XLSX"
+                matTooltip="Save as XLSX"
+                (click)="onExportComplectClick(FileTypeEnum.XLSX)">
+            <mat-icon color="primary">save</mat-icon>
+            Exel
+          </button>
+          <button mat-menu-item
+                color="primary"
+                aria-label="Save as CSV"
+                matTooltip="Save as CSV"
+                (click)="onExportComplectClick(FileTypeEnum.CSV)">
+            <mat-icon color="primary">save</mat-icon>
+            CSV
+          </button>
+          <button mat-menu-item
+                  color="primary"
+                  aria-label="Save as JSON"
+                  matTooltip="Save as JSON"
+                  (click)="onExportComplectClick(FileTypeEnum.JSON)">
+            <mat-icon color="primary">save</mat-icon>
+            JSON
+          </button>
+        </mat-menu>
