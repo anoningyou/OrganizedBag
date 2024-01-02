@@ -161,6 +161,7 @@
                   </mat-header-row>
                   
                   <!-- Item row -->
+                  <!-- [@cardAnimator]="row === slidingElement ? 'slideOutRight' : ''"  -->
                   <mat-row class="row item" 
                             [class.expanded-row]="expandedElement === row"
                             *matRowDef="let row; columns: displayedColumns$ | async;"
@@ -171,7 +172,7 @@
                             (click)="onItemClick(row, $event)"
                             [longPress] = "true"
                             (onLongPress)="onItemLongPress(row, $event)"
-                            [@cardAnimator]="row === slidingElement ? 'slideOutRight' : ''" 
+                            [@cardAnimator]="'slideOutRight'" 
                             (@cardAnimator.done)="onItemSwipeRightEnd(row)"
                             (swiperight)="onItemSwipeRight(row)"
                             >
