@@ -5,6 +5,9 @@
 
 app = "organizedbag"
 primary_region = "scl"
+kill_signal = "SIGINT"
+kill_timeout = 5
+processes = []
 
 [build]
   image = "anoningyou/organizedbag:latest"
