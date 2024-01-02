@@ -27,15 +27,18 @@ export abstract class BaseDataService {
     this.loadAll();
   }
 
-  protected execAuthorisedHttp<T>(observable: Observable<T>) {
+  protected execAuthorisedHttp<T>(observable: Observable<T>, callback?: ((value: T) => void ) | undefined) {
     if (!!this.userId) {
       observable.subscribe({
-        next: _=>{},
+        next: callback,
         error: error => {
-          console.error(error)
+          console.error(error);
           this.unsinchronised = true;
         }
-      })
+      });
+      return true;
     }
+    else 
+      return false;
   }
 }

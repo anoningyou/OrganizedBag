@@ -84,6 +84,7 @@ export class ExportService {
             }
           })
         );
+        row.push(item.count)
 
         result.push(row);
       });
@@ -114,6 +115,8 @@ export class ExportService {
     exportComplect.groups[0]?.items[0]?.values.forEach((property) => {
       headers.push(property.name);
     });
+    headers.push('Count');
+
     const wb = utils.book_new();
     const ws: any = utils.json_to_sheet([]);
     utils.sheet_add_aoa(ws, [headers]);
@@ -142,6 +145,8 @@ export class ExportService {
     complect.groups[0]?.items[0]?.values.forEach((property) => {
       headers.push(property.name);
     });
+    headers.push('Count');
+    
     csvContent += headers.join(',') + '\n';
 
     const data = this.getDataArray(complect.groups);

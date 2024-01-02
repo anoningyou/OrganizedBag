@@ -45,7 +45,7 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
 
 //#region fields
 
-  categoryGroupId = 'category';
+  categoryGroupId = 'group';
   dataSource: MatTableDataSource<GroupItemView> = new MatTableDataSource();
   @ViewChild(MatTable) table?: MatTable<GroupItemView>;
 
@@ -102,6 +102,7 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
 
   @Output() propertyParamChange: EventEmitter<PropertyParamDto> = new EventEmitter();
   @Output() propertyParamsChange: EventEmitter<PropertyParamDto[]> = new EventEmitter();
+  @Output() onImportComplect: EventEmitter<File> = new EventEmitter(); 
 
 //#endregion
 
@@ -260,8 +261,8 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     
     if (groupPropertyId !== this.categoryGroupId)
       props.push({
-        columnDef: 'category',
-        header: 'Category',
+        columnDef: 'group',
+        header: 'Group',
         property: null,
         cell: (element: GroupItem) => complect?.groups?.find(g => g.id === element.groupId)?.name ?? '',
         width: '30px',
@@ -333,7 +334,7 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     groups.forEach(group => {   
       const keyProp = new Property();
       keyProp.value = keyProp.id = group.name;
-      keyProp.name = 'Category';
+      keyProp.name = 'Group';
       groupedKeys[group.id ?? ''] = [{
         isGroupBy: true,
         groupValue: keyProp,
@@ -501,13 +502,15 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     })
   }
 
-  openEditItemDialog(item: Item) {
+  openEditItemDialog(item: Item, event: MouseEvent) {
+    event.stopPropagation();
     this.dialog.open(ItemEditDialogComponent, {
       data: item,
     });
   }
 
-  openCloneItemDialog(item: GroupItem) {
+  openCloneItemDialog(item: GroupItem, event: MouseEvent) {
+    event.stopPropagation();
     const newItem = Object.assign(new Item(), item);
     newItem.id = '';
 
@@ -525,7 +528,8 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     });
   }
 
-  openEditItemCountDialog(item: GroupItem) {
+  openEditItemCountDialog(item: GroupItem, event: MouseEvent) {
+    event.stopPropagation();
     const dialogRef =this.dialog.open(EditCountComponent, {
       data: item.count,
     });
@@ -551,7 +555,8 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
     });
   }
 
-  openDeleteComplectItemDialog(item: GroupItem) {
+  openDeleteComplectItemDialog(item: GroupItem, event: MouseEvent) {
+    event.stopPropagation();
     const dialogRef = this.dialog.open(YesNoComponent, {
       data: 'Delete item from complect?',
     });
@@ -624,6 +629,10 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
         };
         this.exportService.saveToFile(sharedComplect, fileType);
     })    
+  }
+
+  importComplect(file: File){
+    this.onImportComplect.emit(file)
   }
 
   //#endregion

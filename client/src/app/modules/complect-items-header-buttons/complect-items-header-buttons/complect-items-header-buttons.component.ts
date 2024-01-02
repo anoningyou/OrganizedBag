@@ -20,10 +20,15 @@ export class ComplectItemsHeaderButtonsComponent implements OnInit {
   @Output() onEditComplect: EventEmitter<void> = new EventEmitter();
   @Output() onCloneComplect: EventEmitter<void> = new EventEmitter();  
   @Output() onExportComplect: EventEmitter<FileTypeEnum> = new EventEmitter(); 
+  @Output() onImportComplect: EventEmitter<File> = new EventEmitter(); 
+
+  //File
 
   complectLink$: Observable<string> = of('');
 
-  FileTypeEnum: typeof FileTypeEnum = FileTypeEnum;
+  fileTypeEnum: typeof FileTypeEnum = FileTypeEnum;
+
+  acceptedFiles = '.json,.csv,.xlsx'
   
   constructor( public toastr: ToastrService) {}
 
@@ -51,6 +56,15 @@ export class ComplectItemsHeaderButtonsComponent implements OnInit {
 
   onExportComplectClick(fileType: FileTypeEnum) {
     this.onExportComplect.emit(fileType);
+  }
+
+  onFileSelected(event: Event) {
+    const element = event.currentTarget as HTMLInputElement;
+    let fileList: FileList | null = element.files;
+    if (fileList && fileList.length) {
+      this.onImportComplect.emit(fileList[0]);
+    }
+    
   }
 }
   

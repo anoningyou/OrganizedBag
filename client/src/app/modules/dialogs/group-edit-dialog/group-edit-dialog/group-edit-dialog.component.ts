@@ -31,7 +31,7 @@ export class GroupEditDialogComponent {
     this.complectsService.saveGroup(this.data).subscribe({
       next: (result) =>{
         if(result){
-          this.toastr.info('Done!');
+          this.toastr.success('Done!');
           this.dialogRef.close(result);
         } else this.toastr.error('Error with saving group!')
           

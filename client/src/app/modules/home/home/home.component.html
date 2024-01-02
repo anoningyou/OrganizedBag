@@ -29,13 +29,14 @@
         [isMobile]="isMobile"
         [isActive]="activeTab === tabsEnum.ComplectItems"
         (isActiveChange)="onActiveTabChange(tabsEnum.ComplectItems)"
-        [complect$]="currentComplect$"
+        [complect$]="complectsService.currentComplect$"
         [items$]="itemsService.itemObjects$"
         [properties$]="itemsService.properties$"
         (complectChange)="onCurrentComplectChange($event)"
         (currentCategoryChange)="onCurrentCategoryChange($event)"
         (propertyParamsChange)="onPropertyParamsChange($event)"
         (propertyParamChange)="onPropertyParamChange($event)"
+        (onImportComplect)="importComplect($event)"
         
     ></app-complect-items>
     <app-complects class="block complects"
@@ -44,7 +45,7 @@
         [isActive]="activeTab === tabsEnum.Complects"
         (isActiveChange)="onActiveTabChange(tabsEnum.Complects)"
         [complects$]="complectsService.complects$"
-        [currentComplect$]="currentComplect$"
+        [currentComplect$]="complectsService.currentComplect$"
         (currentComplectChange)="onCurrentComplectChange($event)"
     ></app-complects>
 </section>

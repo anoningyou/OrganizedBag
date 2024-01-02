@@ -93,7 +93,7 @@ export class ComplectsComponent implements OnInit {
         }).pipe(take(1)).subscribe({
           next: (data) =>{
               
-              this.toastr.info('Done!');
+              this.toastr.success('Done!');
               if (complect.id === data.currentComplect?.id)
                 this.currentComplectChange.emit(!!data.complects?.length ? data.complects[0] : null);
             },

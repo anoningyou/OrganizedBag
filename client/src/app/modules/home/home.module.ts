@@ -8,6 +8,7 @@ import { ComplectItemsModule } from '../complect-items/complect-items.module';
 import { ComplectsModule } from '../complects/complects.module';
 import { HomeRoutingModule } from './home-routing.module';
 import { ItemsService } from 'src/app/services/items.service';
+import { ImportService } from 'src/app/services/import.service';
 
 
 
@@ -28,7 +29,8 @@ import { ItemsService } from 'src/app/services/items.service';
     HomeComponent
   ],
   providers: [
-    ItemsService
+    ItemsService,
+    ImportService
   ]
 })
 export class HomeModule { }

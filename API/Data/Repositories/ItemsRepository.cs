@@ -9,8 +9,16 @@ namespace API.Data
 {
     public class ItemsRepository : IItemsRepository
     {
+
+        #region fields
+
         private readonly DataContext _context;
         private readonly IMapper _mapper;
+
+        #endregion fields
+
+        #region constructor
+
         public ItemsRepository(DataContext context, IMapper mapper)
         {
             _mapper = mapper;
@@ -18,19 +26,20 @@ namespace API.Data
             
         }
 
-        public async Task<ItemDto> AddAsync(ItemDto dto,Guid userId)
+        #endregion constructor
+
+        #region public
+
+        public async Task<ItemDto> AddAsync(ItemDto dto, Guid userId)
         {
-            if (dto.Id == Guid.Empty)
-                dto.Id = Guid.NewGuid();
-            var item = _mapper.Map<Item>(dto);
-            item.UserId = userId;
-            foreach (var val in item.Values)
-            {
-                val.ItemId = item.Id;
-            }
-           
-            await _context.Items.AddAsync(item);
+            await _context.Items.AddAsync(GetItem(dto, userId));
             return dto;
+        }
+
+        public async Task<List<ItemDto>> AddRangeAsync(List<ItemDto> dtos, Guid userId)
+        {
+            await _context.Items.AddRangeAsync(dtos.Select(dto => GetItem(dto, userId)));
+            return dtos;
         }
 
         public async Task<ItemDto> EditAsync(ItemDto dto)
@@ -91,5 +100,27 @@ namespace API.Data
             .ProjectTo<ItemDto>(_mapper.ConfigurationProvider)
             .ToListAsync();
         }
+
+        #endregion public
+
+        #region private
+
+        private Item GetItem(ItemDto dto, Guid userId) {
+            if (dto.Id == Guid.Empty)
+                dto.Id = Guid.NewGuid();
+                
+            var item = _mapper.Map<Item>(dto);
+            item.UserId = userId;
+
+            foreach (var val in item.Values)
+            {
+                val.ItemId = item.Id;
+            }
+
+            return item;
+        }
+
+        #endregion private
+
     }
 }

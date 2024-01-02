@@ -1,7 +1,7 @@
 import { ExportProperty } from "./export-property";
 
 export interface ExportItem {
-    id: string;
+    id?: string;
     count: number;
     values: ExportProperty[];
 }

@@ -17,13 +17,15 @@
           <mat-icon>control_point_duplicate</mat-icon>
         </button>
         <button mat-icon-button 
+                *ngIf="!isReadonly"
                 color="primary"
                 aria-label="Import"
                 class="small-button"
                 matTooltip="Import"
-                *ngIf="(complect$ | async)">
+                (click)="fileInput.click()">
           <mat-icon>download</mat-icon>
         </button>
+        <input hidden (change)="onFileSelected($event)" #fileInput type="file" id="file" [accept]="acceptedFiles" >
         <button mat-icon-button 
                 color="primary"
                 aria-label="Export"
@@ -48,7 +50,7 @@
                 color="primary"
                 aria-label="Save as XLSX"
                 matTooltip="Save as XLSX"
-                (click)="onExportComplectClick(FileTypeEnum.XLSX)">
+                (click)="onExportComplectClick(fileTypeEnum.XLSX)">
             <mat-icon color="primary">save</mat-icon>
             Exel
           </button>
@@ -56,7 +58,7 @@
                 color="primary"
                 aria-label="Save as CSV"
                 matTooltip="Save as CSV"
-                (click)="onExportComplectClick(FileTypeEnum.CSV)">
+                (click)="onExportComplectClick(fileTypeEnum.CSV)">
             <mat-icon color="primary">save</mat-icon>
             CSV
           </button>
@@ -64,7 +66,7 @@
                   color="primary"
                   aria-label="Save as JSON"
                   matTooltip="Save as JSON"
-                  (click)="onExportComplectClick(FileTypeEnum.JSON)">
+                  (click)="onExportComplectClick(fileTypeEnum.JSON)">
             <mat-icon color="primary">save</mat-icon>
             JSON
           </button>

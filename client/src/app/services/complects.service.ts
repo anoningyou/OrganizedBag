@@ -1,6 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { ComplectDto } from '../models/dto/complect-dto';
-import { BehaviorSubject, Observable, map, take } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, map, take } from 'rxjs';
 import { ComplectsHttpService } from './complects-http.service';
 import { AccountService } from './account.service';
 import { GroupDto } from '../models/dto/group-dto';
@@ -14,11 +14,22 @@ import { v4 as uuidv4 } from 'uuid';
 })
 export class ComplectsService extends BaseDataService {
   private complectsSource = new BehaviorSubject<ComplectDto[]>([]);
-  complects$ = this.complectsSource.asObservable();
+  complects$ = this.complectsSource.asObservable().pipe(map(complects => {
+    localStorage.setItem('complects',JSON.stringify(complects));
+    return complects;
+  }));
 
   private currentGroup = new BehaviorSubject<GroupDto | null>(null);
   currentGroup$ = this.currentGroup.asObservable();
   groupItemAdded: EventEmitter<GroupItemDto> = new EventEmitter<GroupItemDto>();
+
+  private currentComplectSource = new BehaviorSubject<ComplectDto | null>(null);
+  currentComplect$ = combineLatest({
+    currentComplect: this.currentComplectSource.asObservable(),
+    complects: this.complects$
+  }).pipe(map(group => {
+    return group.currentComplect;
+  }));
 
   constructor(accountService: AccountService,
     protected complectsHttp: ComplectsHttpService
@@ -39,19 +50,18 @@ export class ComplectsService extends BaseDataService {
 
   override loadAll() {
     if (!!this.userId){
-      this.loadComplects().subscribe(_ => {});
+      this.loadComplects().subscribe(_ => {
+        this.checkCurrentComplect();
+      });
     }
     else {
       const complectsStr = localStorage.getItem('complects');
       if (complectsStr){
         const complects = JSON.parse(complectsStr) as ComplectDto [];
         this.complectsSource.next(complects);
+        this.checkCurrentComplect();
        }
     }
-
-    this.complects$.subscribe(complects => {
-      localStorage.setItem('complects',JSON.stringify(complects));
-    })
   }
 
   loadComplects(): Observable<ComplectDto[]> {
@@ -96,10 +106,15 @@ export class ComplectsService extends BaseDataService {
         complect.groups.push(this.createNewGroup(complect.id));
       else
         complect.groups.forEach((group) => {
+          group.id = uuidv4();
           group.complectId = complect.id ?? '';
+          group.items.forEach(item => {
+            item.groupId = group.id ?? '';
+          })
         });
       complects.push(complect);
       this.complectsSource.next(complects);
+      this.setCurrentComplect(complect);
       this.execAuthorisedHttp(this.complectsHttp.add(complect));
     });
   }
@@ -119,6 +134,7 @@ export class ComplectsService extends BaseDataService {
       this.complectsSource.next(newItems);
     });
     this.execAuthorisedHttp(this.complectsHttp.delete(id));
+    this.checkCurrentComplect();
     return true;
   }
 
@@ -265,5 +281,37 @@ export class ComplectsService extends BaseDataService {
 
   setCurrentGroup(group: GroupDto | null | undefined) {
     this.currentGroup.next(group ?? null);
+  }
+
+  setCurrentComplect(complect: ComplectDto | null | undefined) {
+    this.currentComplectSource.next(complect ?? null);
+    this.checkCurrentComplect();
+  }
+
+  checkCurrentComplect() {
+    combineLatest({
+      currentComplect: this.currentComplect$,
+      complects: this.complects$
+    }).pipe(take(1)).subscribe(group => {
+      let complect: ComplectDto | null = group.currentComplect;
+  
+      if (!group.complects.length){
+        complect = null;
+      }
+      else if (!group.currentComplect && group.complects.length){
+        complect = group.complects[0];
+      }
+      else if (!!group.currentComplect && group.complects.length){
+        const complectFromList = group.complects.find(c => c.id === group.currentComplect?.id);
+        if (!complectFromList){
+          complect = group.complects[0];
+        }
+        else if (complectFromList !== complect)
+          complect = complectFromList;
+      }
+  
+      if (complect !== group.currentComplect)
+        this.currentComplectSource.next(complect);
+    });
   }
 }

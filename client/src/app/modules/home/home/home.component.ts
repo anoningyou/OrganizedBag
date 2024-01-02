@@ -8,6 +8,7 @@ import { TabsEnum } from 'src/app/enums/tabs';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { GroupDto } from 'src/app/models/dto/group-dto';
 import { PropertyParamDto } from 'src/app/models/dto/property-param-dto';
+import { ImportService } from 'src/app/services/import.service';
 
 @Component({
   selector: 'app-home',
@@ -25,31 +26,29 @@ export class HomeComponent implements OnInit, OnDestroy{
   @ViewChild('home', {static: true}) homeElement?: ElementRef;
   @ViewChild('items', {static: true}) itemsElement?: ElementRef;
 
-  private currentComplectSource = new BehaviorSubject<ComplectDto | null>(null);
-  currentComplect$ = this.currentComplectSource.asObservable();
-
   private subsctiptions: Subscription[] = [];
 
   constructor(public itemsService: ItemsService,
     public complectsService: ComplectsService,
-    private deviceService: DeviceDetectorService
+    private deviceService: DeviceDetectorService,
+    private importService: ImportService
     ) {
   }
   
   ngOnInit(): void {
     this.checkMobile();
-    const subsctiption = this.complectsService.complects$.subscribe(complects => {
-      this.currentComplect$.pipe(take(1)).subscribe(currentComplect => {
-        if (!currentComplect && complects.length)
-          this.currentComplectSource.next(complects[0]);
-        else {
-          const complect = complects.find(c => c.id === currentComplect?.id);
-          this.currentComplectSource.next(!!complect ? Object.assign({}, complect) as ComplectDto : null);
-        }
-      })
-    });
+    // const subsctiption = this.complectsService.complects$.subscribe(complects => {
+    //   this.complectsService.currentComplect$.pipe(take(1)).subscribe(currentComplect => {
+    //     if (!currentComplect && complects.length)
+    //       this.currentComplectSource.next(complects[0]);
+    //     else {
+    //       const complect = complects.find(c => c.id === currentComplect?.id);
+    //       this.currentComplectSource.next(!!complect ? Object.assign({}, complect) as ComplectDto : null);
+    //     }
+    //   })
+    // });
     
-    this.subsctiptions.push(subsctiption); 
+    // this.subsctiptions.push(subsctiption); 
   }
 
   ngOnDestroy(): void {
@@ -61,10 +60,11 @@ export class HomeComponent implements OnInit, OnDestroy{
   }
 
   onCurrentComplectChange(event: ComplectDto | null) {
-    this.complectsService.complects$.pipe(take(1)).subscribe(complects => {
-        const complect = complects.find(c => c.id === event?.id);
-        this.currentComplectSource.next(!!complect ? Object.assign({}, complect) as ComplectDto : null);
-      })
+    this.complectsService.setCurrentComplect(event);
+    // this.complectsService.complects$.pipe(take(1)).subscribe(complects => {
+    //     const complect = complects.find(c => c.id === event?.id);
+    //     this.currentComplectSource.next(!!complect ? Object.assign({}, complect) as ComplectDto : null);
+    //   })
   }
 
   onCurrentCategoryChange(event: GroupDto | null){
@@ -85,6 +85,10 @@ export class HomeComponent implements OnInit, OnDestroy{
 
   onActiveTabChange(tab: TabsEnum) {
     this.activeTab = tab;
+  }
+
+  importComplect(file: File){
+    this.importService.importComplect(file);
   }
 
   getItemsWidth() {

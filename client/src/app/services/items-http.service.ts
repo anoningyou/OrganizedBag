@@ -20,6 +20,10 @@ export class ItemsHttpService extends BaseHttpService {
     return this.http.post<ItemDto>(`${this.rootUrl}add`, model);
   }
 
+  addRange(model: ItemDto[]) {
+    return this.http.post<ItemDto[]>(`${this.rootUrl}addRange`, model);
+  }
+
   edit(model: ItemDto) {
     return this.http.put<ItemDto>(`${this.rootUrl}edit`, model);
   }

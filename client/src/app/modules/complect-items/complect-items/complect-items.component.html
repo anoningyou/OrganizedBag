@@ -44,7 +44,8 @@
           [complect$]="complect$"
           (onEditComplect)="openEditComplectDialog()"
           (onCloneComplect)="openCloneComplectDialog()"
-          (onExportComplect)="exportComplect($event)">
+          (onExportComplect)="exportComplect($event)"
+          (onImportComplect)="importComplect($event)">
         </app-complect-items-header-buttons>
       </mat-card-title>
       <mat-card-subtitle>
@@ -171,21 +172,21 @@
                         color="primary"
                         aria-label="Edit count"
                         class="small-button"
-                        (click)="openEditItemCountDialog(row)">
+                        (click)="openEditItemCountDialog(row, $event)">
                   <i class="mat-icon">±</i>
                 </button>
                 <button mat-icon-button
                         color="primary"
                         aria-label="Edit item"
                         class="small-button"
-                        (click)="openEditItemDialog(row)">
+                        (click)="openEditItemDialog(row, $event)">
                   <mat-icon>edit</mat-icon>
                 </button>
                 <button mat-icon-button
                         color="primary"
                         aria-label="Delete from complect"
                         class="small-button"
-                        (click)="openDeleteComplectItemDialog(row)">
+                        (click)="openDeleteComplectItemDialog(row, $event)">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
@@ -270,7 +271,7 @@
                  (click)="onItemClick(row, $event)"
                  [longPress]="true"
                  (onLongPress)="onItemLongPress(row, $event)">
-          <!-- <div class="drag-placeholder"  *cdkDragPlaceholder></div> -->
+          <div class="drag-placeholder"  *cdkDragPlaceholder></div>
         </mat-row>
 
         <!-- Detailed row -->

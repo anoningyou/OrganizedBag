@@ -120,6 +120,18 @@ export class ItemsService extends BaseDataService {
     return itemDto;
   }
 
+  addItems(newItems: ItemDto[], callback?: ((value: ItemDto[]) => void ) | undefined) {
+
+    this.items$.pipe(take(1)).subscribe((items) => {
+      this.itemsSource.next(items.concat(newItems));
+    });
+
+    if (!this.execAuthorisedHttp(this.itemsHttp.addRange(newItems),callback) && !!callback)
+      callback(newItems);   
+
+    return newItems;
+  }
+
   updateItem(item: Item) {
     const itemDto = {
       id: item.id,

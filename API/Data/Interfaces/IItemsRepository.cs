@@ -5,6 +5,7 @@ namespace API.Data.Interfaces
     public interface IItemsRepository
     {
         public Task<ItemDto> AddAsync(ItemDto dto, Guid userId);
+        public Task<List<ItemDto>> AddRangeAsync(List<ItemDto> dtos, Guid userId);
 
         public Task<ItemDto> EditAsync(ItemDto dto);
 

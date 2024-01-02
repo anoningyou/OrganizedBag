@@ -30,6 +30,14 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        [HttpPost(nameof(AddRange))]
+        public async Task<ActionResult<List<ItemDto>>> AddRange(List<ItemDto> items)
+        {
+            var result = await _uow.ItemsRepository.AddRangeAsync(items, User.GetUserId());
+            await _uow.Complete();
+            return Ok(result);
+        }
+
         [HttpPut(nameof(Edit))]
         public async Task<ActionResult<ItemDto>> Edit(ItemDto item)
         {

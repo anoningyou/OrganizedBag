@@ -91,7 +91,7 @@
         }
 
         .drag-placeholder {
-            background: red;//#ccc;
+            background: #ccc;
             border: dotted 3px #999;
             min-height: 100px;
             transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
@@ -102,6 +102,20 @@
 .complect-items {
     height: calc(100% - 75px);
     overflow-y: auto; 
+}
+
+.row, .group-item {
+    .buttons-container {
+        display: none;
+        position: absolute;
+        right: 0;
+        z-index: 100;
+    }
+
+    &:hover .actions .buttons-container,
+    &:hover .buttons-container {
+        display: flex;
+    }
 }
 
 .row {
@@ -133,11 +147,6 @@
         overflow: visible;
     
         .buttons-container {
-            display: none;
-            position: absolute;
-            top: 0;
-            right: 0;
-            z-index: 100;
             background-color: #fdfdfd;
             border-radius: 10px;
         }
@@ -207,14 +216,7 @@
             display: flex;
             gap: 2px;
             align-items: center;
-        }
-
-        .buttons-container {
-            display: none;
-            position: absolute;
-            right: 0;
-            z-index: 100;
-        }
+        }   
     }
 }
 
