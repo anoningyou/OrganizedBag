@@ -1,6 +1,5 @@
-<section class="shared" [class.mobile]="isMobile" #shared>
+<section class="shared" [class.mobile]="screenStateStore.isMobilePortrait()" #shared>
     <app-complect-items class="block complect-items active"
-    [isMobile]="isMobile"
     [isActive]="true"
     [complect$]="complect$"
     [items$]="items$"

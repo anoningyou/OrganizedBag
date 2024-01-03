@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, inject } from '@angular/core';
 import { AccountService } from './services/account.service';
+import { ScreenStateStore } from './stores/screen.store';
+import { DeviceDetectorService } from 'ngx-device-detector';
 
 @Component({
   selector: 'app-root',
@@ -8,11 +10,18 @@ import { AccountService } from './services/account.service';
 })
 export class AppComponent implements OnInit {
   title = 'Organised bag';
+  private screenStateStore = inject(ScreenStateStore)
 
-  constructor(private accountService: AccountService){}
+  constructor(private accountService: AccountService,
+              private deviceService: DeviceDetectorService){}
   
   ngOnInit(): void {
     this.accountService.reLoadUser();
+  }
+
+  @HostListener('window:orientationchange', ['$event'])
+  onOrientationChange(event: any) {
+    this.screenStateStore.setIsPortrait(event.currentTarget.orientation === 0);
   }
 
 }

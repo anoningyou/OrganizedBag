@@ -23,7 +23,8 @@ import { ImportService } from 'src/app/services/import.service';
      ItemsModule,
      ComplectItemsModule,
      ComplectsModule, 
-    HomeRoutingModule
+    HomeRoutingModule,
+    
   ],
   exports: [
     HomeComponent

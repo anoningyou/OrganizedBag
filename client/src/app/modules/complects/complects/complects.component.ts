@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ComplectDto } from 'src/app/models/dto/complect-dto';
 import { YesNoComponent } from 'src/app/modules/common/dialog/yes-no/yes-no.component';
@@ -8,6 +8,7 @@ import { GroupDto } from 'src/app/models/dto/group-dto';
 import { ComplectsService } from 'src/app/services/complects.service';
 import { Observable, combineLatest, map, of, pipe, take } from 'rxjs';
 import { ComplectEditDialogComponent } from '../../dialogs/complect-edit-dialog/complect-edit-dialog/complect-edit-dialog.component';
+import { ScreenStateStore } from 'src/app/stores/screen.store';
 
 
 
@@ -19,7 +20,6 @@ import { ComplectEditDialogComponent } from '../../dialogs/complect-edit-dialog/
 })
 export class ComplectsComponent implements OnInit {
 
-  @Input() isMobile = false;
   @Input() isActive = false;
   @Output() isActiveChange: EventEmitter<void> = new EventEmitter();
   @Input() complects$: Observable<ComplectDto[] | null> = of(null);
@@ -29,6 +29,7 @@ export class ComplectsComponent implements OnInit {
   orderedComplects$: Observable<ComplectDto []> = of([]);
 
   isCardHidden = false;
+  screenStateStore = inject(ScreenStateStore);
 
 
   constructor(public complectsService: ComplectsService,

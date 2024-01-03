@@ -1,7 +1,7 @@
 <mat-card class="card" 
-          [ngClass]="{'mobile': isMobile , 'inactive': isMobile && !isActive}"
+          [ngClass]="{'mobile': screenStateStore.isMobilePortrait() , 'inactive': screenStateStore.isMobilePortrait() && !isActive}"
           >
-  <mat-card-header class="mobile-preview" *ngIf="isMobile && !isActive">
+  <mat-card-header class="mobile-preview" *ngIf="screenStateStore.isMobilePortrait() && !isActive">
     <button mat-icon-button 
             color="primary" 
             aria-label="Show items" 
@@ -10,7 +10,7 @@
       <mat-icon>list</mat-icon>
     </button>
   </mat-card-header>
-  <mat-card-header class="header" *ngIf="!isMobile || isActive">
+  <mat-card-header class="header" *ngIf="!screenStateStore.isMobilePortrait() || isActive">
     
     <mat-card-title >
       <button mat-icon-button 
@@ -49,7 +49,7 @@
   </mat-card-title>
     
   </mat-card-header>
-  <mat-card-content class="content" *ngIf="!isMobile || isActive">
+  <mat-card-content class="content" *ngIf="!screenStateStore.isMobilePortrait() || isActive">
 
 
     <mat-table class="items"
@@ -90,8 +90,7 @@
                           (mousedown)="dragDisabled = false;"
                           (mouseUp)="dragDisabled = true;"
                           (touchstart)="dragDisabled = false;"
-                          (touchend)="dragDisabled = true;"
-                          (click)="$event.stopPropagation();">
+                          (touchend)="dragDisabled = true;">
                   more_vert
                 </mat-icon>
               </ng-container>
@@ -172,7 +171,7 @@
                             (click)="onItemClick(row, $event)"
                             [longPress] = "true"
                             (onLongPress)="onItemLongPress(row, $event)"
-                            [@cardAnimator]="'slideOutRight'" 
+                            [@cardAnimator]="row === slidingElement ? 'slideOutRight' : ''" 
                             (@cardAnimator.done)="onItemSwipeRightEnd(row)"
                             (swiperight)="onItemSwipeRight(row)"
                             >

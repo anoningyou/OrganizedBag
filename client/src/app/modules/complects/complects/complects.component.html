@@ -1,7 +1,7 @@
 <div class="container">
     <div class="toggle-button" 
       [ngClass]="isCardHidden ? 'card-hidden' : ''" 
-      *ngIf="!isMobile">
+      *ngIf="!screenStateStore.isMobilePortrait()">
       <button mat-icon-button 
         color="primary"                    
         matTooltip="{{isCardHidden ? 'Show packs' : 'Hide packs'}}"
@@ -9,8 +9,8 @@
         <mat-icon>{{isCardHidden ? 'arrow_back_ios' : 'arrow_forward_ios'}}</mat-icon>
       </button>
     </div>
-    <mat-card class="card" [ngClass]="{'mobile': isMobile , 'inactive': !isActive, 'hidden': !isMobile && isCardHidden}" >
-      <mat-card-header class="mobile-preview" *ngIf="isMobile && !isActive">
+    <mat-card class="card" [ngClass]="{'mobile': screenStateStore.isMobilePortrait() , 'inactive': !isActive, 'hidden': !screenStateStore.isMobilePortrait() && isCardHidden}" >
+      <mat-card-header class="mobile-preview" *ngIf="screenStateStore.isMobilePortrait() && !isActive">
         <button mat-icon-button 
           color="primary" 
           aria-label="Show items" 
@@ -20,10 +20,10 @@
         </button>
       </mat-card-header>
        
-      <mat-card-header *ngIf="!isMobile || isActive">
+      <mat-card-header *ngIf="!screenStateStore.isMobilePortrait() || isActive">
         <mat-card-title>My packs</mat-card-title>
       </mat-card-header>
-      <mat-card-content *ngIf="!isMobile || isActive">
+      <mat-card-content *ngIf="!screenStateStore.isMobilePortrait() || isActive">
         <ul class="complect-list">
           <li class="complect-list__item" 
           *ngFor="let complect of orderedComplects$ | async"

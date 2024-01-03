@@ -1,7 +1,7 @@
 <mat-card class="complect-container card"
-          [ngClass]="{'mobile': isMobile , 'inactive': !isActive}">
+          [ngClass]="{'mobile': screenStateStore.isMobilePortrait() , 'inactive': !isActive}">
   <mat-card-header class="mobile-preview"
-                   *ngIf="isMobile && !isActive">
+                   *ngIf="screenStateStore.isMobilePortrait() && !isActive">
     <div class="header">
       <h4 class="name">{{(complect$ | async)?.name}} </h4>
       <mat-form-field appearance="outline"
@@ -27,7 +27,7 @@
       <mat-icon>work_outline</mat-icon>
     </button>
   </mat-card-header>
-  <ng-container *ngIf="!isMobile || isActive">
+  <ng-container *ngIf="!screenStateStore.isMobilePortrait() || isActive">
     <app-chart class="chart"
                *ngIf="showChart"
                [items$]="items$"
@@ -51,9 +51,9 @@
       <mat-card-subtitle>
         {{(complect$ | async)?.description}}
       </mat-card-subtitle>
-      <div class="buttons-container">
-        <mat-form-field appearance="outline"
-                        class="small-outlined-select">
+      <div class="buttons-container complect-buttons">
+        <mat-form-field class="small-outlined-select category-grouping-select"
+                        appearance="outline">
           <mat-label>Show by</mat-label>
           <mat-select [value]="groupPropertyId$ | async"
                       (valueChange)="onGroupPropertyIdChanged($event)">

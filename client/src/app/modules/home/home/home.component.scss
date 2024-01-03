@@ -44,13 +44,14 @@
         >*{
             flex-grow: 1;
             width: auto;
-            min-width: none;
+            min-width: auto;
         }
 
         >.active {
             order: -1;
             flex: 1 0 100%;
             height: calc(100% - 70px);
+            width: 100%;
         }
 
         >.inactive {
@@ -62,8 +63,8 @@
                 order: 3;
                 flex-grow: 1;
                 flex-shrink: 0;
+                max-width: calc(100% - 65px);
                 width: calc(100% - 65px);
-                max-width: 100%;
             }
         }
         

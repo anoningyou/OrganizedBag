@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, Subscription, map } from 'rxjs';
@@ -9,6 +9,7 @@ import PropertyDto from 'src/app/models/dto/property-dto';
 import { PropertyParamDto } from 'src/app/models/dto/property-param-dto';
 import { Item } from 'src/app/models/item';
 import { SharedService } from 'src/app/services/shared.service';
+import { ScreenStateStore } from 'src/app/stores/screen.store';
 
 @Component({
   selector: 'app-shared',
@@ -17,7 +18,7 @@ import { SharedService } from 'src/app/services/shared.service';
 })
 export class SharedComponent implements OnInit, OnDestroy {
 
-  isMobile = false;
+  screenStateStore = inject(ScreenStateStore);
   private subscriptions: Subscription[] = [];
 
   complect$: Observable<ComplectDto | null>;

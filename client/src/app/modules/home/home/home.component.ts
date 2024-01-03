@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { ResizeEvent } from 'angular-resizable-element';
 import { BehaviorSubject, Subscription, take } from 'rxjs';
 import { ComplectDto } from 'src/app/models/dto/complect-dto';
@@ -9,6 +9,7 @@ import { DeviceDetectorService } from 'ngx-device-detector';
 import { GroupDto } from 'src/app/models/dto/group-dto';
 import { PropertyParamDto } from 'src/app/models/dto/property-param-dto';
 import { ImportService } from 'src/app/services/import.service';
+import { ScreenStateStore } from 'src/app/stores/screen.store';
 
 @Component({
   selector: 'app-home',
@@ -18,7 +19,6 @@ import { ImportService } from 'src/app/services/import.service';
 export class HomeComponent implements OnInit, OnDestroy{
   
   mobileWidth = 992;
-  isMobile = false;
   itemsWidth = 300;
   isItemsHidden = false;
   tabsEnum: typeof TabsEnum = TabsEnum;
@@ -27,28 +27,15 @@ export class HomeComponent implements OnInit, OnDestroy{
   @ViewChild('items', {static: true}) itemsElement?: ElementRef;
 
   private subsctiptions: Subscription[] = [];
+  screenStateStore = inject(ScreenStateStore);
 
   constructor(public itemsService: ItemsService,
     public complectsService: ComplectsService,
-    private deviceService: DeviceDetectorService,
     private importService: ImportService
     ) {
   }
   
   ngOnInit(): void {
-    this.checkMobile();
-    // const subsctiption = this.complectsService.complects$.subscribe(complects => {
-    //   this.complectsService.currentComplect$.pipe(take(1)).subscribe(currentComplect => {
-    //     if (!currentComplect && complects.length)
-    //       this.currentComplectSource.next(complects[0]);
-    //     else {
-    //       const complect = complects.find(c => c.id === currentComplect?.id);
-    //       this.currentComplectSource.next(!!complect ? Object.assign({}, complect) as ComplectDto : null);
-    //     }
-    //   })
-    // });
-    
-    // this.subsctiptions.push(subsctiption); 
   }
 
   ngOnDestroy(): void {
@@ -61,10 +48,6 @@ export class HomeComponent implements OnInit, OnDestroy{
 
   onCurrentComplectChange(event: ComplectDto | null) {
     this.complectsService.setCurrentComplect(event);
-    // this.complectsService.complects$.pipe(take(1)).subscribe(complects => {
-    //     const complect = complects.find(c => c.id === event?.id);
-    //     this.currentComplectSource.next(!!complect ? Object.assign({}, complect) as ComplectDto : null);
-    //   })
   }
 
   onCurrentCategoryChange(event: GroupDto | null){
@@ -92,7 +75,7 @@ export class HomeComponent implements OnInit, OnDestroy{
   }
 
   getItemsWidth() {
-    if (this.isMobile)
+    if (this.screenStateStore.isMobilePortrait())
       return "100%";
     else if (this.isItemsHidden)
       return "0";
@@ -101,7 +84,7 @@ export class HomeComponent implements OnInit, OnDestroy{
   }
 
   getItemsMinWidth() {
-    if (this.isMobile)
+    if (this.screenStateStore.isMobilePortrait())
       return "100%";
     else if (this.isItemsHidden)
       return "0";
@@ -110,7 +93,7 @@ export class HomeComponent implements OnInit, OnDestroy{
   }
 
   getItemsStyle(): { [klass: string]: string; } {
-    if (this.isMobile)
+    if (this.screenStateStore.isMobilePortrait())
       return {}
     else
       return {
@@ -118,9 +101,4 @@ export class HomeComponent implements OnInit, OnDestroy{
         'min-width': this.isItemsHidden? "0" : "200px"
     }
   }
-
-  checkMobile(){
-    this.isMobile = this.deviceService.isMobile() || this.deviceService.isTablet();
-  }
-
 }

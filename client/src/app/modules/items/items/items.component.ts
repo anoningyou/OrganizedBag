@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ItemsService } from 'src/app/services/items.service';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray, CdkDragExit, CdkDragStart} from '@angular/cdk/drag-drop';
@@ -6,7 +6,6 @@ import { Item } from 'src/app/models/item';
 import { BehaviorSubject, Observable, Subscription, combineLatest, map, of } from 'rxjs';
 import PropertyDto from 'src/app/models/dto/property-dto';
 import { PropertyParamDto } from 'src/app/models/dto/property-param-dto';
-import { ResizeEvent } from 'angular-resizable-element';
 import { ItemEditDialogComponent } from 'src/app/modules/dialogs/item-edit-dialog/item-edit-dialog/item-edit-dialog.component';
 import { ColumnView } from 'src/app/models/column-view';
 import { Property } from 'src/app/models/property';
@@ -16,6 +15,7 @@ import {animate, state, style, transition, trigger,keyframes} from '@angular/ani
 import { YesNoComponent } from 'src/app/modules/common/dialog/yes-no/yes-no.component';
 import * as kf from 'src/app/constants/keyframes';
 import { ComplectsService } from 'src/app/services/complects.service';
+import { ScreenStateStore } from 'src/app/stores/screen.store';
 
 @Component({
   selector: 'app-items',
@@ -37,7 +37,6 @@ export class ItemsComponent implements OnInit, OnDestroy{
 
   //#region inputs
 
-  @Input() isMobile = false;
   @Input() isActive = false;
   @Output() isActiveChange: EventEmitter<void> = new EventEmitter();
   @Input() properties$: Observable<PropertyDto [] | null> = of([]);
@@ -63,6 +62,7 @@ export class ItemsComponent implements OnInit, OnDestroy{
   @ViewChild(MatTable) table?: MatTable<Item>;
 
   dragDisabled = true;
+  screenStateStore = inject(ScreenStateStore);
 
   //#endregion
   
@@ -122,7 +122,7 @@ export class ItemsComponent implements OnInit, OnDestroy{
       }
     })?? [];
     
-    if (!this.isMobile)
+    if (!this.screenStateStore.isMobilePortrait())
       props.unshift({
         columnDef: 'move-item',
         header: '',
@@ -166,17 +166,21 @@ export class ItemsComponent implements OnInit, OnDestroy{
   }
 
   onItemClick(item: Item, event: MouseEvent){
-    if (this.isMobile)
+    if (this.screenStateStore.isMobile())
       return;
     this.expandedElement = this.expandedElement === item ? null : item;
     event.stopPropagation();
   }
 
   onItemLongPress(item: Item, event: MouseEvent) {
-    if (!this.isMobile)
+    if (!this.screenStateStore.isMobile())
       return;
-    this.expandedElement = this.expandedElement === item ? null : item;
-      event.stopPropagation();
+    if (!this.dragDisabled) {
+      this.expandedElement = null;
+    }
+    else
+      this.expandedElement = this.expandedElement === item ? null : item;
+    event.stopPropagation();
   }
 
   onDragEnded() {
@@ -193,7 +197,7 @@ export class ItemsComponent implements OnInit, OnDestroy{
   }
 
   onItemSwipeRight(item : Item) {
-    if (!this.isMobile) {
+    if (!this.screenStateStore.isMobilePortrait()) {
       this.slidingElement = null
       return;
     }

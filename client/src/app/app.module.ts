@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, HammerModule } from '@angular/platform-browser';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -10,6 +10,7 @@ import { JwtInterceptor } from './interceptors/jwt.interceptor';
 import { NavModule } from './modules/nav/nav.module';
 import { ToastrModule } from 'ngx-toastr';
 import { SpinnerModule } from './modules/common/spinner/spinner.module';
+import { ScreenStateStore } from './stores/screen.store';
 
 @NgModule({
   declarations: [
@@ -17,8 +18,9 @@ import { SpinnerModule } from './modules/common/spinner/spinner.module';
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
     BrowserAnimationsModule,
+    HammerModule,
+    AppRoutingModule,
     HttpClientModule,
     SpinnerModule,
     ToastrModule.forRoot({
@@ -30,6 +32,7 @@ import { SpinnerModule } from './modules/common/spinner/spinner.module';
     {provide: HTTP_INTERCEPTORS, useClass: ErrorsInterceptor, multi: true},
     {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true},
     {provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true},
+    ScreenStateStore
   ],
   bootstrap: [AppComponent]
 })

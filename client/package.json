@@ -20,6 +20,7 @@
     "@angular/platform-browser": "^17.0.8",
     "@angular/platform-browser-dynamic": "^17.0.8",
     "@angular/router": "^17.0.8",
+    "@ngrx/signals": "^17.0.1",
     "angular-resizable-element": "^7.0.2",
     "chart.js": "^4.4.1",
     "hammerjs": "^2.0.8",

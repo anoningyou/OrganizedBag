@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ViewChild, OnChanges, SimpleChanges, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ViewChild, OnChanges, SimpleChanges, ChangeDetectionStrategy, OnDestroy, inject } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { ComplectDto } from 'src/app/models/dto/complect-dto';
 import { GroupItemDto } from 'src/app/models/dto/group-item-dto';
@@ -26,6 +26,7 @@ import { FileTypeEnum } from 'src/app/enums/file-type';
 import { SharedComplectDto } from 'src/app/models/dto/shared-complect-dto';
 import { SharedComplect } from 'src/app/models/shared-complest';
 import { ExportService } from 'src/app/services/export.service';
+import { ScreenStateStore } from 'src/app/stores/screen.store';
 
 
 @Component({
@@ -74,11 +75,12 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
 
   expandedElement: GroupItemView | null = null;
 
+  screenStateStore = inject(ScreenStateStore);
+
 //#endregion
 
 //#region inputs
 
-  @Input() isMobile = false;
   @Input() isActive = false;
   @Input() isReadonly = false;
   @Output() isActiveChange: EventEmitter<void> = new EventEmitter();
@@ -222,14 +224,14 @@ export class ComplectItemsComponent implements OnInit, OnDestroy {
   }
 
   onItemClick(item: GroupItemView, event: MouseEvent){
-    if (this.isMobile)
+    if (this.screenStateStore.isMobile())
       return;
     this.expandedElement = this.expandedElement === item ? null : item;
     event.stopPropagation();
   }
 
   onItemLongPress(item: GroupItemView, event: MouseEvent) {
-    if (!this.isMobile)
+    if (!this.screenStateStore.isMobile())
       return;
     if (!this.dragDisabled) {
       this.expandedElement = null;
