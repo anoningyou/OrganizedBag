@@ -29,25 +29,25 @@ namespace API.Data
             await _context.Properties.AddRangeAsync(props);
         }
 
-        public async Task<List<PropertyDto>> GetAllAsync(Guid userId)
-        {
-            var props = await _context.Properties.AsNoTracking()
-            .Include(p=> p.Params.Where(x => x.UserId == userId))
-            .ToListAsync();
-            var result =  props.Select(p => {
-                var propertyDto = _mapper.Map<PropertyDto>(p);
-                var param = p.Params.FirstOrDefault();
-                propertyDto.Params = param != null ? _mapper.Map<PropertyParamDto>(param) : null;
-                return propertyDto;
-            }).ToList();
+        // public async Task<List<PropertyDto>> GetAllAsync(Guid userId)
+        // {
+        //     var props = await _context.Properties.AsNoTracking()
+        //     .Include(p=> p.Params.Where(x => x.UserId == userId))
+        //     .ToListAsync();
+        //     var result =  props.Select(p => {
+        //         var propertyDto = _mapper.Map<PropertyDto>(p);
+        //         var param = p.Params.FirstOrDefault();
+        //         propertyDto.Params = param != null ? _mapper.Map<PropertyParamDto>(param) : null;
+        //         return propertyDto;
+        //     }).ToList();
 
-            foreach (var prop in result)
-            {
-                prop.Params ??= await GetCommonPropertyParam(prop.Id);
-            }
+        //     foreach (var prop in result)
+        //     {
+        //         prop.Params ??= await GetCommonPropertyParam(prop.Id);
+        //     }
 
-            return result;  
-        }
+        //     return result;  
+        // }
 
         public async Task<List<PropertyDto>> GetByIdsAsync(List<Guid> ids, Guid? userId)
         {

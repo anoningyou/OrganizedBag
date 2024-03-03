@@ -1,6 +1,6 @@
 namespace API.Entities
 {
-    public class PropertyParam
+    public class PropertyParam : BaseEntity
     {
         public Guid UserId { get; set; }
         public virtual AppUser User { get; set; }

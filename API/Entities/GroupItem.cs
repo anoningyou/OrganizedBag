@@ -1,6 +1,6 @@
 namespace API.Entities
 {
-    public class GroupItem
+    public class GroupItem : BaseEntity
     {
         public Item Item { get; set; }
         public Guid ItemId { get; set; }

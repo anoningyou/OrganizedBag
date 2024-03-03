@@ -1,6 +1,6 @@
 namespace API.Entities
 {
-    public class PropertyValue
+    public class PropertyValue : BaseEntity
     {
         public virtual Item Item { get; set; }
         public Guid ItemId { get; set; }

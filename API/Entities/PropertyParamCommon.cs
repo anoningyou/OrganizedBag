@@ -1,7 +1,7 @@
 
 namespace API.Entities
 {
-    public class PropertyParamCommon
+    public class PropertyParamCommon : BaseEntity
     {
         public Guid PropertyId { get; set; }
         public virtual Property Property { get; set; }

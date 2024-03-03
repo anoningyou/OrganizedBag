@@ -11,7 +11,7 @@ namespace API.Controllers
     {
         private readonly IUnitOfWork _uow;
 
-        public ItemsController(IUnitOfWork uow)
+        public ItemsController(IUnitOfWork uow, IDispatcher dispatcher) : base(dispatcher)
         {
             _uow = uow;
         }

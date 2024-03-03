@@ -11,7 +11,7 @@ namespace API.Controllers
     {
         private readonly IUnitOfWork _uow;
 
-        public ComplectsController(IUnitOfWork uow)
+        public ComplectsController(IUnitOfWork uow, IDispatcher dispatcher) : base(dispatcher)
         {
             _uow = uow;
         }

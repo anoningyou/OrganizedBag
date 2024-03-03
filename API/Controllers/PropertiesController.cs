@@ -11,7 +11,7 @@ namespace API.Controllers
     public class PropertiesController : BaseApiController
     {
         private readonly IUnitOfWork _uow;
-        public PropertiesController(IUnitOfWork uow)
+        public PropertiesController(IUnitOfWork uow, IDispatcher dispatcher) : base(dispatcher)
         {
             _uow = uow;
         }
@@ -20,7 +20,7 @@ namespace API.Controllers
         [HttpGet(nameof(GetAll))]
         public async Task<ActionResult<IEnumerable<PropertyDto>>> GetAll()
         {
-            return Ok(await _uow.PropertyRepository.GetAllAsync(User.GetUserId()));
+            return Collection(await QueryAsync(new GetAllPropertiesQuery { UserId = User.GetUserId() }));
         }
 
 

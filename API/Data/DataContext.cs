@@ -63,7 +63,8 @@ namespace API.Data
                 .OnDelete(DeleteBehavior.Cascade);
                 
             builder.Entity<GroupItem>()
-                .HasKey(e => new{e.GroupId, e.ItemId});
+                .HasIndex(p => new{p.GroupId, p.ItemId}, "IX_GroupItem_GroupId_ItemId")
+                    .IsUnique();
 
             builder.Entity<GroupItem>()
                 .Property(p => p.Count)
@@ -91,7 +92,8 @@ namespace API.Data
                 .IsRequired();
 
             builder.Entity<PropertyValue>()
-                .HasKey(e => new{e.ItemId, e.PropertyId});
+                .HasIndex(e => new{e.ItemId, e.PropertyId}, "IX_PropertyValue_ItemId_PropertyId")
+                .IsUnique();
 
             builder.Entity<PropertyValue>()
                 .HasOne(e => e.Item)
@@ -108,7 +110,8 @@ namespace API.Data
                 .IsRequired();
 
             builder.Entity<PropertyParamCommon>()
-                .HasKey(p => p.PropertyId);  
+                    .HasIndex(p => p.PropertyId, "IX_PropertyParamCommon_PropertyId")
+                    .IsUnique();  
                 
             builder.Entity<PropertyParamCommon>()
                 .HasOne(e => e.Property)
@@ -117,7 +120,8 @@ namespace API.Data
                 .IsRequired();
 
             builder.Entity<PropertyParam>()
-                .HasKey(p => new{ p.PropertyId, p.UserId});   
+                .HasIndex(p => new{ p.PropertyId, p.UserId}, "IX_PropertyParam_PropertyId_UserId")
+                .IsUnique();   
 
             builder.Entity<PropertyParam>()
                 .HasOne(e => e.Property)

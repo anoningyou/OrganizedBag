@@ -10,15 +10,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller for handling user account-related operations.
+    /// </summary>
     public class AccountController:BaseApiController
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly IMapper _mapper;
 
-        public AccountController(UserManager<AppUser> userManager,
+        /// <summary>
+        /// Represents a controller for managing user accounts.
+        /// </summary>
+        public AccountController (
+            IDispatcher dispatcher,
+            UserManager<AppUser> userManager,
             ITokenService tokenService,
-             IMapper mapper)
+            IMapper mapper) : base(dispatcher)
         {
             _mapper = mapper;
             _userManager = userManager;
@@ -27,7 +35,7 @@ namespace API.Controllers
 
         #region public
         
-        [HttpPost("register")]
+        [HttpPost(nameof(Register))]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
             if (await UserExistAsync(registerDto.Username))
@@ -53,7 +61,7 @@ namespace API.Controllers
             };
         }
 
-        [HttpPost("login")]
+        [HttpPost(nameof(Login))]
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
         {
             var user = await _userManager.Users

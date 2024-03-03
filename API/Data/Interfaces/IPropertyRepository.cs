@@ -9,7 +9,7 @@ namespace API.Data.Interfaces
 
         public Task AddRangeAsync(IEnumerable<Property> props);
 
-        public Task<List<PropertyDto>> GetAllAsync(Guid userId);
+        //public Task<List<PropertyDto>> GetAllAsync(Guid userId);
 
         public Task<bool> AnyAsync();
 
