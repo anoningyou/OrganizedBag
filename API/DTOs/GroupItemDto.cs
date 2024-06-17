@@ -1,9 +1,22 @@
-namespace API.DTOs
+namespace API.DTOs;
+
+/// <summary>
+/// Represents a data transfer object for a group item.
+/// </summary>
+public class GroupItemDto
 {
-    public class GroupItemDto
-    {
-        public Guid ItemId { get; set; }
-        public Guid GroupId { get; set; }
-        public int Count { get; set; } = 1;
-    }
+    /// <summary>
+    /// Gets or sets the ID of the item.
+    /// </summary>
+    public Guid ItemId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ID of the group.
+    /// </summary>
+    public Guid GroupId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the count of the item.
+    /// </summary>
+    public int Count { get; set; } = 1;
 }

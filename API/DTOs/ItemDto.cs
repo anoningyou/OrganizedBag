@@ -1,7 +1,12 @@
-namespace API.DTOs
+namespace API.DTOs;
+
+/// <summary>
+/// Represents an item data transfer object.
+/// </summary>
+public class ItemDto : BaseDto
 {
-    public class ItemDto : BaseDto
-    {
-        public List<PropertyValueDto> Values { get; set; }
-    }
+    /// <summary>
+    /// Gets or sets the list of property values.
+    /// </summary>
+    public List<PropertyValueDto> Values { get; set; }
 }
