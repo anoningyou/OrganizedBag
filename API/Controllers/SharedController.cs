@@ -8,19 +8,14 @@ namespace API;
 /// <summary>
 /// Represents a controller for handling shared resources.
 /// </summary>
-public class SharedController : BaseApiController
+/// <remarks>
+/// Initializes a new instance of the <see cref="SharedController"/> class.
+/// </remarks>
+/// <param name="dispatcher">The dispatcher for handling commands and queries.</param>
+/// <param name="context">The component context for dependency injection.</param>
+public class SharedController(IDispatcher dispatcher, IComponentContext context) : BaseApiController(dispatcher)
 {
-    private readonly IComponentContext _context;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SharedController"/> class.
-    /// </summary>
-    /// <param name="dispatcher">The dispatcher for handling commands and queries.</param>
-    /// <param name="context">The component context for dependency injection.</param>
-    public SharedController(IDispatcher dispatcher, IComponentContext context) : base(dispatcher)
-    {
-        _context = context;
-    }
+    private readonly IComponentContext _context = context;
 
     /// <summary>
     /// Retrieves a shared complect by its ID.
@@ -30,11 +25,10 @@ public class SharedController : BaseApiController
     [HttpGet(nameof(GetComplect))]
     public async Task<ActionResult<SharedComplectDto>> GetComplect(Guid id)
     {
-        var query = new GetSharedComplectQuery
+        return Single(await QueryAsync(new GetSharedComplectQuery()
         {
             Id = id,
             UserId = User?.GetUserId()
-        };
-        return Single(await QueryAsync(query));
+        }));
     }
 }

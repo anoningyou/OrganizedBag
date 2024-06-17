@@ -6,42 +6,42 @@ using API.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
-namespace API.Services
+namespace API.Services;
+
+/// <summary>
+/// Represents a service for creating authentication tokens.
+/// </summary>
+public class TokenService(IConfiguration config, UserManager<AppUser> userManager) : ITokenService
 {
-    public class TokenService : ITokenService
+    private readonly SymmetricSecurityKey _key = new(Encoding.UTF8.GetBytes(config["TokenKey"]));
+    private readonly UserManager<AppUser> _userManager = userManager;
+
+    ///<inheritdoc/>
+    public async Task<string> CreateToken(AppUser user)
     {
-        private readonly SymmetricSecurityKey _key;
-        private readonly UserManager<AppUser> _userManager;
-        public TokenService(IConfiguration config, UserManager<AppUser> userManager)
+        List<Claim> claims =
+        [
+            new(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
+            new(JwtRegisteredClaimNames.UniqueName, user.UserName)
+        ];
+
+        IList<string> roles = await _userManager.GetRolesAsync(user);
+
+        claims.AddRange(roles.Select(r=> new Claim(ClaimTypes.Role, r)));
+
+        SigningCredentials creds = new(_key,SecurityAlgorithms.HmacSha512Signature);
+
+        SecurityTokenDescriptor tokenDescriptor = new()
         {
-            _userManager = userManager;
-            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
-        }
-        public async Task<string> CreateTocken(AppUser user)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName)
-            };
-            var roles = await _userManager.GetRolesAsync(user);
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.Now.AddDays(7),
+            SigningCredentials = creds
+        };
 
-            claims.AddRange(roles.Select(r=> new Claim(ClaimTypes.Role, r)));
+        JwtSecurityTokenHandler tokenHandler = new();
 
-            var creds = new SigningCredentials(_key,SecurityAlgorithms.HmacSha512Signature);
+        SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddDays(7),
-                SigningCredentials = creds
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return tokenHandler.WriteToken(token);
-        }
+        return tokenHandler.WriteToken(token);
     }
 }

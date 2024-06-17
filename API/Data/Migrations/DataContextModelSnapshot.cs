@@ -200,7 +200,7 @@ namespace API.Data.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.HasIndex(new[] { "GroupId", "ItemId" }, "IX_GroupItem_GroupId_ItemId")
+                    b.HasIndex(new[] { "GroupId", "ItemId" }, "UQ_GroupItem_GroupId_ItemId")
                         .IsUnique();
 
                     b.ToTable("GroupItems");

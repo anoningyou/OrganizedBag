@@ -3,15 +3,17 @@ using System.Text.Json;
 
 namespace API;
 
-public class QueryDispatcher : IQueryDispatcher
+/// <summary>
+/// Dispatches queries to their respective query handlers.
+/// </summary>
+/// <remarks>
+/// The query dispatcher is responsible for dispatching queries to their respective handlers.
+/// </remarks>
+public class QueryDispatcher(IComponentContext context) : IQueryDispatcher
 {
-    private readonly IComponentContext _context;
+    private readonly IComponentContext _context = context;
 
-    public QueryDispatcher(IComponentContext context)
-    {
-        _context = context;
-    }
-
+    ///inheritdoc/>
     public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query)
     {
         TResult result = default;

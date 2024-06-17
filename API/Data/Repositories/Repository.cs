@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Query;
 
 namespace API;
@@ -11,51 +12,43 @@ namespace API;
 /// </summary>
 /// <typeparam name="TEntity">The type of the entity.</typeparam>
 /// <typeparam name="TPrimaryKey">The type of the primary key of the entity.</typeparam>
-public class Repository<TEntity, TPrimaryKey> : BaseRepository<TEntity, TPrimaryKey>, IRepository<TEntity, TPrimaryKey>
+/// <remarks>
+/// Initializes a new instance of the <see cref="Repository{TEntity, TPrimaryKey}"/> class.
+/// </remarks>
+/// <param name="context">The database context.</param>
+public class Repository<TEntity, TPrimaryKey>(DbContext context) : BaseRepository<TEntity, TPrimaryKey>(context), IRepository<TEntity, TPrimaryKey>
 where TEntity : class, IIdentifiable<TPrimaryKey>
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Repository{TEntity, TPrimaryKey}"/> class.
-    /// </summary>
-    /// <param name="context">The database context.</param>
-    public Repository(DbContext context) : base(context)
-    {
-    }
 
     #region add
 
     ///<inheritdoc/>
     public virtual TEntity Add(TEntity entity)
     {
-        if (IsDetached(entity)) 
-            _dbSet.Attach(entity);
-            
         return _dbSet.Add(entity).Entity;
     }
 
     ///<inheritdoc/>
     public virtual async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        if (IsDetached(entity)) 
-            _dbSet.Attach(entity);
-        var result = await _dbSet.AddAsync(entity, cancellationToken);
+        EntityEntry<TEntity> result = await _dbSet.AddAsync(entity, cancellationToken);
 
         return result.Entity;
     }
 
     ///<inheritdoc/>
-    public virtual void AddRange(List<TEntity> entityList)
+    public virtual void AddRange(IEnumerable<TEntity> entityList)
     {
-        if (entityList == null || entityList.Count == 0)
+        if (entityList?.Any() != true)
             return;
 
         _dbSet.AddRange(entityList);
     }
 
     ///<inheritdoc/>
-    public virtual async Task AddRangeAsync(List<TEntity> entityList, CancellationToken cancellationToken = default)
+    public virtual async Task AddRangeAsync(IEnumerable<TEntity> entityList, CancellationToken cancellationToken = default)
     {
-        if (entityList == null || entityList.Count == 0)
+        if (entityList?.Any() != true)
             return;
 
         await _context.AddRangeAsync(entityList, cancellationToken);
@@ -63,10 +56,48 @@ where TEntity : class, IIdentifiable<TPrimaryKey>
 
     #endregion add
 
+    #region update
+
+    ///<inheritdoc/>
+    public virtual TEntity Update(TEntity entity)
+    {
+        return _dbSet.Update(entity).Entity;
+    }
+
+    ///<inheritdoc/>
+    public virtual async Task<TEntity> UpdateAsync(TEntity entity)
+    {
+        return await Task.FromResult(_dbSet.Update(entity).Entity);
+    }
+
+    ///<inheritdoc/>
+    public virtual void UpdateRange(IEnumerable<TEntity> entityList)
+    {
+        if (!entityList?.Any() != true)
+            return;
+
+        _dbSet.UpdateRange(entityList);
+    }
+
+    ///<inheritdoc/>
+    public virtual async Task UpdateRangeAsync(IEnumerable<TEntity> entityList)
+    {
+        if (!entityList?.Any() != true)
+            return;
+
+        UpdateRange(entityList);
+
+        await Task.CompletedTask;
+    }
+
+    #endregion update
+
     #region get
 
     ///<inheritdoc/>
-    public virtual async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+    public virtual async Task<bool> ExistsAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
         return await _dbSet.AsNoTracking().AnyAsync(predicate, cancellationToken);
     }
@@ -96,6 +127,7 @@ where TEntity : class, IIdentifiable<TPrimaryKey>
             query = include(query);
         if (predicate != null) 
             query = query.Where(predicate);
+
         return await query.FirstOrDefaultAsync(cancellationToken);
     }
 
@@ -108,7 +140,11 @@ where TEntity : class, IIdentifiable<TPrimaryKey>
         CancellationToken cancellationToken = default)
     where TResult : class
     {
-        return await GetAsync<TResult>(e => e.Id.Equals(id), configurationProvider, include, enableTracking, cancellationToken);
+        return await GetAsync<TResult>(e => e.Id.Equals(id),
+            configurationProvider,
+            include,
+            enableTracking,
+            cancellationToken);
     }
 
     ///<inheritdoc/>
@@ -267,13 +303,31 @@ where TEntity : class, IIdentifiable<TPrimaryKey>
     }
 
     ///<inheritdoc/>
-    public virtual void RemoveRange(List<TEntity> entityList)
+    public virtual void Remove(TPrimaryKey id)
+    {
+        TEntity entity = Activator.CreateInstance<TEntity>();
+        entity.Id = id;
+
+        Remove(entity);
+    }
+
+    ///<inheritdoc/>
+    public virtual async Task RemoveAsync(TPrimaryKey id)
+    {
+        TEntity entity = Activator.CreateInstance<TEntity>();
+        entity.Id = id;
+        
+        await RemoveAsync(entity);
+    }
+
+    ///<inheritdoc/>
+    public virtual void RemoveRange(IEnumerable<TEntity> entityList)
     {
         _dbSet.RemoveRange(entityList);
     }
 
     ///<inheritdoc/>
-    public virtual async Task RemoveRangeAsync(IQueryable<TEntity> entityList)
+    public virtual async Task RemoveRangeAsync(IEnumerable<TEntity> entityList)
     {
         _dbSet.RemoveRange(entityList);
         await Task.CompletedTask;

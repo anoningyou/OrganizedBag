@@ -34,7 +34,7 @@ public interface IRepository <TEntity, TPrimaryKey> : IBaseRepository <TEntity, 
     /// Adds a range of entities to the repository.
     /// </summary>
     /// <param name="entityList">The list of entities to add.</param>
-    void AddRange(List<TEntity> entityList);
+    void AddRange(IEnumerable<TEntity> entityList);
 
     /// <summary>
     /// Adds a range of entities to the repository asynchronously.
@@ -42,9 +42,41 @@ public interface IRepository <TEntity, TPrimaryKey> : IBaseRepository <TEntity, 
     /// <param name="entityList">The list of entities to add.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task AddRangeAsync(List<TEntity> entityList, CancellationToken cancellationToken = default);
+    Task AddRangeAsync(IEnumerable<TEntity> entityList, CancellationToken cancellationToken = default);
 
     #endregion add
+
+    #region update
+
+    /// <summary>
+    /// Updates an entity in the repository.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="entity">The entity to upddate.</param>
+    /// <returns>The updated entity.</returns>
+    TEntity Update(TEntity entity);
+
+    /// <summary>
+    /// Updates an entity in the repository asynchronously.
+    /// </summary>
+    /// <param name="entity">The entity to be updated.</param>
+    /// <returns>A task representing the asynchronous operation. The task result contains the updated entity.</returns>
+    Task<TEntity> UpdateAsync(TEntity entity);
+
+    /// <summary>
+    /// Updates a range of entities in the repository.
+    /// </summary>
+    /// <param name="entityList">The list of entities to update.</param>
+    void UpdateRange(IEnumerable<TEntity> entityList);
+
+    /// <summary>
+    /// Updates a range of entities in the repository asynchronously.
+    /// </summary>
+    /// <param name="entityList">The list of entities to update.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task UpdateRangeAsync(IEnumerable<TEntity> entityList);
+
+    #endregion update
 
     #region get
 
@@ -240,14 +272,14 @@ public interface IRepository <TEntity, TPrimaryKey> : IBaseRepository <TEntity, 
     /// Removes a range of entities from the repository.
     /// </summary>
     /// <param name="entityList">The list of entities to be removed.</param>
-    void RemoveRange(List<TEntity> entityList);
+    void RemoveRange(IEnumerable<TEntity> entityList);
 
     /// <summary>
     /// Removes a range of entities asynchronously.
     /// </summary>
     /// <param name="entityList">The list of entities to be removed.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task RemoveRangeAsync(IQueryable<TEntity> entityList);
+    Task RemoveRangeAsync(IEnumerable<TEntity> entityList);
 
     /// <summary>
     /// Removes the specified entity from the repository.
@@ -261,6 +293,19 @@ public interface IRepository <TEntity, TPrimaryKey> : IBaseRepository <TEntity, 
     /// <param name="entity">The entity to remove.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     Task RemoveAsync(TEntity entity);
+
+    /// <summary>
+    /// Removes the specified entity from the repository.
+    /// </summary>
+    /// <param name="id">The entity id to remove.</param>
+    void Remove(TPrimaryKey id);
+
+    /// <summary>
+    /// Removes the specified entity asynchronously.
+    /// </summary>
+    /// <param name="id">The entity id to remove.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task RemoveAsync(TPrimaryKey id);
     
     #endregion delete
    
