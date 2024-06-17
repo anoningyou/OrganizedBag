@@ -1,42 +1,34 @@
 ﻿using API.Controllers;
-using API.Data.Interfaces;
 using API.Extensions;
+using Autofac;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API;
 
-public class SharedController : BaseApiController
+/// <summary>
+/// Represents a controller for handling shared resources.
+/// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="SharedController"/> class.
+/// </remarks>
+/// <param name="dispatcher">The dispatcher for handling commands and queries.</param>
+/// <param name="context">The component context for dependency injection.</param>
+public class SharedController(IDispatcher dispatcher, IComponentContext context) : BaseApiController(dispatcher)
 {
-    private readonly IUnitOfWork _uow;
+    private readonly IComponentContext _context = context;
 
-    public SharedController(IUnitOfWork uow)
-    {
-        _uow = uow;
-    }
-
+    /// <summary>
+    /// Retrieves a shared complect by its ID.
+    /// </summary>
+    /// <param name="id">The ID of the shared complect.</param>
+    /// <returns>An <see cref="ActionResult{T}"/> containing the shared complect.</returns>
     [HttpGet(nameof(GetComplect))]
     public async Task<ActionResult<SharedComplectDto>> GetComplect(Guid id)
     {
-        var complect = new SharedComplectDto();
-
-        complect.Complect = await _uow.ComplectsRepository
-            .GetByIdAsync(id);
-
-        if (complect.Complect == null)
-            return NotFound();
-
-        complect.Items = await _uow.ItemsRepository
-            .GetByIdsAsync(complect 
-                            .Complect
-                            .Groups
-                            .SelectMany(g => g.Items.Select(x => x.ItemId))
-                            .Distinct().ToList());
-
-        if ((complect.Items?.Count ?? 0) > 0)
-            complect.Properties = await _uow.PropertyRepository
-                .GetByIdsAsync(complect.Items.SelectMany(i => i.Values.Select(v => v.PropertyId)).ToList(), User?.GetUserId());
-        
-        return Ok(complect);
+        return Single(await QueryAsync(new GetSharedComplectQuery()
+        {
+            Id = id,
+            UserId = User?.GetUserId()
+        }));
     }
-
 }

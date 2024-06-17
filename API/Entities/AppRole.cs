@@ -1,9 +1,14 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace API.Entities
+namespace API.Entities;
+
+/// <summary>
+/// Represents an application role.
+/// </summary>
+public class AppRole : IdentityRole<Guid>, IIdentifiable<Guid>
 {
-    public class AppRole : IdentityRole<Guid>
-    {
-       public ICollection<AppUserRole> UserRoles { get; set; } 
-    }
+    /// <summary>
+    /// Gets or sets the collection of user roles associated with this application role.
+    /// </summary>
+    public ICollection<AppUserRole> UserRoles { get; set; } 
 }

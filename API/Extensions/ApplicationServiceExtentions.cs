@@ -1,21 +1,19 @@
-using API.Data;
-using API.Data.Interfaces;
-using API.Interfaces;
-using API.Services;
+namespace API.Extensions;
 
-namespace API.Extensions
+/// <summary>
+/// Provides extension methods for configuring application services.
+/// </summary>
+public static class ApplicationServiceExtentions
 {
-    public static class ApplicationServiceExtentions
+    /// <summary>
+    /// Adds application services to the specified <see cref="IServiceCollection"/>.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
+    /// <returns>The modified <see cref="IServiceCollection"/>.</returns>
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        public static IServiceCollection AddApplicationServices(this IServiceCollection services)
-        {
-            services.AddCors();
-            services.AddScoped<ITokenService, TokenService>();
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            //services.AddScoped<LogUserActivity
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddCors();
 
-            return services;
-        }
+        return services;
     }
 }

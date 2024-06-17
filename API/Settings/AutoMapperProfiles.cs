@@ -2,44 +2,48 @@ using API.DTOs;
 using API.Entities;
 using AutoMapper;
 
-namespace API.Settings
+namespace API.Settings;
+
+/// <summary>
+/// AutoMapper profile class for mapping between different types.
+/// </summary>
+public class AutoMapperProfiles : Profile
 {
-    public class AutoMapperProfiles : Profile
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AutoMapperProfiles"/> class.
+    /// Configures the mappings between different types.
+    /// </summary>
+    public AutoMapperProfiles()
     {
-        public AutoMapperProfiles()
-        {
-            CreateMap<DateTime, DateTime>()
-                .ConvertUsing(d=> DateTime.SpecifyKind(d, DateTimeKind.Utc));
-                
-            CreateMap<DateTime?, DateTime?>()
-                .ConvertUsing(d=> d.HasValue? DateTime.SpecifyKind(d.Value, DateTimeKind.Utc):null);
-            
-            CreateMap<RegisterDto, AppUser>();
+        CreateMap<DateTime, DateTime>()
+            .ConvertUsing(d => DateTime.SpecifyKind(d, DateTimeKind.Utc));
 
-            CreateMap<PropertyAttributeDto, PropertyAttribute>().ReverseMap();
-            CreateMap<PropertyParam, PropertyParamDto>().ReverseMap();
+        CreateMap<DateTime?, DateTime?>()
+            .ConvertUsing(d => d.HasValue ? DateTime.SpecifyKind(d.Value, DateTimeKind.Utc) : null);
 
-            CreateMap<PropertyDto, Property>()
-                        .ForMember(x => x.Params, o => o.Ignore());
-                        
-            CreateMap<Property, PropertyDto>()
-                        .ForMember(x => x.Params, o => o.MapFrom(src => src.Params.FirstOrDefault()));
+        CreateMap<RegisterDto, AppUser>();
 
-            CreateMap<PropertyValueDto, PropertyValue>().ReverseMap();
+        CreateMap<PropertyAttributeDto, PropertyAttribute>().ReverseMap();
+        CreateMap<PropertyParam, PropertyParamDto>().ReverseMap();
 
-            CreateMap<PropertyParamCommon, PropertyParamDto>().ReverseMap();
+        CreateMap<PropertyDto, Property>()
+            .ForMember(x => x.Params, o => o.Ignore());
 
-            CreateMap<PropertyParam, PropertyParamDto>().ReverseMap();
+        CreateMap<Property, PropertyDto>()
+            .ForMember(x => x.Params, o => o.MapFrom(src => src.Params.FirstOrDefault()));
 
-            CreateMap<ItemDto, Item>().ReverseMap();
+        CreateMap<PropertyValueDto, PropertyValue>().ReverseMap();
 
-            CreateMap<GroupItemDto, GroupItem>().ReverseMap();
+        CreateMap<PropertyParamCommon, PropertyParamDto>().ReverseMap();
 
-            CreateMap<GroupDto, Group>().ReverseMap();
+        CreateMap<PropertyParam, PropertyParamDto>().ReverseMap();
 
-            CreateMap<ComplectDto, Complect>().ReverseMap();
-            
-            
-        }
+        CreateMap<ItemDto, Item>().ReverseMap();
+
+        CreateMap<GroupItemDto, GroupItem>().ReverseMap();
+
+        CreateMap<GroupDto, Group>().ReverseMap();
+
+        CreateMap<ComplectDto, Complect>().ReverseMap();
     }
 }

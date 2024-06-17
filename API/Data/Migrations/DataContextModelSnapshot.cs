@@ -181,10 +181,8 @@ namespace API.Data.Migrations
 
             modelBuilder.Entity("API.Entities.GroupItem", b =>
                 {
-                    b.Property<Guid>("GroupId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ItemId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<int>("Count")
@@ -192,9 +190,18 @@ namespace API.Data.Migrations
                         .HasColumnType("integer")
                         .HasDefaultValue(1);
 
-                    b.HasKey("GroupId", "ItemId");
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("ItemId");
+
+                    b.HasIndex(new[] { "GroupId", "ItemId" }, "UQ_GroupItem_GroupId_ItemId")
+                        .IsUnique();
 
                     b.ToTable("GroupItems");
                 });
@@ -256,40 +263,48 @@ namespace API.Data.Migrations
 
             modelBuilder.Entity("API.Entities.PropertyParam", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("ComplectDisplay")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("ComplectOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ComplectWidth")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("ListDisplay")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("ListOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ListWidth")
+                        .HasColumnType("integer");
+
                     b.Property<Guid>("PropertyId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("ComplectDisplay")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("ComplectOrder")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ComplectWidth")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("ListDisplay")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("ListOrder")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ListWidth")
-                        .HasColumnType("integer");
-
-                    b.HasKey("PropertyId", "UserId");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex(new[] { "PropertyId", "UserId" }, "IX_PropertyParam_PropertyId_UserId")
+                        .IsUnique();
 
                     b.ToTable("PropertyParams");
                 });
 
             modelBuilder.Entity("API.Entities.PropertyParamCommon", b =>
                 {
-                    b.Property<Guid>("PropertyId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<bool>("ComplectDisplay")
@@ -310,13 +325,23 @@ namespace API.Data.Migrations
                     b.Property<int>("ListWidth")
                         .HasColumnType("integer");
 
-                    b.HasKey("PropertyId");
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "PropertyId" }, "IX_PropertyParamCommon_PropertyId")
+                        .IsUnique();
 
                     b.ToTable("PropertyParamsCommon");
                 });
 
             modelBuilder.Entity("API.Entities.PropertyValue", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("ItemId")
                         .HasColumnType("uuid");
 
@@ -326,9 +351,12 @@ namespace API.Data.Migrations
                     b.Property<string>("Value")
                         .HasColumnType("text");
 
-                    b.HasKey("ItemId", "PropertyId");
+                    b.HasKey("Id");
 
                     b.HasIndex("PropertyId");
+
+                    b.HasIndex(new[] { "ItemId", "PropertyId" }, "IX_PropertyValue_ItemId_PropertyId")
+                        .IsUnique();
 
                     b.ToTable("PropertyValues");
                 });
