@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChartComponent } from './chart/chart.component';
-import { NgChartsModule } from 'ng2-charts';
+import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { MatDesignModule } from '../mat-design/mat-design.module';
 
 
@@ -12,11 +12,14 @@ import { MatDesignModule } from '../mat-design/mat-design.module';
   ],
   imports: [
     CommonModule,
-    NgChartsModule,
+    BaseChartDirective ,
     MatDesignModule
   ],
   exports: [
     ChartComponent
+  ],
+  providers: [
+    provideCharts(withDefaultRegisterables())
   ]
 })
 export class ChartModule { }
