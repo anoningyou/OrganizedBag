@@ -20,9 +20,9 @@ export class ChartComponent implements OnInit, OnDestroy {
 
 //#region fields
 
-  private subsctiptions: Subscription[] = [];   
+  private subsctiptions: Subscription[] = [];
   chartData: ChartData<'doughnut'> = {} as ChartData<'doughnut'>;
-  
+
   chartOptions: ChartOptions<'doughnut'> = {};
   chartPlugins: Plugin<'doughnut'>[] = [];
   doughnutChartType: ChartType = 'doughnut';
@@ -31,9 +31,11 @@ export class ChartComponent implements OnInit, OnDestroy {
 
   private summPropertyIdSource = new BehaviorSubject<string | undefined>(undefined);
   summPropertyId$ = this.summPropertyIdSource.asObservable();
+  
 //#endregion
 
 //#region inputs & outputs
+
   @Input() items$: Observable<Item[] | null> = of([]);
   @Input() properties$: Observable<PropertyDto [] | null> = of([]);
   @Input() groups$: Observable<GroupDto[] | null> = of([]);
@@ -42,7 +44,8 @@ export class ChartComponent implements OnInit, OnDestroy {
 
   @Input() summPropertyId: string | undefined;
   @Output() summPropertyIdChanged = new EventEmitter<string | undefined >();
-  //#endregion
+
+//#endregion
 
   ngOnInit(): void {
     this.chartPlugins.push(this.getHtmlLegendPlugin());
@@ -50,7 +53,7 @@ export class ChartComponent implements OnInit, OnDestroy {
     this.summPropertyIdSource.next(this.summPropertyId ?? 'count');
 
     this.propertiesDigit$ = this.properties$.pipe(map(properties => {
-      return properties?.filter(p => p.valueType === ValueTypeEnum.Decimal 
+      return properties?.filter(p => p.valueType === ValueTypeEnum.Decimal
           || p.valueType === ValueTypeEnum.Number) ?? [];
     }));
 
@@ -59,11 +62,11 @@ export class ChartComponent implements OnInit, OnDestroy {
       this.propertiesDigit$,
       this.items$,
       this.groupPropertyId$,
-      this.summPropertyId$ 
+      this.summPropertyId$
     ]).subscribe(data => {
       this.chartData = this.getChartData(data[0],data[1],data[2],data[3], data[4]);
     });
-    
+
     this.subsctiptions.push(subsctiption);
   }
 
@@ -81,32 +84,32 @@ export class ChartComponent implements OnInit, OnDestroy {
     let getOrCreateLegendList = (chart: any, id: any) => {
       const legendContainer = document.getElementById(id);
       let listContainer = legendContainer?.querySelector('ul');
-    
+
       if (!listContainer && legendContainer) {
         listContainer = document.createElement('ul');
         listContainer.className = 'legend'
         legendContainer.appendChild(listContainer);
       }
-    
+
       return listContainer;
     };
-    
+
     let htmlLegendPlugin: Plugin<'doughnut'> = {
       id: 'htmlLegend',
       afterUpdate(chart: any, args: any , options: any) {
         const ul = getOrCreateLegendList(chart, 'legend-container');
-    
+
         while (ul?.firstChild) {
           ul.firstChild.remove();
         }
-    
+
         const items = chart.options.plugins.legend.labels.generateLabels(chart);
         const data = chart.data.datasets[0].data;
 
         items.forEach((item: any, i: number) => {
           const li = document.createElement('li');
           li.className = 'item'
-    
+
           li.onclick = () => {
             const {type} = chart.config;
             if (type === 'pie' || type === 'doughnut') {
@@ -116,20 +119,20 @@ export class ChartComponent implements OnInit, OnDestroy {
             }
             chart.update();
           };
-    
+
           // Color box
           const boxSpan = document.createElement('span');
           boxSpan.style.background = item.fillStyle;
           boxSpan.style.borderColor = item.strokeStyle;
           boxSpan.style.borderWidth = item.lineWidth + 'px';
           boxSpan.className = 'marker';
-    
+
           // Text
           const textContainer = document.createElement('p');
           textContainer.className = 'name';
           textContainer.style.color = item.fontColor;
           textContainer.style.textDecoration = item.hidden ? 'line-through' : '';
-    
+
           const text = document.createTextNode(item.text);
           textContainer.appendChild(text);
 
@@ -138,10 +141,10 @@ export class ChartComponent implements OnInit, OnDestroy {
           dataContainer.className = 'data';
           dataContainer.style.color = item.fontColor;
           dataContainer.style.textDecoration = item.hidden ? 'line-through' : '';
-    
+
           const dataValue = document.createTextNode(data[i]);
           dataContainer.appendChild(dataValue);
-    
+
           li.appendChild(boxSpan);
           li.appendChild(textContainer);
           li.appendChild(dataContainer);
@@ -151,28 +154,12 @@ export class ChartComponent implements OnInit, OnDestroy {
     };
     return htmlLegendPlugin;
   }
-  
+
   getChartOptions() {
-    
+
     let chartOptions: ChartOptions<'doughnut'>  = {
       responsive: true,
       plugins: {
-          // legend: {
-          //     display: true,
-          //     position: 'right',
-          //     labels: {
-          //         generateLabels(chart) {
-          //           const labels = Chart.overrides.pie.plugins.legend.labels.generateLabels(chart);
-          //           const data = chart.data.datasets[0].data;
-          //           if(data && labels)
-          //           for (let index = 0; index < labels.length; index++) {
-          //             const label = labels[index];
-          //             label.text = `${label.text} - ${data[index]}`
-          //           }
-          //           return labels;
-          //         },
-          //     }
-          // }
           legend: {
             display: false,
           }
@@ -183,12 +170,11 @@ export class ChartComponent implements OnInit, OnDestroy {
 
   //#endregion
 
-  
   getChartData(groups: GroupDto [] | null, properties: PropertyDto [], items: Item[] | null,
               groupPropertyId: string | null, summPropertyId: string | undefined): ChartData<'doughnut'> {
-    
+
     const data: IChartValue [] = [];
-    if(groups && items){
+    if (groups && items){
       let groupedKeys: IGgoupKeys = {};
       if (!groupPropertyId || groupPropertyId === this.categoryGroupId)
         groupedKeys = this.groupItemsByGroups(groups, items);
@@ -229,8 +215,8 @@ export class ChartComponent implements OnInit, OnDestroy {
 
   groupItemsByGroups(groups: GroupDto[], items: Item[]) : IGgoupKeys {
     const groupedKeys : IGgoupKeys = {};
-    groups.forEach(group => {   
-      groupedKeys[group.id ?? ''] = { 
+    groups.forEach(group => {
+      groupedKeys[group.id ?? ''] = {
         name:group.name ?? '',
         items:this.getGroupItems(items, group.items)
       };
@@ -250,9 +236,6 @@ export class ChartComponent implements OnInit, OnDestroy {
     }, {});
   }
 
-
-  
-
   // events
   public chartClicked({
     event,
@@ -260,9 +243,7 @@ export class ChartComponent implements OnInit, OnDestroy {
   }: {
     event: ChartEvent;
     active: object[];
-  }): void {
-    //console.log(event, active);
-  }
+  }): void {}
 
   public chartHovered({
     event,
@@ -270,7 +251,5 @@ export class ChartComponent implements OnInit, OnDestroy {
   }: {
     event: ChartEvent;
     active: object[];
-  }): void {
-    //console.log(event, active);
-  }
+  }): void {}
 }
