@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240303145406_AddKeys")]
-    partial class AddKeys
+    [Migration("20240618233524_PostgresInitial")]
+    partial class PostgresInitial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -203,7 +203,7 @@ namespace API.Data.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.HasIndex(new[] { "GroupId", "ItemId" }, "IX_GroupItem_GroupId_ItemId")
+                    b.HasIndex(new[] { "GroupId", "ItemId" }, "UQ_GroupItem_GroupId_ItemId")
                         .IsUnique();
 
                     b.ToTable("GroupItems");

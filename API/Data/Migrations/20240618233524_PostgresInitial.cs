@@ -234,6 +234,7 @@ namespace API.Data.Migrations
                 name: "PropertyParams",
                 columns: table => new
                 {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     PropertyId = table.Column<Guid>(type: "uuid", nullable: false),
                     ListOrder = table.Column<int>(type: "integer", nullable: false),
@@ -245,7 +246,7 @@ namespace API.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PropertyParams", x => new { x.PropertyId, x.UserId });
+                    table.PrimaryKey("PK_PropertyParams", x => x.Id);
                     table.ForeignKey(
                         name: "FK_PropertyParams_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -264,6 +265,7 @@ namespace API.Data.Migrations
                 name: "PropertyParamsCommon",
                 columns: table => new
                 {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     PropertyId = table.Column<Guid>(type: "uuid", nullable: false),
                     ListOrder = table.Column<int>(type: "integer", nullable: false),
                     ListDisplay = table.Column<bool>(type: "boolean", nullable: false),
@@ -274,7 +276,7 @@ namespace API.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PropertyParamsCommon", x => x.PropertyId);
+                    table.PrimaryKey("PK_PropertyParamsCommon", x => x.Id);
                     table.ForeignKey(
                         name: "FK_PropertyParamsCommon_Properties_PropertyId",
                         column: x => x.PropertyId,
@@ -306,13 +308,14 @@ namespace API.Data.Migrations
                 name: "PropertyValues",
                 columns: table => new
                 {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ItemId = table.Column<Guid>(type: "uuid", nullable: false),
                     PropertyId = table.Column<Guid>(type: "uuid", nullable: false),
                     Value = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PropertyValues", x => new { x.ItemId, x.PropertyId });
+                    table.PrimaryKey("PK_PropertyValues", x => x.Id);
                     table.ForeignKey(
                         name: "FK_PropertyValues_Items_ItemId",
                         column: x => x.ItemId,
@@ -331,13 +334,14 @@ namespace API.Data.Migrations
                 name: "GroupItems",
                 columns: table => new
                 {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ItemId = table.Column<Guid>(type: "uuid", nullable: false),
                     GroupId = table.Column<Guid>(type: "uuid", nullable: false),
                     Count = table.Column<int>(type: "integer", nullable: false, defaultValue: 1)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GroupItems", x => new { x.GroupId, x.ItemId });
+                    table.PrimaryKey("PK_GroupItems", x => x.Id);
                     table.ForeignKey(
                         name: "FK_GroupItems_Groups_GroupId",
                         column: x => x.GroupId,
@@ -400,6 +404,12 @@ namespace API.Data.Migrations
                 column: "ItemId");
 
             migrationBuilder.CreateIndex(
+                name: "UQ_GroupItem_GroupId_ItemId",
+                table: "GroupItems",
+                columns: new[] { "GroupId", "ItemId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Groups_ComplectId",
                 table: "Groups",
                 column: "ComplectId");
@@ -415,9 +425,27 @@ namespace API.Data.Migrations
                 column: "PropertyId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PropertyParam_PropertyId_UserId",
+                table: "PropertyParams",
+                columns: new[] { "PropertyId", "UserId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PropertyParams_UserId",
                 table: "PropertyParams",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PropertyParamCommon_PropertyId",
+                table: "PropertyParamsCommon",
+                column: "PropertyId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PropertyValue_ItemId_PropertyId",
+                table: "PropertyValues",
+                columns: new[] { "ItemId", "PropertyId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_PropertyValues_PropertyId",
